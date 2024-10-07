@@ -11,7 +11,7 @@ interface StudentRepository {
 
 
     suspend fun  createStudent(student: Student)
-    suspend fun  getcurrentStudent():Student?
+    suspend fun  getCurrentStudent():Student?
 
 
 }

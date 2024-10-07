@@ -14,8 +14,6 @@ interface StudentAuthService {
 
 }
 
-
-
 class StudentAuthServiceImpl: StudentAuthService{
     override suspend fun createStudent(email: String, password: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, password).await()
