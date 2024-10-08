@@ -1,4 +1,4 @@
-package com.example.classmate.service
+package com.example.classmate.data.service
 
 
 import android.util.Log
@@ -14,7 +14,7 @@ interface StudentAuthService {
 
 }
 
-class StudentAuthServiceImpl: StudentAuthService{
+class StudentAuthServiceImpl: StudentAuthService {
     override suspend fun createStudent(email: String, password: String) {
         Firebase.auth.createUserWithEmailAndPassword(email, password).await()
     }

@@ -1,4 +1,4 @@
-package com.example.classmate.service
+package com.example.classmate.data.service
 
 
 import com.example.classmate.domain.model.Student
@@ -13,7 +13,7 @@ interface StudentServices {
     suspend fun  getStudentById(id:String):Student?
 }
 
-class StudentServicesImpl:StudentServices{
+class StudentServicesImpl: StudentServices {
     override suspend fun createStudent(student: Student) {
         Firebase.firestore
             .collection("student")

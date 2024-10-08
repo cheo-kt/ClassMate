@@ -1,11 +1,11 @@
-package com.example.classmate.viewModel
+package com.example.classmate.ui.viewModel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.classmate.domain.model.Student
-import com.example.classmate.repository.AuthRepositoryImpl
-import com.example.classmate.repository.StudentAuthRepository
+import com.example.classmate.data.repository.AuthRepositoryImpl
+import com.example.classmate.data.repository.StudentAuthRepository
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

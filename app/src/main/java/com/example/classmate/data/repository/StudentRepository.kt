@@ -1,8 +1,8 @@
-package com.example.classmate.repository
+package com.example.classmate.data.repository
 
 import com.example.classmate.domain.model.Student
-import com.example.classmate.service.StudentServices
-import com.example.classmate.service.StudentServicesImpl
+import com.example.classmate.data.service.StudentServices
+import com.example.classmate.data.service.StudentServicesImpl
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -19,7 +19,7 @@ interface StudentRepository {
 
 class StudentRepositoryImpl(
     val studentServices: StudentServices = StudentServicesImpl()
-):StudentRepository{
+): StudentRepository {
     override suspend fun createStudent(student: Student) {
         studentServices.createStudent(student)
     }
