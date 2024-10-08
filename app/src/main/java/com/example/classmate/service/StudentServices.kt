@@ -16,7 +16,7 @@ interface StudentServices {
 class StudentServicesImpl:StudentServices{
     override suspend fun createStudent(student: Student) {
         Firebase.firestore
-            .collection("students")
+            .collection("student")
             .document(student.id)
             .set(student)
             .await()
@@ -24,7 +24,7 @@ class StudentServicesImpl:StudentServices{
 
     override suspend fun getStudentById(id: String): Student? {
         val user = Firebase.firestore
-            .collection("students")
+            .collection("student")
             .document(id)
             .get()
             .await()

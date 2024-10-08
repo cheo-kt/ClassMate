@@ -2,9 +2,9 @@ package com.example.classmate.domain.model
 
 class Student (
     var id: String = "",
-    var nombre: String = "",
-    var apellidos: String = "",
-    var telefono: String = "",
-    var email: String = ""
-
+    var name: String = "",
+    var lastname: String = "",
+    var phone: String = "",
+    var email: String = "",
+    var photo: String = ""
 )
