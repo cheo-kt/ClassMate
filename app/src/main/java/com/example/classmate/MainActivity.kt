@@ -47,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.screens.MonitorSignUpScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
@@ -66,9 +67,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "signup") {
-        composable("signup") { StudentSignupScreen(navController) }
-
+    NavHost(navController = navController, startDestination = "signupMonitor") {
+        composable("signup") { StudentSignupScreen(navController)}
+        composable("signupMonitor"){ MonitorSignUpScreen(navController)}
     }
 }
 

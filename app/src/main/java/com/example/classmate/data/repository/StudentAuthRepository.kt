@@ -28,4 +28,4 @@ class AuthRepositoryImpl(
             studentRepository.createStudent(student)
         }
     }
-    }
+}
