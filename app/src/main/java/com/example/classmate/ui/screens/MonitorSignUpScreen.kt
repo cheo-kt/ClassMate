@@ -1,14 +1,19 @@
 package com.example.classmate.ui.screens
 
+import PredictiveTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,9 +57,11 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var errorMessage by remember { mutableStateOf("") } // Para manejar el mensaje de error
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerpadding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerpadding)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -84,17 +91,57 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        CustomTextField(value = names, onValueChange = { names = it }, label = "Nombres")
+                        CustomTextField(
+                            value = names,
+                            onValueChange = { names = it },
+                            label = "Nombres"
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        CustomTextField(value = lastnames, onValueChange = {lastnames = it }, label = "Apellidos")
+                        CustomTextField(
+                            value = lastnames,
+                            onValueChange = { lastnames = it },
+                            label = "Apellidos"
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        CustomTextField(value = subjects, onValueChange = { subjects = it }, label = "Seleccione materias a monitorear")
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            PredictiveTextField(
+                                value = subjects,
+                                onValueChange = { subjects = it },
+                                label = "Materias a monitorear",
+                                modifier = Modifier
+                                    .weight(0.4f) // Asigna más espacio al PredictiveTextField
+                                    .padding(end = 8.dp) // Agrega espacio entre el PredictiveTextField y el botón
+                            )
+                            Button(
+                                onClick = {
+                                    // Acción del botón
+                                },
+                                modifier = Modifier
+                                    .width(3000.dp) // Asigna menos espacio al botón (ajusta según lo necesario)
+                            ) {
+                                Text(text = "Agregar")
+                            }
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
-                        CustomTextField(value = email, onValueChange = { email = it }, label = "Email")
+                        CustomTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = "Email"
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        CustomTextField(value = password, onValueChange = { password = it }, label = "Contraseña", isPassword = true)
+                        CustomTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = "Contraseña",
+                            isPassword = true
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        CustomTextField(value = confirmPassword, onValueChange = { confirmPassword = it }, label = "Confirmar Contraseña", isPassword = true)
+                        CustomTextField(
+                            value = confirmPassword,
+                            onValueChange = { confirmPassword = it },
+                            label = "Confirmar Contraseña",
+                            isPassword = true
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // Mostrar el mensaje de error si las contraseñas no coinciden
@@ -111,12 +158,13 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                 if (password == confirmPassword) {
                                     // Si las contraseñas coinciden, proceder con el registro
                                     monitorSignupViewModel.signup(
-                                        Monitor("", names, lastnames, phone,subjects, email,""),
+                                        Monitor("", names, lastnames, phone, subjects, email, ""),
                                         password
                                     )
                                 } else {
                                     // Si las contraseñas no coinciden, mostrar el mensaje de error
-                                    errorMessage = "Las contraseñas no son iguales, intenta de nuevo"
+                                    errorMessage =
+                                        "Las contraseñas no son iguales, intenta de nuevo"
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
@@ -126,7 +174,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
-
                         Text(
                             text = "¿Ya tienes una cuenta? ¡Inicia sesión!",
                             modifier = Modifier.clickable { /* Navegar a la pantalla de login */ },
