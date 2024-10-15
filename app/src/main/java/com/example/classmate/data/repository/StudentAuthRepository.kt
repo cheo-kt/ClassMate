@@ -10,6 +10,7 @@ interface StudentAuthRepository {
 
 
     suspend fun signup(student: Student, password:String)
+    suspend fun signin(email:String, password: String)
 
 }
 
@@ -27,5 +28,12 @@ class AuthRepositoryImpl(
             student.id = it
             studentRepository.createStudent(student)
         }
+      }
+
+    override suspend fun signin(email: String, password: String) {
+        authService.loginWithEmailAndPassword(email, password)
     }
+
     }
+
+
