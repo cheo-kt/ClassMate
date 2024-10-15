@@ -3,6 +3,7 @@ package com.example.classmate.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -58,22 +61,22 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
     var password by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") } // Para manejar el mensaje de error
-
-
+    val scrollState = rememberScrollState()
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerpadding),
+                .padding(innerpadding)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp),
+                    .height(230.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
@@ -122,7 +125,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = nombres,
                             onValueChange = { nombres = it },
-                            label = ""
+                            label = "Escribe tu nombre completo"
                         )
                         Box(
                             modifier = Modifier
@@ -218,19 +221,20 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Mostrar el mensaje de error si las contraseñas no coinciden
-                        if (errorMessage.isNotEmpty()) {
-                            Text(
-                                text = errorMessage,
-                                color = Color.Red,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
 
                         Box(
                             modifier = Modifier
                                 .weight(0.1f)
                         ) // Espacio en blanco
+
+                        Text(text = errorMessage)
+                        if(authState == 1){
+                            CircularProgressIndicator()
+                        }else if(authState == 2){
+
+                        }else if (authState == 3){
+                            navController.navigate("profile")
+                        }
 
                         Button(
                             onClick = {
@@ -279,13 +283,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
 
             }
 
-            if(authState == 1){
-                CircularProgressIndicator()
-            }else if(authState == 2){
-                Text(text = "Hubo un error, que no podemos ver todavia")
-            }else if (authState == 3){
-                navController.navigate("profile")
-            }
+
 
         }
 
