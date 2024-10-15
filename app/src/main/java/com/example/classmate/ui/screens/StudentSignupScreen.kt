@@ -143,7 +143,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = apellidos,
                             onValueChange = { apellidos = it },
-                            label = ""
+                            label = "Escribe tu apellido completo"
                         )
                         Box(
                             modifier = Modifier
@@ -161,7 +161,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = telefono,
                             onValueChange = { telefono = it },
-                            label = ""
+                            label = "Escribe tu numero de telefono"
                         )
                         Box(
                             modifier = Modifier
@@ -179,7 +179,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = email,
                             onValueChange = { email = it },
-                            label = ""
+                            label = "Escribe tu email"
                         )
                         Box(
                             modifier = Modifier
@@ -197,7 +197,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = "",
+                            label = "Escribe tu contraseña, minimo 6 caracteres",
                             isPassword = true
                         )
                         Box(
@@ -216,7 +216,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         CustomTextField(
                             value = confirmarContrasena,
                             onValueChange = { confirmarContrasena = it },
-                            label = "",
+                            label = "Escribe la misma contraseña",
                             isPassword = true
                         )
                         Spacer(modifier = Modifier.height(16.dp))
@@ -231,6 +231,8 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         if(authState == 1){
                             CircularProgressIndicator()
                         }else if(authState == 2){
+                            errorMessage =
+                                "Registro fallido, intenta de nuevo."
 
                         }else if (authState == 3){
                             navController.navigate("profile")
