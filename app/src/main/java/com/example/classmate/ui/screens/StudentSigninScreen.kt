@@ -152,6 +152,14 @@ fun StudentSigninScreen (navController: NavController, authViewModel: StudentSig
                     ) {
                         Text("Estudiante", color = Color.White)
                     }
+
+                    if(authState == 1){
+                        CircularProgressIndicator()
+                    }else if(authState == 2){
+                        Text(text = "Hubo un error, que no podemos ver todavia")
+                    }else if (authState == 3){
+                        navController.navigate("profile")
+                    }
                 }
 
             }
@@ -163,13 +171,7 @@ fun StudentSigninScreen (navController: NavController, authViewModel: StudentSig
                 color = Color(0xFF000000),
                 textAlign = TextAlign.Center
             )
-            if(authState == 1){
-                CircularProgressIndicator()
-            }else if(authState == 2){
-                Text(text = "Hubo un error, que no podemos ver todavia")
-            }else if (authState == 3){
-                navController.navigate("profile")
-            }
+
         }
 
     }
