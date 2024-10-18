@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,7 +46,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,7 +74,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var confirmPassword by remember{mutableStateOf("")}
     var errorMessage by remember { mutableStateOf("") }
     var materia by remember { mutableStateOf("") }
-    var materiasConPrecio by remember { (mutableStateOf(mutableListOf<Subject>()))}
+    var materiasConPrecio = remember { mutableStateListOf<Subject>() }
+    val scrollState = rememberScrollState()
+
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
         Box(
@@ -83,8 +87,10 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(top = 32.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
+
             ) {
                 Text(
                     text = "Registro",
@@ -155,6 +161,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                         }
                         materiasConPrecio.forEachIndexed { index, materia ->
                             var precios by remember { mutableStateOf("")}
+                            Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -182,7 +189,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 IconButton(
-                                    onClick = {},
+                                    onClick = {
+                                        materiasConPrecio.removeAt(index)
+                                    },
                                     modifier = Modifier
                                         .align(Alignment.CenterVertically)
                                         .size(40.dp)){
