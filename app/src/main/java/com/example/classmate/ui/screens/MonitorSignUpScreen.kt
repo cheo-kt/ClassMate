@@ -1,7 +1,9 @@
 package com.example.classmate.ui.screens
 
 import PredictiveTextField
+import androidx.compose.runtime.remember
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,22 +11,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,12 +34,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,13 +49,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.domain.model.Subjects
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.components.CustomTextFieldWithNumericKeyBoard
 import com.example.classmate.ui.viewModel.MonitorSignupViewModel
-import com.example.classmate.ui.viewModel.StudentSignupViewModel
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.classmate.R
+import kotlinx.coroutines.launch
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -76,9 +80,13 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var materia by remember { mutableStateOf("") }
     var materiasConPrecio = remember { mutableStateListOf<Subject>() }
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,24 +100,27 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 horizontalAlignment = Alignment.CenterHorizontally,
 
             ) {
-                Text(
-                    text = "Registro",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                Box(
                     modifier = Modifier
-                        .background(
-                            color = Color.Black,
-                            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                        )
                         .fillMaxWidth()
-                        .padding(16.dp)
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.elevatedCardElevation(4.dp)
-
+                        .height(150.dp),
+                    contentAlignment = Alignment.Center,
                 ) {
+                Image(
+                    painter = painterResource(id = R.drawable.encabezadom),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                    Text(
+                        text = "Registro",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontSize = 50.sp,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = (-25).dp)
+                    )}
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -135,19 +146,29 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                 onValueChange = { materia = it },
                                 label = "Materias a monitorear",
                                 modifier = Modifier
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.width(20.dp))
                             IconButton(onClick = {
-                                if (Subjects().materias.contains(materia)&& !materiasConPrecio.any() { it.nombre == materia }) {
+                                if (!Subjects().materias.contains(materia)){
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("La materia no existe")
+                                    }
+                                }else if(materiasConPrecio.any() { it.nombre == materia }) {
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar("La materia está anadida")
+                                    }
+                                }
+                                else{
                                     materiasConPrecio.add(
                                         Subject(
                                             nombre = materia,
                                             precio = ""
                                         )
                                     )
-                                    materia = ""
                                 }
+                                materia = ""
+                                keyboardController?.hide()
                             }, modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .size(50.dp)
@@ -204,6 +225,13 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
+                        CustomTextFieldWithNumericKeyBoard(
+                            value = phone,
+                            onValueChange = { phone = it },
+                            label = "Telefono",
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         CustomTextField(
                             value = email,
                             onValueChange = { email = it },
@@ -225,7 +253,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Mostrar el mensaje de error si las contraseñas no coinciden
                         if (errorMessage.isNotEmpty()) {
                             Text(
                                 text = errorMessage,
@@ -249,7 +276,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF209619))
                         ) {
                             Text("Registrarse", color = Color.White)
                         }
@@ -273,5 +300,4 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 navController.navigate("profile")
             }
         }
-    }
 }
