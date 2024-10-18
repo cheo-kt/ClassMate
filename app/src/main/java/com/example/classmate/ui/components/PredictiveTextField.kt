@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.classmate.domain.model.Subjects
 
 @Composable
 fun PredictiveTextField(
@@ -27,40 +29,37 @@ fun PredictiveTextField(
     label: String,
     modifier: Modifier
     ) {
-    var expanded by remember { mutableStateOf(false) } // Controla si el menú está expandido o no
-    val subjects = listOf("Algebra", "Discretas", "Algoritmos", "Cálculo", "Estadística", "Física")
+    var expanded by remember { mutableStateOf(false) }
+    val subjects = Subjects().materias
 
-    // Solo filtrar cuando el texto tiene al menos 3 letras
     val filteredSubjects = if (value.length >= 3) {
         subjects.filter { it.contains(value, ignoreCase = true) }
     } else {
         emptyList()
     }
-        Row {
-            OutlinedTextField(
-                value = value,
-                onValueChange = {
-                    onValueChange(it)
-                    expanded = it.length >= 3 // Expandir el menú solo cuando hay 3 letras o más
-                },
-                label = { Text(label) },
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            onValueChange(it)
+            expanded = it.length >= 3
+        },
+        label = { Text(label) },
+        modifier = Modifier.widthIn(max = 300.dp)  // Limita el ancho máximo para evitar que ocupe demasiado espacio
+    )
+    DropdownMenu(
+        expanded = expanded && filteredSubjects.isNotEmpty(),
+        onDismissRequest = { expanded = false }
+    ) {
+        filteredSubjects.forEach { suggestion ->
+            DropdownMenuItem(
+                {
+                    Text(text = suggestion)
+                }, onClick = {
+                    onValueChange(suggestion)
+                    expanded = false
+                }
             )
-        DropdownMenu(
-            expanded = expanded && filteredSubjects.isNotEmpty(),
-            onDismissRequest = { expanded = false }
-        ) {
-            filteredSubjects.forEach { suggestion ->
-                DropdownMenuItem(
-                    {
-                        Text(text = suggestion)
-                    }, onClick = {
-                        onValueChange(suggestion)
-                        expanded = false
-                    }
-                )
-            }
-
-            }
         }
+    }
 }
 
