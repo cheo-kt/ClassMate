@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,12 +59,15 @@ fun StudentSigninScreen (navController: NavController, authViewModel: StudentSig
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
 
     Scaffold(modifier = Modifier.fillMaxSize()) {  innerpadding ->
         Column(modifier = Modifier
             .fillMaxSize()
-            .padding(innerpadding),
+            .padding(innerpadding)
+            .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally){
             Box(
                 modifier = Modifier
@@ -152,13 +157,14 @@ fun StudentSigninScreen (navController: NavController, authViewModel: StudentSig
                     ) {
                         Text("Estudiante", color = Color.White)
                     }
+                    Text(text = errorMessage)
 
                     if(authState == 1){
                         CircularProgressIndicator()
                     }else if(authState == 2){
-                        Text(text = "Hubo un error, que no podemos ver todavia")
+                        errorMessage = "Tu contraseña o tu correo no coincide, intenta de nuevo."
                     }else if (authState == 3){
-                        navController.navigate("profile")
+                        navController.navigate("signup")
                     }
                 }
 
