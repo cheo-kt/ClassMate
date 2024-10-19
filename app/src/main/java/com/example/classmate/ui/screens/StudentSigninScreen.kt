@@ -173,7 +173,7 @@ fun StudentSigninScreen (navController: NavController, authViewModel: StudentSig
                 .weight(0.1f)) // Espacio en blanco
             Text(
                 text = "¿Aún no tienes cuenta? ¡Regístrate!",
-                modifier = Modifier.clickable {navController.navigate("signup") },
+                modifier = Modifier.clickable {navController.navigate("HomeStudentScreen") },
                 color = Color(0xFF000000),
                 textAlign = TextAlign.Center
             )
