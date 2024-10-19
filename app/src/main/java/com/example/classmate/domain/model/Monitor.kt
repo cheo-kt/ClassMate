@@ -5,7 +5,7 @@ class Monitor(
     var name: String = "",
     var lastname: String = "",
     var phone: String = "",
-    var subjects: String = "",//ArrayList<String> = ArrayList(),
+    var subjects: List<Subject> = ArrayList<Subject>(),
     var email: String = "",
     var photoUrl: String = "",
     var rating: Int = 0

@@ -15,7 +15,7 @@ interface MonitorServices {
 class MonitorServicesImpl: MonitorServices {
     override suspend fun createMonitor(monitor: Monitor) {
         Firebase.firestore
-            .collection("monitor")
+            .collection("Monitor")
             .document(monitor.id)
             .set(monitor)
             .await()
@@ -23,7 +23,7 @@ class MonitorServicesImpl: MonitorServices {
 
     override suspend fun getMonitorById(id: String): Monitor? {
         val user = Firebase.firestore
-            .collection("student")
+            .collection("Monitor")
             .document(id)
             .get()
             .await()
