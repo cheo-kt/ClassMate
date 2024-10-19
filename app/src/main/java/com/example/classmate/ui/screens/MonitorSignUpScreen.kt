@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -43,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +62,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -83,10 +87,10 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var materia by remember { mutableStateOf("") }
     var materiasConPrecio = remember { mutableStateListOf<Subject>() }
     val scrollState = rememberScrollState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
+    val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
     val keyboardController = LocalSoftwareKeyboardController.current
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
+    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
 
 
 
@@ -99,7 +103,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 32.dp)
                     .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -116,15 +119,35 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
-                    Text(
-                        text = "Registro",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
-                        fontSize = 50.sp,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(y = (-25).dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        IconButton(
+                            onClick = {
+                                navController.navigate("selectMonitorStudent")
+                            },
+                            modifier = Modifier
+                                .size(50.dp)
+                                .offset(y = (-25).dp, x = (-45).dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back Icon",
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Text(
+                            text = "Registro",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 40.sp,
+                            modifier = Modifier
+                                .offset(y = (-25).dp)
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier
@@ -326,7 +349,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "¿Ya tienes una cuenta? ¡Inicia sesión!",
-                        modifier = Modifier.clickable { /* Navegar a la pantalla de login */ },
+                        modifier = Modifier.clickable {
+                            navController.navigate("signing")
+                        },
                         color = Color(0xFF209619),
                         textAlign = TextAlign.Center
                     )
@@ -346,30 +371,17 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 )
             }
         } else if (authState == 2) {
-            Text("Hubo un error", color = Color.Red)
-        } else if (authState == 3) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                Column(modifier = Modifier.align(Alignment.Center)) {
-                    Icon(
-                        imageVector = Icons.Filled.Done,
-                        contentDescription = "Done",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(100.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "DONE",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
-                        fontSize = 50.sp)
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
                 }
-                LaunchedEffect(Unit) {
-                    delay(1500L)
-                    navController.navigate("profile")
+            }
+        } else if (authState == 3) {
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Registrado correctamente")
                 }
             }
         }

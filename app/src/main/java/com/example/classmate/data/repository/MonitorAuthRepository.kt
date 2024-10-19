@@ -12,6 +12,7 @@ import com.google.firebase.ktx.Firebase
 interface MonitorAuthRepository {
 
     suspend fun signup(monitor: Monitor, password:String)
+    suspend fun signin(email:String, password: String)
 
 }
 class MonitorAuthRepositoryImpl(
@@ -28,5 +29,8 @@ class MonitorAuthRepositoryImpl(
             monitor.id = it
             monitorRepository.createMonitor(monitor)
         }
+    }
+    override suspend fun signin(email: String, password: String) {
+        authServiceMonitor.loginWithEmailAndPassword(email, password)
     }
 }

@@ -50,7 +50,8 @@ import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.screens.HomeStudentScreen
 import com.example.classmate.ui.screens.IntroductionsScreen
 import com.example.classmate.ui.screens.MonitorSignUpScreen
-import com.example.classmate.ui.screens.StudentSigninScreen
+import com.example.classmate.ui.screens.MonitorStudentScreen
+import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
@@ -71,11 +72,12 @@ class MainActivity : ComponentActivity() {
 fun App() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "signing") {
-        composable("signup") { StudentSignupScreen(navController) }
-        composable("signing") { StudentSigninScreen(navController) }
-        composable("introduction") { IntroductionsScreen(navController) }
-        composable("HomeStudentScreen") { HomeStudentScreen(navController) }
-        composable("signupMonitor"){ MonitorSignUpScreen(navController) }
+        composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
+        composable("signing") { StudentMonitorSigninScreen(navController) } //Login
+        composable("introduction") { IntroductionsScreen(navController) } //introducción
+        composable("HomeStudentScreen") { HomeStudentScreen(navController) } //HomeStrudiante
+        composable("signupMonitor"){ MonitorSignUpScreen(navController) } //Registro monitor
+        composable("selectMonitorStudent"){MonitorStudentScreen(navController)} //Selección de registro
     }
 }
 

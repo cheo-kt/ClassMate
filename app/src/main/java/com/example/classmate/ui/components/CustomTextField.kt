@@ -32,7 +32,6 @@ fun CustomTextField(
         onValueChange = onValueChange ,
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth(), // Aumenta la altura
-        shape = RoundedCornerShape(16.dp),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions.Default,
 
