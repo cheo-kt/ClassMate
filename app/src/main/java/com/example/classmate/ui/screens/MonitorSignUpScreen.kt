@@ -237,7 +237,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                     materiasConPrecio[index] = updatedMateria
                                     precios = nuevoPrecio
                                 },
-                                label = "Precio",
+                                label = "Precio/hora",
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
