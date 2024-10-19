@@ -29,11 +29,7 @@ class AuthRepositoryImpl(
             studentRepository.createStudent(student)
         }
       }
-
     override suspend fun signin(email: String, password: String) {
         authService.loginWithEmailAndPassword(email, password)
     }
-
-    }
-
-
+}
