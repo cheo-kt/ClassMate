@@ -383,7 +383,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar("Registrado correctamente")
                     delay(1000L)
-                    navController.navigate("HomeStudentScreen")
+                    navController.navigate("introductionMonitor")
                 }
             }
         }

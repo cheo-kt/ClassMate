@@ -37,11 +37,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.R
+import com.example.classmate.ui.viewModel.IntroductionMonitorViewModel
 import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 
 
 @Composable
-fun IntroductionsMonitorScreen (navController: NavController, authViewModel: IntroductionStudentViewModel = viewModel()){
+fun IntroductionsMonitorScreen (navController: NavController, authViewModel: IntroductionMonitorViewModel = viewModel()){
 
     val scrollState = rememberScrollState()
 
@@ -52,7 +53,7 @@ fun IntroductionsMonitorScreen (navController: NavController, authViewModel: Int
 
     if (navigateToNextScreen) {
         authViewModel.navigateToNextScreen.value = false
-        navController.navigate("HomeStudentScreen")
+        navController.navigate("HomeMonitorScreen")
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -63,7 +64,7 @@ fun IntroductionsMonitorScreen (navController: NavController, authViewModel: Int
             horizontalAlignment = Alignment.CenterHorizontally) {
 
             Image(
-                painter = painterResource(id = R.drawable.encabezadointroduccion),
+                painter = painterResource(id = R.drawable.encabezadointroduccionmonitor1),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -131,7 +132,7 @@ fun IntroductionsMonitorScreen (navController: NavController, authViewModel: Int
 
             ){
                 Image(
-                    painter = painterResource(id = R.drawable.encabezadointroduccion2),
+                    painter = painterResource(id = R.drawable.encabezadointroduccionmonitor2),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
