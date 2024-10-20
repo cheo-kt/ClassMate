@@ -25,6 +25,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,7 +72,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
 
         Column(
             modifier = Modifier
@@ -241,7 +242,8 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                             onClick = {
 
                                 if (nombres == "" || apellidos == "" || telefono == "" || email == "" ||
-                                    password == "" || confirmarContrasena == "") {
+                                    password == "" || confirmarContrasena == "")
+                                {
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
                                         snackbarHostState.showSnackbar("Completa todos los campos")
