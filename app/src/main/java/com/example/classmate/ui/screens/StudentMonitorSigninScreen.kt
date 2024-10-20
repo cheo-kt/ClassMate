@@ -1,4 +1,5 @@
 package com.example.classmate.ui.screens
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ import com.example.classmate.ui.viewModel.MonitorSigninViewModel
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun StudentMonitorSigninScreen (navController: NavController, authViewModel: StudentSigninViewModel = viewModel(),
                                 monitorAuthViewModel: MonitorSigninViewModel = viewModel()){
@@ -57,7 +59,6 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
@@ -136,7 +137,6 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                             .padding(16.dp),
                         textAlign = TextAlign.Left
                     )
-                    Text(text = errorMessage)
                     Button(
                         onClick = {
                             if (email =="" ||password == "") {
@@ -154,16 +154,18 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     ) {
                         Text("Monitor", color = Color.White)
                     }
-                    if(authStateMonitor == 1){
-                        CircularProgressIndicator()
-                    }else if(authStateMonitor == 2){
-                        errorMessage = "Tu contraseña o tu correo no coincide, intenta de nuevo."
-                    }else if (authStateMonitor == 3){
-                        navController.navigate("signup")
-                    }
                     Button(
                         onClick = {
-                            authViewModel.signin(email, password)
+
+                            if (email =="" ||password == "") {
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Completa todos los campos")
+                                }
+                            }
+                            else{
+                                authViewModel.signin(email, password)
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
@@ -171,12 +173,20 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                         Text("Estudiante", color = Color.White)
                     }
 
-                    if(authState == 1){
+                    if(authStateMonitor ==1 || authState == 1){
                         CircularProgressIndicator()
-                    }else if(authState == 2){
-                        errorMessage = "Tu contraseña o tu correo no coincide, intenta de nuevo."
-                    }else if (authState == 3){
-                        navController.navigate("signup")
+                    }else if(authStateMonitor ==2 ||authState == 2){
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar("Tu contraseña o tu correo no coincide, intenta de nuevo.")
+                        }
+                    }else if (authStateMonitor ==3 ||authState == 3){
+                        if(authStateMonitor ==3 ){
+                            navController.navigate("profile")
+                        }else {
+                            navController.navigate("HomeStudentScreen")
+                        }
+
                     }
                 }
             }

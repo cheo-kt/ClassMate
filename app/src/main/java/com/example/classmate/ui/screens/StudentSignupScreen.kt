@@ -235,7 +235,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                                 "Registro fallido, intenta de nuevo."
 
                         }else if (authState == 3){
-                            navController.navigate("profile")
+                            navController.navigate("introduction")
                         }
 
                         Button(
