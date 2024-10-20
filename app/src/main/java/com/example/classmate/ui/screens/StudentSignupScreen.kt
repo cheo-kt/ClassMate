@@ -236,38 +236,6 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         ) // Espacio en blanco
 
 
-                        if(authState == 1){
-                            //opaga la pantalla y coloca el signo de cargando xd.
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.6f))
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    color = Color.White
-                                )
-                            }
-                        }else if(authState == 2){
-                            LaunchedEffect(Unit) {
-                                scope.launch {
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-                                    snackbarHostState.showSnackbar("Ha ocurrido un error")
-                                }
-                            }
-
-                        }else if (authState == 3){
-                            LaunchedEffect(Unit) {
-                                scope.launch {
-                                    snackbarHostState.currentSnackbarData?.dismiss()
-                                    snackbarHostState.showSnackbar("Registrado correctamente")
-                                    delay(1000L)
-                                    navController.navigate("introductionStudent")
-
-                                }
-                            }
-
-                        }
 
                         Button(
                             onClick = {
@@ -314,6 +282,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                             Text("Registrarse", color = Color.White)
                         }
 
+
                         Box(
                             modifier = Modifier
                                 .weight(0.1f)
@@ -330,6 +299,38 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         )
                     }
 
+                    if(authState == 1){
+                        //opaga la pantalla y coloca el signo de cargando xd.
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.6f))
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.Center),
+                                color = Color.White
+                            )
+                        }
+                    }else if(authState == 2){
+                        LaunchedEffect(Unit) {
+                            scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar("Ha ocurrido un error")
+                            }
+                        }
+
+                    }else if (authState == 3){
+                        LaunchedEffect(Unit) {
+                            scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar("Registrado correctamente")
+                                delay(1000L)
+                                navController.navigate("introductionStudent")
+
+                            }
+                        }
+
+                    }
 
                 }
 
