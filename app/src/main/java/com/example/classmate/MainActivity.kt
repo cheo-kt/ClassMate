@@ -47,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.screens.HomeMonitorScreen
 import com.example.classmate.ui.screens.HomeStudentScreen
 import com.example.classmate.ui.screens.IntroductionsScreen
 import com.example.classmate.ui.screens.MonitorSignUpScreen
@@ -78,6 +79,7 @@ fun App() {
         composable("HomeStudentScreen") { HomeStudentScreen(navController) } //HomeStrudiante
         composable("signupMonitor"){ MonitorSignUpScreen(navController) } //Registro monitor
         composable("selectMonitorStudent"){MonitorStudentScreen(navController)} //Selección de registro
+        composable("HomeStudentScreen"){ HomeMonitorScreen(navController)} //HomeMonitor
     }
 }
 
