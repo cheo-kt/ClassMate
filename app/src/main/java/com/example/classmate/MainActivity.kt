@@ -48,7 +48,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.screens.HomeStudentScreen
-import com.example.classmate.ui.screens.IntroductionsScreen
+import com.example.classmate.ui.screens.IntroductionsStudentScreen
 import com.example.classmate.ui.screens.MonitorSignUpScreen
 import com.example.classmate.ui.screens.MonitorStudentScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
@@ -74,7 +74,7 @@ fun App() {
     NavHost(navController = navController, startDestination = "signing") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
-        composable("introduction") { IntroductionsScreen(navController) } //introducción
+        composable("introduction") { IntroductionsStudentScreen(navController) } //introducción
         composable("HomeStudentScreen") { HomeStudentScreen(navController) } //HomeStrudiante
         composable("signupMonitor"){ MonitorSignUpScreen(navController) } //Registro monitor
         composable("selectMonitorStudent"){MonitorStudentScreen(navController)} //Selección de registro

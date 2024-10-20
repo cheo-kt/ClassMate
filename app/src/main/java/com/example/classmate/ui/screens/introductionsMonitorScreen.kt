@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,16 +37,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.R
-import com.example.classmate.ui.viewModel.IntroductionViewModel
+import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 
 
 @Composable
-fun IntroductionsScreen (navController: NavController, authViewModel: IntroductionViewModel = viewModel()){
+fun IntroductionsMonitorScreen (navController: NavController, authViewModel: IntroductionStudentViewModel = viewModel()){
 
     val scrollState = rememberScrollState()
 
-    val image by authViewModel.currentImage.observeAsState(R.drawable.book_2)
-    val message by authViewModel.currentMessage.observeAsState("¡Busca la materia que necesites!")
+    val image by authViewModel.currentImage.observeAsState(R.drawable.local_library)
+    val message by authViewModel.currentMessage.observeAsState("¡Ayuda a los estudiantes con sus materias!")
     val navigateToNextScreen by authViewModel.navigateToNextScreen.observeAsState(false)
 
 
@@ -152,7 +153,7 @@ fun IntroductionsScreen (navController: NavController, authViewModel: Introducti
             }
 
 
-          }
+        }
     }
 
 }
