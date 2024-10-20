@@ -1,19 +1,20 @@
 package com.example.classmate.ui.viewModel
 
+
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.classmate.R
 
-class IntroductionViewModel(): ViewModel() {
+class IntroductionMonitorViewModel : ViewModel() {
 
 
     // Lista de imágenes y mensajes
-    private val images = listOf(R.drawable.book_2,  R.drawable.add_location_alt, R.drawable.calendar_today, R.drawable.book_3)
+    private val images = listOf(R.drawable.local_library,  R.drawable.profileburbule, R.drawable.calendar_today, R.drawable.paid)
     private val messages = listOf(
-        "¡Busca la materia que necesites!",
-        "¡Ten monitorias en el lugar que quieras!",
-        "¡Agenda tu cita donde y cuando quieras!",
-        "Cualquier materia de cualquier nivel ¡Solo tienes que buscar!"
+        "¡Ayuda a los estudiantes con sus materias!",
+        "¡Comunicate con ellos de una forma sencilla!",
+        "¡Acepta los horarios que más te convengan!",
+        "¡Ponle tu propia tarifa a las monitorias!"
     )
 
     // Estado para la imagen y el mensaje
@@ -38,4 +39,5 @@ class IntroductionViewModel(): ViewModel() {
             navigateToNextScreen.value = true
         }
     }
+
 }
