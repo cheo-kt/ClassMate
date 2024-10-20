@@ -239,14 +239,8 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
 
                         Button(
                             onClick = {
-                                if (password == confirmarContrasena) {
-                                    // Si las contraseñas coinciden, proceder con el registro
-                                    studentSignupViewModel.signup(
-                                        Student("", nombres, apellidos, telefono, email, ""),
-                                        password
-                                    )
-                                }
-                                else if (nombres == "" || apellidos == "" || telefono == "" || email == "" ||
+
+                                if (nombres == "" || apellidos == "" || telefono == "" || email == "" ||
                                     password == "" || confirmarContrasena == "") {
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
@@ -263,12 +257,19 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                                         snackbarHostState.showSnackbar("Contraseña muy corta")
                                     }
                                 }
-                                else {
+                                else if (password != confirmarContrasena){
                                     // Si las contraseñas no coinciden, mostrar el mensaje de error
                                     scope.launch {
                                         snackbarHostState.currentSnackbarData?.dismiss()
                                         snackbarHostState.showSnackbar("Las contraseñas no son iguales")
                                     }
+                                }
+                                else  {
+                                    // Si las contraseñas coinciden, proceder con el registro
+                                    studentSignupViewModel.signup(
+                                        Student("", nombres, apellidos, telefono, email, ""),
+                                        password
+                                    )
                                 }
                             },
 
@@ -299,38 +300,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         )
                     }
 
-                    if(authState == 1){
-                        //opaga la pantalla y coloca el signo de cargando xd.
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.6f))
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.align(Alignment.Center),
-                                color = Color.White
-                            )
-                        }
-                    }else if(authState == 2){
-                        LaunchedEffect(Unit) {
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar("Ha ocurrido un error")
-                            }
-                        }
 
-                    }else if (authState == 3){
-                        LaunchedEffect(Unit) {
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar("Registrado correctamente")
-                                delay(1000L)
-                                navController.navigate("introductionStudent")
-
-                            }
-                        }
-
-                    }
 
                 }
 
@@ -338,6 +308,39 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
             }
 
 
+
+        }
+
+        if(authState == 1){
+            //opaga la pantalla y coloca el signo de cargando xd.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        }else if(authState == 2){
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                }
+            }
+
+        }else if (authState == 3){
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Registrado correctamente")
+                    delay(1000L)
+                    navController.navigate("introductionStudent")
+
+                }
+            }
 
         }
 
