@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.classmate.R
 import com.example.classmate.ui.viewModel.MonitorSigninViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -139,13 +142,12 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     )
                     Button(
                         onClick = {
-                            if (email =="" ||password == "") {
+                            if (email == "" || password == "") {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("Completa todos los campos")
                                 }
-                            }
-                            else{
+                            } else {
                                 monitorAuthViewModel.signin(email, password)
                             }
                         },
@@ -157,13 +159,12 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     Button(
                         onClick = {
 
-                            if (email =="" ||password == "") {
+                            if (email == "" || password == "") {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("Completa todos los campos")
                                 }
-                            }
-                            else{
+                            } else {
                                 authViewModel.signin(email, password)
                             }
                         },
@@ -171,22 +172,6 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F51B5))
                     ) {
                         Text("Estudiante", color = Color.White)
-                    }
-
-                    if(authStateMonitor ==1 || authState == 1){
-                        CircularProgressIndicator()
-                    }else if(authStateMonitor ==2 ||authState == 2){
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar("Tu contraseña o tu correo no coincide, intenta de nuevo.")
-                        }
-                    }else if (authStateMonitor ==3 ||authState == 3){
-                        if(authStateMonitor ==3 ){
-                            navController.navigate("HomeMonitorScreen")
-                        }else {
-                            navController.navigate("HomeStudentScreen")
-                        }
-
                     }
                 }
             }
@@ -199,6 +184,35 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                 textAlign = TextAlign.Center
             )
 
+        }
+        if (authStateMonitor == 1 || authState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (authStateMonitor == 2 || authState == 2) {
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("Tu contraseña o tu correo no coincide, intenta de nuevo.")
+            }
+        } else if (authStateMonitor == 3 || authState == 3) {
+            if (authStateMonitor == 3) {
+                LaunchedEffect(Unit) {
+                    delay(1000L)
+                    navController.navigate("HomeMonitorScreen")
+                }
+            } else {
+                LaunchedEffect(Unit) {
+                    delay(1000L)
+                    navController.navigate("HomeStudentScreen")
+                }
+            }
         }
 
     }
