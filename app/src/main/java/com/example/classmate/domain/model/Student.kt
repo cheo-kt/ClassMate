@@ -6,5 +6,6 @@ class Student (
     var lastname: String = "",
     var phone: String = "",
     var email: String = "",
-    var photo: String = ""
+    var photo: String = "",
+    var description: String = ""
 )

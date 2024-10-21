@@ -54,7 +54,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun StudentMonitorSigninScreen (navController: NavController, authViewModel: StudentSigninViewModel = viewModel(),
-                                monitorAuthViewModel: MonitorSigninViewModel = viewModel()){
+                                monitorAuthViewModel: MonitorSigninViewModel = viewModel()) {
 
 
     val authState by authViewModel.authState.observeAsState()
@@ -67,12 +67,16 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
 
 
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {  innerpadding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerpadding)
-            .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally){
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerpadding)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,21 +101,29 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
 
             Text(
                 text = "Login",
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 50.sp, fontWeight =FontWeight.Bold),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 50.sp,
+                    fontWeight = FontWeight.Bold
+                ),
                 color = Color.Black,
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(y = (-50).dp),
                 textAlign = TextAlign.Center
             )
-            Box(modifier = Modifier
-                .weight(0.1f))
+            Box(
+                modifier = Modifier
+                    .weight(0.1f)
+            )
 
-            Box(modifier = Modifier.padding(horizontal = 32.dp)){
+            Box(modifier = Modifier.padding(horizontal = 32.dp)) {
                 Column {
                     Text(
                         text = "Email",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 15.sp, fontWeight =FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = Color.Black,
                         textAlign = TextAlign.Left
                     )
@@ -119,17 +131,27 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = "Contraseña",
-                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 15.sp, fontWeight =FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = Color.Black,
                         textAlign = TextAlign.Left
                     )
-                    CustomTextField(value = password, onValueChange = { password = it }, label = "", isPassword = true)
+                    CustomTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = "",
+                        isPassword = true
+                    )
                 }
             }
 
-            Box(modifier = Modifier
-                .weight(0.1f)) // Espacio en blanco
-            Box(modifier = Modifier.padding(horizontal = 32.dp)){
+            Box(
+                modifier = Modifier
+                    .weight(0.1f)
+            ) // Espacio en blanco
+            Box(modifier = Modifier.padding(horizontal = 32.dp)) {
                 Column {
                     Text(
                         text = "Acceder como:",
@@ -175,11 +197,13 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     }
                 }
             }
-            Box(modifier = Modifier
-                .weight(0.1f)) // Espacio en blanco
+            Box(
+                modifier = Modifier
+                    .weight(0.1f)
+            ) // Espacio en blanco
             Text(
                 text = "¿Aún no tienes cuenta? ¡Regístrate!",
-                modifier = Modifier.clickable {navController.navigate("selectMonitorStudent") },
+                modifier = Modifier.clickable { navController.navigate("selectMonitorStudent") },
                 color = Color(0xFF000000),
                 textAlign = TextAlign.Center
             )
@@ -210,13 +234,12 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
             } else {
                 LaunchedEffect(Unit) {
                     delay(1000L)
-                    navController.navigate("HomeStudentScreen")
+                    navController.navigate("studentProfile")
                 }
             }
         }
 
     }
-
 }
 
 
