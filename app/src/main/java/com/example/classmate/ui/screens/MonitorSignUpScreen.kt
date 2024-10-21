@@ -329,7 +329,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                         phone,
                                         materiasConPrecio,
                                         email,
+                                        "",
                                         ""
+                                        ,0
                                     ),
                                     password
                                 )

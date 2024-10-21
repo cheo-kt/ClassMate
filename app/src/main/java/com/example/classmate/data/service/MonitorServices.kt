@@ -43,7 +43,7 @@ class MonitorServicesImpl: MonitorServices {
 
     override suspend fun updateMonitorField(id: String, field: String, value: Any) {
         Firebase.firestore
-            .collection("monitor")
+            .collection("Monitor")
             .document(id)
             .update(field, value)
             .await()
@@ -51,9 +51,9 @@ class MonitorServicesImpl: MonitorServices {
 
     override suspend fun updateMonitorImageUrl(id:String,url: String) {
         Firebase.firestore
-            .collection("monitor")
+            .collection("Monitor")
             .document(id)
-            .update("photo", url)
+            .update("photoUrl", url)
             .await()
     }
 }

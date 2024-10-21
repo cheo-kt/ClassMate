@@ -61,7 +61,7 @@ class MonitorEditProfileViewModel( val repo: MonitorRepository = MonitorReposito
 
         }
     }
-    fun updateStudentProfile(phone: String,name:String,lastname:String,description:String,email:String) {
+    fun updateMonitorProfile(phone: String,name:String,lastname:String,description:String,email:String) {
         viewModelScope.launch {
             val monitorId = _monitor.value?.id
             if (monitorId != null) {

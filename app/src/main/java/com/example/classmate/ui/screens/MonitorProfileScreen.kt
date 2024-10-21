@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,7 +96,7 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
                         .clip(CircleShape) // Hace que la imagen sea circular
                         .size(200.dp)
                         .fillMaxSize()
-                    ,
+                    ,contentScale = ContentScale.Crop,
                     contentDescription = null,
                     painter = rememberAsyncImagePainter(image, error = painterResource(R.drawable.botonestudiante))
 

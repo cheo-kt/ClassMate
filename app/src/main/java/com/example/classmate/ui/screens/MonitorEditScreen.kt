@@ -162,31 +162,39 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
                 label = { Text("email") }
             )
             Button(onClick = {
-                if (!emailRegex.matches(email)){
+
+                if(name == "" || description == ""
+                    || lastname == "" || phone == "" ){
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar("Ninguno de los campos puede estar vacio")
+                    }
+                }else if (!emailRegex.matches(email)){
                     scope.launch {
                         snackbarHostState.currentSnackbarData?.dismiss()
                         snackbarHostState.showSnackbar("Correo electronico mal escrito")
 
                     }
-                }else if(name != "" && description != ""
-                    && lastname != "" && phone != "" ){
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar("Ninguno de los campos puede estar vacio")
-                    }
                 }else{
-                    authViewModel.updateStudentProfile(phone,name,lastname,description,email)
+                    authViewModel.updateMonitorProfile(phone,name,lastname,description,email)
+                    if (newImage.toString().isNotBlank()) {
+                        authViewModel.updateMonitorPhoto(newImage)
+                    }
+                    navController.navigate("monitorProfile")
                 }
-                if (newImage.toString().isNotBlank()) {
-                    authViewModel.updateMonitorPhoto(newImage)
-                }
+
 
             }) {
                 Text(text = "Guardar Cambios")
 
             }
 
+
+            
+
             Button(onClick = {
+
+
 
                 imagePickerLauncher.launch("image/*")
             }) {
