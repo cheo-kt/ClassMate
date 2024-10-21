@@ -184,7 +184,7 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                         if(authStateMonitor ==3 ){
                             navController.navigate("HomeMonitorScreen")
                         }else {
-                            navController.navigate("HomeStudentScreen")
+                            navController.navigate("monitorProfile")
                         }
 
                     }

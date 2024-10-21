@@ -42,7 +42,7 @@ import com.example.classmate.ui.viewModel.MonitorProfileViewModel
 fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorProfileViewModel = viewModel()){
     authViewModel.showMonitorInformation()
     val monitor: Monitor? by authViewModel.monitor.observeAsState(initial = null)
-    var image = monitor?.photo
+    var image = monitor?.photoUrl
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -87,7 +87,7 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
             )
             {
                 monitor?.let {
-                    image = it.photo
+                    image = it.photoUrl
                 }
                 Image(
                     modifier = Modifier
