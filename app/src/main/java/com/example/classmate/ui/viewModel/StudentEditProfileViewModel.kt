@@ -15,10 +15,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class StudentEditProfileViewModel(val services: StudentServices = StudentServicesImpl(), val repo: StudentRepository = StudentRepositoryImpl()):
+class StudentEditProfileViewModel( val repo: StudentRepository = StudentRepositoryImpl()):
     ViewModel() {
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
+    val monitorPhotoState = MutableLiveData<String?>()
+
     fun showStudentInformation() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -39,42 +41,41 @@ class StudentEditProfileViewModel(val services: StudentServices = StudentService
             }
         }
     }
-    fun updateProfilePhoto(uri: Uri, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
-        var id = _student.value?.id
-        viewModelScope.launch(Dispatchers.IO) {
+    fun updateStudentPhoto(imageUri: Uri) {
+        viewModelScope.launch {
             try {
-                if (id != null) {
-                    services.uploadProfileImage(uri,id)
-                }
-                withContext(Dispatchers.Main) {
-                    onSuccess()
+                val studentId = student.value?.id
+                if (studentId != null) {
+                    val photoUrl = repo.updateStudentPhoto(studentId, imageUri)
+                    repo.updateStudentImageUrl(studentId, photoUrl)
+                    monitorPhotoState.postValue(photoUrl)
+                } else {
+                    Log.e("UpdatePhoto", "El ID del estudiante es nulo.")
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    onFailure(e)
-                }
+                Log.e("UpdatePhoto", "Error al actualizar la foto del estudiante: ${e.message}")
             }
-        }
 
+        }
     }
-    fun updateStudentProfile(phone: String,name:String,lastname:String,description:String,email:String) {
+        fun updateStudentProfile(phone: String,name:String,lastname:String,description:String,email:String) {
         viewModelScope.launch {
             val studentId = _student.value?.id
             if (studentId != null) {
                 if (name != _student.value?.name){
-                    services.updateStudentField(studentId, "name", name)
+                    repo.updateStudentInformation(studentId,"name",name)
                 }
                 if (phone != _student.value?.phone){
-                    services.updateStudentField(studentId, "phone", phone)
+                    repo.updateStudentInformation(studentId, "phone", phone)
                 }
                 if (lastname != _student.value?.lastname){
-                    services.updateStudentField(studentId, "lastname", lastname)
+                    repo.updateStudentInformation(studentId, "lastname", lastname)
                 }
                 if (description != _student.value?.description){
-                    services.updateStudentField(studentId, "description", description)
+                    repo.updateStudentInformation(studentId, "description", description)
                 }
                 if (email != _student.value?.email){
-                    services.updateStudentField(studentId, "email", email)
+                    repo.updateStudentInformation(studentId, "email", email)
                 }
             }
 

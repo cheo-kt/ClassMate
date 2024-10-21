@@ -1,5 +1,8 @@
 package com.example.classmate.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,7 +24,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -41,7 +42,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.viewModel.StudentEditProfileViewModel
-import com.example.classmate.ui.viewModel.StudentProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,9 +49,9 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
     authViewModel.showStudentInformation()
 
     val student: Student? by authViewModel.student.observeAsState(initial = null)
-
+    val scrollState = rememberScrollState()
     var oldImage = student?.photo
-    var newImage by remember { mutableStateOf("") }
+    var newImage by remember { mutableStateOf<Uri>(Uri.EMPTY) }
     var name by remember { mutableStateOf("") }
     var lastname by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -60,15 +60,27 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    var isInitialized by remember { mutableStateOf(false) }
-
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            newImage = it
+            oldImage = it.toString()
+            authViewModel.updateStudentPhoto(it)
+        } ?: run {
+            scope.launch {
+                snackbarHostState.showSnackbar("No se seleccionó ninguna imagen")
+            }
+        }
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerpadding),
+                .padding(innerpadding)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -78,11 +90,12 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                     .height(120.dp)
             ) {
                 Button(modifier = Modifier
-                    .align(Alignment.CenterStart),
+                    .align(Alignment.CenterStart)
+                    .background(Color.Transparent),
                     onClick = {
-                        /*TODO*/
+                        navController.navigate("studentProfile")
                     }) {
-
+                    Image(painter = painterResource(id = R.drawable.arrow), contentDescription = null )
                 }
                 Image(
                     contentDescription = null,
@@ -148,18 +161,40 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                 label = { Text("email") }
             )
             Button(onClick = {
-                if (!emailRegex.matches(email)) {
+                if (!emailRegex.matches(email)){
                     scope.launch {
                         snackbarHostState.currentSnackbarData?.dismiss()
                         snackbarHostState.showSnackbar("Correo electronico mal escrito")
+
+                    }
+                }else if(name != "" && description != ""
+                    && lastname != "" && phone != "" ){
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar("Ninguno de los campos puede estar vacio")
                     }
                 }else{
                     authViewModel.updateStudentProfile(phone,name,lastname,description,email)
                 }
+                if (newImage.toString().isNotBlank()) {
+                    authViewModel.updateStudentPhoto(newImage)
+                }
 
             }) {
                 Text(text = "Guardar Cambios")
+
             }
+
+            Button(onClick = {
+
+                imagePickerLauncher.launch("image/*")
+            }) {
+                Text(text = "Subir Foto")
+            }
+
         }
     }
 }
+
+
+
