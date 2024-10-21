@@ -243,7 +243,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                                 if (password == confirmarContrasena) {
                                     // Si las contraseñas coinciden, proceder con el registro
                                     studentSignupViewModel.signup(
-                                        Student("", nombres, apellidos, telefono, email, ""),
+                                        Student("", nombres, apellidos, telefono, email, "",""),
                                         password
                                     )
                                 } else {
