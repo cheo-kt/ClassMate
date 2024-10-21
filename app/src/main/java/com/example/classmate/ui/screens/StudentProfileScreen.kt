@@ -42,6 +42,7 @@ import com.example.classmate.ui.viewModel.StudentProfileViewModel
 @Composable
 fun StudentProfileScreen(navController: NavController, authViewModel: StudentProfileViewModel = viewModel()){
     authViewModel.showStudentInformation()
+    val studentState by authViewModel.studentState.observeAsState()
     val student: Student? by authViewModel.student.observeAsState(initial = null)
     var image = student?.photo
     val scrollState = rememberScrollState()

@@ -18,20 +18,25 @@ import kotlinx.coroutines.withContext
 class StudentProfileViewModel(val repo: StudentRepository = StudentRepositoryImpl()):ViewModel() {
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
+    val studentState = MutableLiveData<Int?>(0)
     fun showStudentInformation() {
         viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {studentState.value = 1}
             try {
                 val currentUser = repo.getCurrentStudent()
                 withContext(Dispatchers.Main) {
                     if (currentUser != null) {
                         _student.value = currentUser
+                        withContext(Dispatchers.Main) {studentState.value = 3}
                     } else {
                         _student.value = null
+                        withContext(Dispatchers.Main) {studentState.value = 2}
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _student.value = null
+                    studentState.value = 2
                     Log.e("ViewModel", "Error fetching student info: ${e.message}")
                 }
 

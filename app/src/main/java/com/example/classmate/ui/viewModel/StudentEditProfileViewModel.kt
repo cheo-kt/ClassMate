@@ -19,8 +19,8 @@ class StudentEditProfileViewModel( val repo: StudentRepository = StudentReposito
     ViewModel() {
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
-    val monitorPhotoState = MutableLiveData<String?>()
-
+    val studentPhotoState = MutableLiveData<Int?>(0)
+    val studentUpdateInformation = MutableLiveData<Int?>(0)
     fun showStudentInformation() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -43,22 +43,25 @@ class StudentEditProfileViewModel( val repo: StudentRepository = StudentReposito
     }
     fun updateStudentPhoto(imageUri: Uri) {
         viewModelScope.launch {
+            withContext(Dispatchers.Main) { studentPhotoState.value = 1 }
             try {
                 val studentId = student.value?.id
                 if (studentId != null) {
                     val photoUrl = repo.updateStudentPhoto(studentId, imageUri)
                     repo.updateStudentImageUrl(studentId, photoUrl)
-                    monitorPhotoState.postValue(photoUrl)
+                    withContext(Dispatchers.Main) { studentPhotoState.value = 3}
                 } else {
                     Log.e("UpdatePhoto", "El ID del estudiante es nulo.")
+                    withContext(Dispatchers.Main) { studentPhotoState.value = 2 }
                 }
             } catch (e: Exception) {
+                withContext(Dispatchers.Main) { studentPhotoState.value = 2 }
                 Log.e("UpdatePhoto", "Error al actualizar la foto del estudiante: ${e.message}")
             }
 
         }
     }
-        fun updateStudentProfile(phone: String,name:String,lastname:String,description:String,email:String) {
+    fun updateStudentProfile(phone: String,name:String,lastname:String,description:String,email:String) {
         viewModelScope.launch {
             val studentId = _student.value?.id
             if (studentId != null) {
@@ -78,8 +81,6 @@ class StudentEditProfileViewModel( val repo: StudentRepository = StudentReposito
                     repo.updateStudentInformation(studentId, "email", email)
                 }
             }
-
-
         }
     }
 
