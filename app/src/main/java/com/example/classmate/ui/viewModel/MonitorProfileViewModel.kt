@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 
 class MonitorProfileViewModel(val repo: MonitorRepository = MonitorRepositoryImpl()):ViewModel() {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
-    val student: LiveData<Monitor?> get() = _monitor
+    val monitor: LiveData<Monitor?> get() = _monitor
     fun showMonitorInformation() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
