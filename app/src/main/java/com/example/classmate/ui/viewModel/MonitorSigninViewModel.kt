@@ -26,7 +26,7 @@ class MonitorSigninViewModel(val repo: MonitorAuthRepository = MonitorAuthReposi
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }
-                delay(2000)
+                delay(500)
                 withContext(Dispatchers.Main) { authState.value = 0 }
                 ex.printStackTrace()
             }

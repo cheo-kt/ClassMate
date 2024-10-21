@@ -195,22 +195,6 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                     ) {
                         Text("Estudiante", color = Color.White)
                     }
-
-                    if(authStateMonitor ==1 || authState == 1){
-                        CircularProgressIndicator()
-                    }else if(authStateMonitor ==2 ||authState == 2){
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar("Tu contraseña o tu correo no coincide, intenta de nuevo.")
-                        }
-                    }else if (authStateMonitor ==3 ||authState == 3){
-                        if(authStateMonitor ==3 ){
-                            navController.navigate("monitorProfile")
-                        }else {
-                            navController.navigate("studentProfile")
-                        }
-
-                    }
                 }
             }
             Box(
@@ -244,12 +228,10 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
         } else if (authStateMonitor == 3 || authState == 3) {
             if (authStateMonitor == 3) {
                 LaunchedEffect(Unit) {
-                    delay(1000L)
-                    navController.navigate("HomeMonitorScreen")
+                    navController.navigate("monitorProfile")
                 }
             } else {
                 LaunchedEffect(Unit) {
-                    delay(1000L)
                     navController.navigate("studentProfile")
                 }
             }

@@ -384,7 +384,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar("Registrado correctamente")
-                    delay(1000L)
                     navController.navigate("introductionMonitor")
                 }
             }

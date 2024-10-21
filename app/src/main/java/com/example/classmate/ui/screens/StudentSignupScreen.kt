@@ -338,7 +338,6 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()
                     snackbarHostState.showSnackbar("Registrado correctamente")
-                    delay(1000L)
                     navController.navigate("introductionStudent")
 
                 }
