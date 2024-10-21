@@ -112,7 +112,7 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                 modifier = Modifier
                     .size(200.dp) // Tamaño de la Box (que será un círculo)
                     .clip(CircleShape)
-                    .background(Color.Red)
+
             )
             {
                 student?.let {
@@ -162,28 +162,27 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                 label = { Text("email") }
             )
             Button(onClick = {
-                if (!emailRegex.matches(email)){
+                if(name == "" || description == ""
+                    || lastname == "" || phone == "" ){
+                    scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                        snackbarHostState.showSnackbar("Ninguno de los campos puede estar vacio")
+                    }
+                }else if (!emailRegex.matches(email)){
                     scope.launch {
                         snackbarHostState.currentSnackbarData?.dismiss()
                         snackbarHostState.showSnackbar("Correo electronico mal escrito")
 
                     }
-                }else if(name != "" && description != ""
-                    && lastname != "" && phone != "" ){
-                    scope.launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar("Ninguno de los campos puede estar vacio")
-                    }
                 }else{
                     authViewModel.updateStudentProfile(phone,name,lastname,description,email)
+                    if (newImage.toString().isNotBlank()) {
+                        authViewModel.updateStudentPhoto(newImage)
+                    }
+                    navController.navigate("studentProfile")
                 }
-                if (newImage.toString().isNotBlank()) {
-                    authViewModel.updateStudentPhoto(newImage)
-                }
-
             }) {
                 Text(text = "Guardar Cambios")
-
             }
 
             Button(onClick = {
