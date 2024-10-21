@@ -1,3 +1,4 @@
+
 package com.example.classmate.ui.screens
 
 import androidx.compose.foundation.Image
@@ -24,12 +25,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +52,8 @@ import com.example.classmate.R
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun StudentSignupScreen(navController: NavController, studentSignupViewModel: StudentSignupViewModel = viewModel()) {
@@ -60,10 +67,12 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") } // Para manejar el mensaje de error
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
+    val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
+    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
 
         Column(
             modifier = Modifier
@@ -227,29 +236,42 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                                 .weight(0.1f)
                         ) // Espacio en blanco
 
-                        Text(text = errorMessage)
-                        if(authState == 1){
-                            CircularProgressIndicator()
-                        }else if(authState == 2){
-                            errorMessage =
-                                "Registro fallido, intenta de nuevo."
 
-                        }else if (authState == 3){
-                            navController.navigate("introductionStudent")
-                        }
 
                         Button(
                             onClick = {
-                                if (password == confirmarContrasena) {
+
+                                if (nombres == "" || apellidos == "" || telefono == "" || email == "" ||
+                                    password == "" || confirmarContrasena == "")
+                                {
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("Completa todos los campos")
+                                    }
+                                }else if (!emailRegex.matches(email)) {
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("Correo electronico mal escrito")
+                                    }
+                                } else if (password.length < 6) {
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("Contraseña muy corta")
+                                    }
+                                }
+                                else if (password != confirmarContrasena){
+                                    // Si las contraseñas no coinciden, mostrar el mensaje de error
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("Las contraseñas no son iguales")
+                                    }
+                                }
+                                else  {
                                     // Si las contraseñas coinciden, proceder con el registro
                                     studentSignupViewModel.signup(
-                                        Student("", nombres, apellidos, telefono, email, ""),
+                                        Student("", nombres, apellidos, telefono, email, "",""),
                                         password
                                     )
-                                } else {
-                                    // Si las contraseñas no coinciden, mostrar el mensaje de error
-                                    errorMessage =
-                                        "Las contraseñas no son iguales, intenta de nuevo"
                                 }
                             },
 
@@ -262,6 +284,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                         ) {
                             Text("Registrarse", color = Color.White)
                         }
+
 
                         Box(
                             modifier = Modifier
@@ -280,12 +303,46 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                     }
 
 
+
                 }
 
 
             }
 
 
+
+        }
+
+        if(authState == 1){
+            //opaga la pantalla y coloca el signo de cargando xd.
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        }else if(authState == 2){
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                }
+            }
+
+        }else if (authState == 3){
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Registrado correctamente")
+                    delay(1000L)
+                    navController.navigate("introductionStudent")
+
+                }
+            }
 
         }
 

@@ -55,7 +55,9 @@ import com.example.classmate.ui.screens.MonitorEditScreen
 import com.example.classmate.ui.screens.MonitorProfileScreen
 import com.example.classmate.ui.screens.MonitorSignUpScreen
 import com.example.classmate.ui.screens.MonitorStudentScreen
+import com.example.classmate.ui.screens.StudentEditScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
+import com.example.classmate.ui.screens.StudentProfileScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
@@ -86,6 +88,8 @@ fun App() {
         composable("introductionMonitor") { IntroductionsMonitorScreen(navController) } //introducción Estudiante
         composable("monitorProfile") { MonitorProfileScreen(navController) } //Perfil Monitor
         composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
+        composable("studentProfile") { StudentProfileScreen(navController) }
+        composable("studentEdit"){ StudentEditScreen(navController)}
     }
 }
 
