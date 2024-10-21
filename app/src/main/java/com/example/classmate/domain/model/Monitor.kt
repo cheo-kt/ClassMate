@@ -10,4 +10,8 @@ class Monitor(
     var description: String ="",
     var photoUrl: String = "",
     var rating: Int = 0
+
+
+
+
 )

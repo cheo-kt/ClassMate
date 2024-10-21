@@ -7,6 +7,7 @@ import com.example.classmate.data.repository.AuthRepositoryImpl
 import com.example.classmate.data.repository.StudentAuthRepository
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,12 +23,12 @@ class StudentSigninViewModel(
                 withContext(Dispatchers.Main) { authState.value = 1 }
                 repo.signin(email, password)
                 withContext(Dispatchers.Main) { authState.value = 3 }
-            }catch (ex: FirebaseAuthException){
+            } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }
+                delay(500)
+                withContext(Dispatchers.Main) { authState.value = 0 }
                 ex.printStackTrace()
             }
         }
     }
-
-
 }

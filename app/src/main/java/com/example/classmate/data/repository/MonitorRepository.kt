@@ -1,11 +1,9 @@
 package com.example.classmate.data.repository
 
+import android.net.Uri
 import com.example.classmate.data.service.MonitorServices
 import com.example.classmate.data.service.MonitorServicesImpl
-import com.example.classmate.data.service.StudentServices
-import com.example.classmate.data.service.StudentServicesImpl
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.Student
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -15,7 +13,9 @@ interface MonitorRepository {
 
     suspend fun  createMonitor(monitor: Monitor)
     suspend fun  getCurrentMonitor(): Monitor?
-
+    suspend fun updateMonitorPhoto(id: String, imageUri: Uri): String
+    suspend fun updateMonitorInformation(id: String, field: String, value: Any)
+    suspend fun updateMonitorImageUrl(id:String,url:String)
 
 }
 class MonitorRepositoryImpl(
@@ -31,6 +31,18 @@ class MonitorRepositoryImpl(
         } ?: run {
             return null
         }
+    }
+
+    override suspend fun updateMonitorPhoto(id: String, imageUri: Uri): String {
+        return monitorServices.uploadProfileImage(id, imageUri)
+    }
+
+    override suspend fun updateMonitorInformation(id: String, field: String, value: Any) {
+        monitorServices.updateMonitorField(id,field, value)
+    }
+
+    override suspend fun updateMonitorImageUrl(id:String,url: String) {
+        monitorServices.updateMonitorImageUrl(id,url)
     }
 
 }
