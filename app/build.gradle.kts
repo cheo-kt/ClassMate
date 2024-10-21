@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
+    implementation(libs.firebase.storage)
         implementation("androidx.compose.material:material:1.7.1")
     // Todo el módulo de navegación incluye los composables NavHost y NavController. También permite instanciar de forma simple ViewModel()
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -76,6 +78,7 @@ dependencies {
     implementation(libs.firebase.auth.interop)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
