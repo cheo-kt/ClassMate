@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +42,7 @@ import com.example.classmate.ui.viewModel.StudentProfileViewModel
 fun StudentProfileScreen(navController: NavController, authViewModel: StudentProfileViewModel = viewModel()){
     authViewModel.showStudentInformation()
     val student: Student? by authViewModel.student.observeAsState(initial = null)
-    var image = ""
+    var image = student?.photo
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -68,7 +69,6 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
                         .fillMaxHeight()
                         .width(300.dp)
                         .align(Alignment.Center)
-
                 )
             }
             Box(
@@ -94,9 +94,10 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
                         .size(200.dp) // Tamaño de la imagen
                         .clip(CircleShape) // Hace que la imagen sea circular
                         .size(200.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        ,
                     contentDescription = null,
-                    painter = rememberAsyncImagePainter(image)
+                    painter = rememberAsyncImagePainter(image, error = painterResource(R.drawable.botonestudiante))
 
                 )
 
@@ -110,29 +111,52 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier = Modifier
-                    .width(270.dp)
+                    .width(300.dp)
                     .height(120.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color(0xFFCCD0CF)),
                 contentAlignment = Alignment.Center
 
             ) {
-                student?.let {
-                    Text(text = it.phone)
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(text = it.email)
-                } ?: run {
-
-                    Text(text = "NO_PHONE")
-                    Text(text = "NO_EMAIL")
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    student?.let {
+                        Text(text = it.phone)
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(text = it.email)
+                    } ?: run {
+                        Text(text = "NO_PHONE")
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(text = "NO_EMAIL")
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
-
+            Button(onClick = {
+                navController.navigate("studentEdit")
+            }) {
+                Text(text = "Editar perfil")
+            }
         }
     }
 
 }
+/*@Composable
+fun ImagePicker(onImageSelected: (Uri) -> Unit) {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { onImageSelected(it) }
+    }
+
+    Button(onClick = { launcher.launch("image/*") }) {
+        Text(text = "Seleccionar Imagen")
+    }
+}
+*/
+ */
 @Preview
 @Composable
 fun test(){
