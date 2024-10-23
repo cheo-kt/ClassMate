@@ -1,21 +1,25 @@
 package com.example.classmate.data.service
 
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import com.example.classmate.domain.model.Student
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 interface StudentServices {
 
     suspend fun createStudent(student: Student)
     suspend fun  getStudentById(id:String):Student?
-    suspend fun uploadProfileImage(id: String,uri: Uri): String
+    suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
     suspend fun updateStudentField(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url: String)
 }
@@ -39,9 +43,20 @@ class StudentServicesImpl: StudentServices {
         return userObject
     }
 
-    override suspend fun uploadProfileImage(id: String,uri: Uri): String  {
+    override suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String  {
         val storageRef = Firebase.storage.reference.child("images/students/$id.jpg")
-        storageRef.putFile(uri).await()
+        val bitmap = withContext(Dispatchers.IO) {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            BitmapFactory.decodeStream(inputStream)
+        }
+
+        val compressedBitmapStream = ByteArrayOutputStream()
+        bitmap?.compress(Bitmap.CompressFormat.JPEG, 50, compressedBitmapStream)
+
+        val compressedData = compressedBitmapStream.toByteArray()
+
+        storageRef.putBytes(compressedData).await()
+
         return storageRef.downloadUrl.await().toString()
     }
 
@@ -59,6 +74,7 @@ class StudentServicesImpl: StudentServices {
             .document(id)
             .update("photo", url)
             .await()
+
     }
 
 }

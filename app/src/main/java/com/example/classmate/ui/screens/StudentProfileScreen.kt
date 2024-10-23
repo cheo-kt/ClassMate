@@ -1,7 +1,6 @@
 package com.example.classmate.ui.screens
 
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,18 +19,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -38,6 +48,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.viewModel.StudentProfileViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun StudentProfileScreen(navController: NavController, authViewModel: StudentProfileViewModel = viewModel()){
@@ -46,6 +57,9 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
     val student: Student? by authViewModel.student.observeAsState(initial = null)
     var image = student?.photo
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -60,13 +74,20 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
                     .height(120.dp),
 
             ) {
-                Button(modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .background(Color.Transparent),
+                IconButton(
                     onClick = {
-                        navController.navigate("HomeStudentScreen")
-                    }) {
-                    Image(painter = painterResource(id = R.drawable.arrow), contentDescription = null )
+                        navController.navigate("signing")
+                    },
+                    modifier = Modifier
+                        .size(50.dp)
+                        .align(Alignment.CenterStart)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back Icon",
+                        modifier = Modifier.size(50.dp),
+                        tint = Color.White
+                    )
                 }
                 Image(
                     contentDescription = null,
@@ -88,6 +109,12 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             {
                 student?.let {
                     image = it.photo
+                    if (studentState==2){
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
+                        }
+                    }
                 }
                 Image(
                     modifier = Modifier
@@ -120,17 +147,15 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalArrangement = Arrangement.Top, // Alinea los elementos en la parte superior
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Text(text = "Acerca de mi: ")
+                    Text(text = "  Acerca de mi: ", modifier = Modifier.offset(0.dp,3.dp))
                     Spacer(modifier = Modifier.height(16.dp))
                     student?.let {
-                        Text(text = it.description)
+                        Text(text = "  "+it.description)
                     }
                 }
-
-
             }
             Spacer(modifier = Modifier.height(16.dp))
             Box(
@@ -148,9 +173,9 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     student?.let {
-                        Text(text = it.phone)
+                        Text(text = "Telefono: "+it.phone)
                         Spacer(modifier = Modifier.height(10.dp))
-                        Text(text = it.email)
+                        Text(text = "Email: "+it.email)
                     } ?: run {
                         Text(text = "NO_PHONE")
                         Spacer(modifier = Modifier.height(10.dp))

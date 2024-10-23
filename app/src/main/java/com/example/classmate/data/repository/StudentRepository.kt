@@ -1,5 +1,6 @@
 package com.example.classmate.data.repository
 
+import android.content.Context
 import android.net.Uri
 import com.example.classmate.domain.model.Student
 import com.example.classmate.data.service.StudentServices
@@ -13,7 +14,7 @@ interface StudentRepository {
 
     suspend fun  createStudent(student: Student)
     suspend fun  getCurrentStudent():Student?
-    suspend fun updateStudentPhoto(id: String, imageUri: Uri): String
+    suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context): String
     suspend fun updateStudentInformation(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url:String)
 }
@@ -33,8 +34,8 @@ class StudentRepositoryImpl(
             return null
         }
     }
-    override suspend fun updateStudentPhoto(id: String, imageUri: Uri): String {
-        return studentServices.uploadProfileImage(id, imageUri)
+    override suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context): String {
+        return studentServices.uploadProfileImage(id, imageUri,context)
     }
 
     override suspend fun updateStudentInformation(id: String, field: String, value: Any) {
