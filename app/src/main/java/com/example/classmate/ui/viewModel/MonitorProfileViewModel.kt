@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 class MonitorProfileViewModel(val repo: MonitorRepository = MonitorRepositoryImpl()):ViewModel() {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
+    val monitorState= MutableLiveData<Int?>(0)
     fun showMonitorInformation() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -25,13 +26,16 @@ class MonitorProfileViewModel(val repo: MonitorRepository = MonitorRepositoryImp
                 withContext(Dispatchers.Main) {
                     if (currentUser != null) {
                         _monitor.value = currentUser
+                        withContext(Dispatchers.Main){monitorState.value= 3}
                     } else {
                         _monitor.value = null
+                        withContext(Dispatchers.Main){monitorState.value= 2}
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _monitor.value = null
+                    monitorState.value=2
                     Log.e("ViewModel", "Error fetching monitor info: ${e.message}")
                 }
 

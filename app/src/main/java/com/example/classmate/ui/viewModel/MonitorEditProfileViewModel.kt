@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -11,6 +12,7 @@ import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.data.service.MonitorServices
 import com.example.classmate.data.service.MonitorServicesImpl
 import com.example.classmate.domain.model.Monitor
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,47 +43,62 @@ class MonitorEditProfileViewModel( val repo: MonitorRepository = MonitorReposito
             }
         }
     }
-    fun updateMonitorPhoto(imageUri: Uri) {
+
+    fun updateMonitorPhoto(imageUri: Uri, context: Context) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) { monitorPhotoState.value = 1 }
             try {
                 val monitorId = monitor.value?.id
                 if (monitorId != null) {
-                    val photoUrl = repo.updateMonitorPhoto(monitorId, imageUri)
+                    val photoUrl = repo.updateMonitorPhoto(monitorId, imageUri, context)
                     repo.updateMonitorImageUrl(monitorId, photoUrl)
-                    withContext(Dispatchers.Main) { monitorPhotoState.value = 3}
+                    withContext(Dispatchers.Main) { monitorPhotoState.value = 3 }
                 } else {
-                    Log.e("UpdatePhoto", "El ID del estudiante es nulo.")
+                    Log.e("UpdatePhoto", "El ID del monitor es nulo.")
                     withContext(Dispatchers.Main) { monitorPhotoState.value = 2 }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) { monitorPhotoState.value = 2 }
                 Log.e("UpdatePhoto", "Error al actualizar la foto del monitor: ${e.message}")
+                withContext(Dispatchers.Main) { monitorPhotoState.value = 0 }
             }
 
         }
     }
-    fun updateMonitorProfile(phone: String,name:String,lastname:String,description:String,email:String) {
+
+    fun updateMonitorProfile(
+        phone: String,
+        name: String,
+        lastname: String,
+        description: String,
+        email: String
+    ) {
         viewModelScope.launch {
             val monitorId = _monitor.value?.id
-            if (monitorId != null) {
-                if (name != _monitor.value?.name){
-                    repo.updateMonitorInformation(monitorId,"name",name)
+            try {
+                if (monitorId != null) {
+                    if (name != _monitor.value?.name) {
+                        repo.updateMonitorInformation(monitorId, "name", name)
+                    }
+                    if (phone != _monitor.value?.phone) {
+                        repo.updateMonitorInformation(monitorId, "phone", phone)
+                    }
+                    if (lastname != _monitor.value?.lastname) {
+                        repo.updateMonitorInformation(monitorId, "lastname", lastname)
+                    }
+                    if (description != _monitor.value?.description) {
+                        repo.updateMonitorInformation(monitorId, "description", description)
+                    }
+                    if (email != _monitor.value?.email) {
+                        repo.updateMonitorInformation(monitorId, "email", email)
+                    }
                 }
-                if (phone != _monitor.value?.phone){
-                    repo.updateMonitorInformation(monitorId, "phone", phone)
-                }
-                if (lastname != _monitor.value?.lastname){
-                    repo.updateMonitorInformation(monitorId, "lastname", lastname)
-                }
-                if (description != _monitor.value?.description){
-                    repo.updateMonitorInformation(monitorId, "description", description)
-                }
-                if (email != _monitor.value?.email){
-                    repo.updateMonitorInformation(monitorId, "email", email)
-                }
+            } catch (e: FirebaseAuthException) {
+                Log.e("UpdateField", "Error al actualizar la información ${e.message}")
             }
         }
     }
-
 }
+
+
+

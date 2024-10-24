@@ -6,6 +6,7 @@ import com.example.classmate.data.service.MonitorServicesImpl
 import com.example.classmate.domain.model.Monitor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import android.content.Context
 
 interface MonitorRepository {
 
@@ -13,7 +14,7 @@ interface MonitorRepository {
 
     suspend fun  createMonitor(monitor: Monitor)
     suspend fun  getCurrentMonitor(): Monitor?
-    suspend fun updateMonitorPhoto(id: String, imageUri: Uri): String
+    suspend fun updateMonitorPhoto(id: String, imageUri: Uri, context: Context): String
     suspend fun updateMonitorInformation(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url:String)
 
@@ -33,8 +34,8 @@ class MonitorRepositoryImpl(
         }
     }
 
-    override suspend fun updateMonitorPhoto(id: String, imageUri: Uri): String {
-        return monitorServices.uploadProfileImage(id, imageUri)
+    override suspend fun updateMonitorPhoto(id: String, imageUri: Uri, context: Context): String {
+        return monitorServices.uploadProfileImage(id, imageUri, context)
     }
 
     override suspend fun updateMonitorInformation(id: String, field: String, value: Any) {
