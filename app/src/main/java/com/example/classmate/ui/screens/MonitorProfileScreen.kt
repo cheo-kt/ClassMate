@@ -80,6 +80,7 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
                     .align(Alignment.CenterStart)
                 ) {
                     Icon(
+
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back Icon",
                         modifier = Modifier.size(50.dp),

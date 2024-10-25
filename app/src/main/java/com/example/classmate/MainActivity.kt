@@ -88,8 +88,8 @@ fun App() {
         composable("introductionMonitor") { IntroductionsMonitorScreen(navController) } //introducción Estudiante
         composable("monitorProfile") { MonitorProfileScreen(navController) } //Perfil Monitor
         composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
-        composable("studentProfile") { StudentProfileScreen(navController) }
-        composable("studentEdit"){ StudentEditScreen(navController)}
+        composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
+        composable("studentEdit"){ StudentEditScreen(navController)} // Perdil del monior
     }
 }
 
