@@ -333,19 +333,9 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                 }
             }
 
-        }else if (authState == 3){
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Registrado correctamente")
-                    navController.navigate("introductionStudent")
-
-                }
-            }
-
+        }else if (authState == 3) {
+            navController.navigate("introductionStudent")
         }
-
-
     }
 }
 

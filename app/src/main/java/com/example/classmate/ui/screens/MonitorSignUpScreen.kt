@@ -82,7 +82,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var confirmPassword by remember{mutableStateOf("")}
+    var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var materia by remember { mutableStateOf("") }
     var materiasConPrecio = remember { mutableStateListOf<Subject>() }
@@ -90,11 +90,14 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
     val keyboardController = LocalSoftwareKeyboardController.current
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
+    val emailRegex =
+        "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
 
 
 
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -330,8 +333,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                         materiasConPrecio,
                                         email,
                                         "",
-                                        ""
-                                        ,0
+                                        "", 0
                                     ),
                                     password
                                 )
@@ -380,13 +382,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 }
             }
         } else if (authState == 3) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Registrado correctamente")
-                    navController.navigate("introductionMonitor")
-                }
-            }
+            navController.navigate("introductionMonitor")
         }
     }
 }
