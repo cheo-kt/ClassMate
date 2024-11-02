@@ -47,7 +47,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.classmate.R
 import com.example.classmate.ui.viewModel.MonitorSigninViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -85,7 +84,7 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.sssss),
+                    painter = painterResource(id = R.drawable.encabezadologin),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
