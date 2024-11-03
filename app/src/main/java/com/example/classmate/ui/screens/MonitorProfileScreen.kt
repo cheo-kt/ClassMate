@@ -35,11 +35,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -68,18 +66,19 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF3F21DB))
+                    .background(Color(0xFF209619))
                     .height(120.dp)
             ) {
                 IconButton(
                     onClick = {
-                        navController.navigate("signin")
+                        navController.navigate("signing")
                     },
                     modifier = Modifier
                     .size(50.dp)
                     .align(Alignment.CenterStart)
                 ) {
                     Icon(
+
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back Icon",
                         modifier = Modifier.size(50.dp),

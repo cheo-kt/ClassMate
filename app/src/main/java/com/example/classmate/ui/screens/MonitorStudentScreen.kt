@@ -54,7 +54,7 @@ fun MonitorStudentScreen(navController: NavController = rememberNavController())
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.encabezadome),
+                    painter = painterResource(id = R.drawable.encabezadoguiaregistro),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

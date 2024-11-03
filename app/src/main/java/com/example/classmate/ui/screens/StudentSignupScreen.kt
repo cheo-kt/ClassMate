@@ -89,7 +89,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.cuadroonly),
+                    painter = painterResource(id = R.drawable.encabezadointroduccion),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

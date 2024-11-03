@@ -84,7 +84,7 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
 
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.sssss),
+                    painter = painterResource(id = R.drawable.encabezadologin),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop

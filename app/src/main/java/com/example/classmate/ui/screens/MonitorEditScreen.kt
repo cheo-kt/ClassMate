@@ -106,7 +106,7 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF3F21DB))
+                    .background(Color(0xFF209619))
                     .height(120.dp)
             ) {
                 IconButton(
