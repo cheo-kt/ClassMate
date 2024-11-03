@@ -231,7 +231,7 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
                 }
             } else {
                 LaunchedEffect(Unit) {
-                    navController.navigate("studentProfile")
+                    navController.navigate("HomeStudentScreen")
                 }
             }
         }
