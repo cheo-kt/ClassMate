@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
@@ -61,6 +63,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
     val horaInicio = remember { mutableStateOf("") }
     val horafin = remember { mutableStateOf("") }
     val notas = remember { mutableStateOf("") }
+    val tipoMonitoria = remember { mutableStateOf("") }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -78,7 +81,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(230.dp),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.encabezadorequest),
@@ -100,12 +103,18 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                     )
                 }
 
-                Image(
-                    painter = painterResource(id = R.drawable.classmatelogo),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.classmatelogo),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(100.dp)
+                    )
+                }
             }
 
             // Sección desplazable
@@ -165,11 +174,72 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                         }
                     }
                 }
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = tipoMonitoria.value == "Taller",
+                            onClick = { tipoMonitoria.value == "Taller" }
+                        )
+                        Text(
+                            text = "Taller",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = tipoMonitoria.value == "Monitoria",
+                            onClick = { tipoMonitoria.value == "Monitoria" }
+                        )
+                        Text(
+                            text = "Monitoria",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = tipoMonitoria.value == "Preparcial",
+                            onClick = { tipoMonitoria.value == "Preparcial" }
+                        )
+                        Text(
+                            text = "Preparcial",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        RadioButton(
+                            selected = tipoMonitoria.value == "Otro",
+                            onClick = { tipoMonitoria.value == "Otro" }
+                        )
+                        Text(
+                            text = "Otro",
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+
+                }
+
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Fecha y hora de solicitud
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                Column(
+                    verticalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // Selector de fecha
@@ -202,6 +272,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                         readOnly = false
                     )
                 }
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -242,7 +313,9 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                                 }
                             }
                         },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier
+                            .size(48.dp)
+                            .border(2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -253,7 +326,9 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
 
                     IconButton(
                         onClick = { navController.navigate("monitorProfile") },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier
+                            .size(48.dp)
+                            .border(2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
