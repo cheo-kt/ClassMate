@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,35 +20,31 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.sharp.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -68,14 +65,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
-import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
-import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
-import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
+
 
 @Composable
 fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeStudentViewModel = viewModel()) {
@@ -87,6 +81,9 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf("") }
+    var expandedFilter by remember { mutableStateOf(false) }
+
     LaunchedEffect(true) {
         homeStudentViewModel.getMonitors()
     }
@@ -207,34 +204,55 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-                    Box(
+
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(50))
-                            .border(2.dp, Color.Black, RoundedCornerShape(50))
+                            .fillMaxWidth()
+                            .height(56.dp)
+                        // Añade padding para más espacio vertical
 
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
+                        Button(
+                            onClick = { expanded = true },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(30.dp)
-                        ) {
-                            Text(
-                                text = "Filtrar",
+                                .border(
+                                width = 1.dp,
                                 color = Color.Black,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
+                                shape = RoundedCornerShape(16.dp)
+                            ) ,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Black
+                            ),
+
+                        ){
+
                             Icon(
                                 painter = painterResource(id = R.drawable.data_loss_prevention),
                                 contentDescription = "Search Icon",
                                 tint = Color.Black,
                                 modifier = Modifier
-                                    .size(24.dp)
-                                    .offset(x = (-3).dp)
+                                    .height(25.dp)
+                                    .width(25.dp)
+
                             )
+                            Text(text = "Filtrar por: ")
+
                         }
+
+                        DropdownMenu(
+                            expanded = expandedFilter,
+                            onDismissRequest = { expandedFilter = false },
+                            modifier = Modifier
+                                .background(Color(0xFFCCD0CF))
+                                .border(1.dp, Color.Black)
+                                .padding(4.dp)
+                        ) {
+
+                        }
+
                     }
 
                     Text(
@@ -311,7 +329,8 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                     Icon(
                                                         imageVector = Icons.Outlined.DateRange,
                                                         contentDescription = "Calendar",
-                                                        modifier = Modifier.size(40.dp)
+                                                        modifier = Modifier
+                                                            .size(40.dp)
                                                             .padding(end = 5.dp)
                                                     )
                                                     Icon(
