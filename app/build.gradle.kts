@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation ("androidx.compose.material3:material3:<latest_version>")
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation(libs.firebase.storage)
         implementation("androidx.compose.material:material:1.7.1")

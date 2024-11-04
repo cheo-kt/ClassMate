@@ -21,6 +21,7 @@ interface MonitorServices {
     suspend fun uploadProfileImage(id: String, uri: Uri, context: Context): String
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
+    suspend fun getMonitors():List<Monitor?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -72,5 +73,15 @@ class MonitorServicesImpl: MonitorServices {
             .document(id)
             .update("photoUrl", url)
             .await()
+    }
+
+    override suspend fun getMonitors():List<Monitor?> {
+    val monitorList = Firebase.firestore
+            .collection("Monitor")
+            .get()
+            .await()
+        return monitorList.documents.map { document ->
+            document.toObject(Monitor::class.java)
+        }
     }
 }

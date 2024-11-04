@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -17,7 +18,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,13 +31,23 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.sharp.Star
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,9 +65,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
 import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
@@ -60,23 +78,26 @@ import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
 @Composable
-fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentViewModel = viewModel()) {
-    val scrollState= rememberScrollState()
-    val student: Student? by authViewModel.student.observeAsState(initial = null)
+fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeStudentViewModel = viewModel()) {
+    val monitorState by homeStudentViewModel.monitorList.observeAsState()
+    val scrollState = rememberScrollState()
+    val student: Student? by homeStudentViewModel.student.observeAsState(initial = null)
     var image = student?.photo
-    val studentState by authViewModel.studentState.observeAsState()
+    val studentState by homeStudentViewModel.studentState.observeAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
     var expanded by remember { mutableStateOf(false) }
-
-
+    LaunchedEffect(true) {
+        homeStudentViewModel.getMonitors()
+    }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerpadding).verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerpadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +163,10 @@ fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentVi
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape),
-                                painter = rememberAsyncImagePainter(image, error = painterResource(R.drawable.botonestudiante)),
+                                painter = rememberAsyncImagePainter(
+                                    image,
+                                    error = painterResource(R.drawable.botonestudiante)
+                                ),
                                 contentDescription = "foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
@@ -167,14 +191,15 @@ fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentVi
                         }
                     }
 
-
-
                     Spacer(modifier = Modifier.weight(0.1f))
                 }
             }
             Box(modifier = Modifier.weight(0.001f))
-            Box(modifier = Modifier
-                .padding(5.dp)){
+            Box(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+            ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
                         text = "¿Qué necesitas?",
@@ -182,17 +207,19 @@ fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentVi
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-                    Box(modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                        .fillMaxWidth()
-                        .background(Color.LightGray, shape = RoundedCornerShape(50))
-                        .border(2.dp, Color.Black, RoundedCornerShape(50))
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .background(Color.LightGray, shape = RoundedCornerShape(50))
+                            .border(2.dp, Color.Black, RoundedCornerShape(50))
 
-                    ){
+                    ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth().height(30.dp)
-                        ){
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(30.dp)
+                        ) {
                             Text(
                                 text = "Filtrar",
                                 color = Color.Black,
@@ -203,10 +230,10 @@ fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentVi
                                 painter = painterResource(id = R.drawable.data_loss_prevention),
                                 contentDescription = "Search Icon",
                                 tint = Color.Black,
-                                modifier = Modifier.size(24.dp).offset(x = (-3).dp)
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .offset(x = (-3).dp)
                             )
-
-
                         }
                     }
 
@@ -216,84 +243,162 @@ fun HomeStudentScreen(navController: NavController, authViewModel: HomeStudentVi
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-
-
-                }
-
-            }
-            Box(modifier = Modifier.weight(0.1f))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendar_today),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
+                    Column(modifier = Modifier.verticalScroll(scrollState)) {
+                        monitorState?.let { monitors ->
+                            monitors.forEach { monitor ->
+                                monitor?.subjects?.forEach { subject ->
+                                    ElevatedCard(
+                                        elevation = CardDefaults.cardElevation(
+                                            defaultElevation = 20.dp,
+                                        ), modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        onClick = {}
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            AsyncImage(
+                                                model = monitor.photoUrl,
+                                                contentDescription = "",
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                    .padding(horizontal = 10.dp)
+                                                    .size(50.dp)
+                                                    .clip(CircleShape)
+                                            )
+                                            Column(
+                                                modifier = Modifier.align(Alignment.CenterVertically),
+                                                verticalArrangement = Arrangement.spacedBy((-5).dp)
+                                            ) {
+                                                androidx.compose.material3.Text(
+                                                    text = monitor.name,
+                                                    color = Color.Blue,
+                                                    fontSize = 16.sp,
+                                                    modifier = Modifier.padding(top = 10.dp)
+                                                )
+                                                androidx.compose.material3.Text(
+                                                    text = ("Materia: ${subject.nombre}"),
+                                                    fontSize = 12.sp,
+                                                )
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.Star,
+                                                        contentDescription = "Star",
+                                                        modifier = Modifier.padding(bottom = 10.dp)
+                                                    )
+                                                    Text(
+                                                        text = "${monitor.rating}/5",
+                                                        fontSize = 16.sp,
+                                                        modifier = Modifier.padding(bottom = 10.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(50.dp))
+                                                    Text(
+                                                        text = "$" + subject.precio,
+                                                        fontSize = 16.sp,
+                                                        modifier = Modifier.padding(bottom = 10.dp)
+                                                    )
+                                                }
+                                            }
+                                            Box(
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .align(Alignment.CenterEnd)
+                                                        .padding(end = 10.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.DateRange,
+                                                        contentDescription = "Calendar",
+                                                        modifier = Modifier.size(40.dp)
+                                                            .padding(end = 5.dp)
+                                                    )
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.PlayArrow,
+                                                        contentDescription = "Arrow",
+                                                        modifier = Modifier.size(40.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                    Box(modifier = Modifier.weight(0.1f))
-                    Box(
+                }
+            }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(Color(0xFF3F21DB)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
                         modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                        contentAlignment = Alignment.Center
+                            .fillMaxSize()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        Box(modifier = Modifier.weight(0.1f))
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.add_home),
+                                painter = painterResource(id = R.drawable.calendar_today),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
                                     .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
+                                tint = Color.White
                             )
                         }
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notifications),
-                            contentDescription = "calendario",
+                        Box(modifier = Modifier.weight(0.1f))
+                        Box(
                             modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
+                                .size(58.dp)
+                                .background(color = Color(0xFFCCD0CF), shape = CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.add_home),
+                                    contentDescription = "calendario",
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .padding(4.dp),
+                                    tint = Color(0xFF3F21DB)
+                                )
+                            }
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
                     }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
                 }
             }
-
-
         }
-    }
 
 }
 
