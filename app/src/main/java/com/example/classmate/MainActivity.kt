@@ -59,6 +59,7 @@ import com.example.classmate.ui.screens.StudentEditScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentProfileScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
+import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 
@@ -77,7 +78,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "HomeStudentScreen") {
+    NavHost(navController = navController, startDestination = "unicastMonitoring") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
@@ -89,7 +90,8 @@ fun App() {
         composable("monitorProfile") { MonitorProfileScreen(navController) } //Perfil Monitor
         composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
-        composable("studentEdit"){ StudentEditScreen(navController)} // Perdil del monior
+        composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
+        composable("unicastMonitoring"){ UnicastMonitoringScreen(navController) } // Pantalla de solicitud de monitoria a monitor en particular.
     }
 }
 
