@@ -13,6 +13,7 @@ googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.0"
 firebaseAuthKtx = "23.0.0"
 firebaseStorageKtx = "21.0.1"
+navigationSafeArgsGenerator = "2.8.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,7 @@ firebase-auth-interop = { group = "com.google.firebase", name = "firebase-auth-i
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+androidx-navigation-safe-args-generator = { group = "androidx.navigation", name = "navigation-safe-args-generator", version.ref = "navigationSafeArgsGenerator" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

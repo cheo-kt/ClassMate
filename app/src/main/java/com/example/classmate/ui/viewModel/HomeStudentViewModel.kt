@@ -22,9 +22,7 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
     val studentState = MutableLiveData<Int?>(0)
     private val _monitorList = MutableLiveData(listOf<Monitor?>())
     val monitorList: LiveData<List<Monitor?>> get() = _monitorList
-
-
-    fun showStudentImage() {
+    fun getStudent0() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {studentState.value = 1}
             try {
@@ -45,6 +43,14 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
                     Log.e("ViewModel", "Error fetching student info: ${e.message}")
                 }
 
+            }
+        }
+    }
+    fun getStudent() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val me = repo.getCurrentStudent()
+            withContext(Dispatchers.Main) {
+                _student.value = me
             }
         }
     }
