@@ -8,6 +8,7 @@ import com.example.classmate.data.repository.RequestRRepositoryImpl
 import com.example.classmate.data.repository.RequestRepository
 import com.example.classmate.data.repository.StudentAuthRepository
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Request
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,11 +22,11 @@ class UnicastMonitoringViewModel (
     //1. Loading
     //2. Error
     //3. Success
-    fun signup(monitor: Monitor, password: String) {
+    fun createRequest(request: Request) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { authState.value = 1 }
             try {
-                //repo.signup(monitor, password)
+                repo.createRequest(request)
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }

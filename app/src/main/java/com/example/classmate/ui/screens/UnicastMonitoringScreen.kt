@@ -22,7 +22,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -33,7 +32,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,21 +41,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.classmate.App
 import com.example.classmate.R
-import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CustomTextField
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import com.google.firebase.Timestamp
+
 
 
 @Composable
@@ -73,6 +75,13 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
     val horafin = remember { mutableStateOf("") }
     val notas = remember { mutableStateOf("") }
     val tipoMonitoria = remember { mutableStateOf("") }
+    val formatoFechaHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+    val fechaHoraString = "${fecha.value} ${horaInicio.value}"
+    val fechaHoraDate: Date? = formatoFechaHora.parse(fechaHoraString)
+    val fechaHoraTimestamp = fechaHoraDate?.let { Timestamp(it) } ?: Timestamp.now()
+    val student: Student
+    val monitor : Monitor
+    val materia = remember { mutableStateOf("") }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -89,7 +98,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp),
+                    .height(120.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -135,7 +144,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Aquí puedes agregar los componentes de tu pantalla desplazable, según tu imagen
+
 
                 // Opciones de modalidad (Virtual, Presencial, etc.)
                 Text("¡Haz tu solicitud!", style = MaterialTheme.typography.titleLarge)
@@ -306,6 +315,16 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                                 }
                             }
                             else{
+
+                                unicastMonitoringViewModel.createRequest(
+                                    Request("",
+                                        modalidadSeleccionada.toString(),
+                                        tipoMonitoria.toString(),fechaHoraTimestamp,
+                                        notas.toString(),
+                                        direccion.toString(),
+                                        materia.toString(), student.id, student.name,monitor.id,monitor.name)
+                                )
+
 
                             }
                         },
