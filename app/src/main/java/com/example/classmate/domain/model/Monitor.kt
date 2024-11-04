@@ -1,6 +1,6 @@
 package com.example.classmate.domain.model
 
-class Monitor(
+data class Monitor(
     var id: String = "",
     var name: String = "",
     var lastname: String = "",
@@ -9,8 +9,10 @@ class Monitor(
     var email: String = "",
     var description: String ="",
     var photoUrl: String = "",
-    var rating: Int = 0
-
+    var rating: Int = 0,
+    var appointments: List<Appointment> = listOf(),
+    var notifications: List<Notification> = listOf(),
+    var requests: List<Request> = listOf()
 
 
 
