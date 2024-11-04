@@ -51,9 +51,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CustomTextField
+import com.example.classmate.ui.viewModel.NotificationViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -63,8 +65,9 @@ import com.google.firebase.Timestamp
 
 
 @Composable
-fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel()) {
+fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
     val authState by unicastMonitoringViewModel.authState.observeAsState()
+    val authState2 by notificationViewModel.authState2.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -326,6 +329,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                                 )
 
 
+
                             }
                         },
                         modifier = Modifier
@@ -382,13 +386,47 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
             }
         }
     } else if (authState == 3) {
+
         LaunchedEffect(Unit) {
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar("La solicitud de monitoria enviada correctamente")
             }
         }
-        navController.navigate("HomeStudentScreen")
+
+        notificationViewModel.createNotification(
+            Notification("",fechaHoraTimestamp,"¡Tienes una nueva solicitud de monitoria!",
+                materia.toString(),student.id,student.name,monitor.id,monitor.name)
+        )
+        if (authState2 == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (authState2 == 2) {
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                }
+            }
+        } else if (authState2 == 3) {
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("La notificación fue enviada correctamente")
+                }
+            }
+            navController.navigate("HomeStudentScreen")
+
+        }
+
     }
 
 

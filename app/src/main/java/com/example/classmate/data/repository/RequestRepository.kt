@@ -21,7 +21,7 @@ class RequestRRepositoryImpl(
 
 
     override suspend fun createRequest(request: Request) {
-        val documentId = FirebaseFirestore.getInstance().collection("requests").document().id
+        val documentId = FirebaseFirestore.getInstance().collection("request").document().id
         request.id = documentId
         requestServices.createRequest(request)
     }
