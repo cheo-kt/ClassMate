@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp
 
 data class Request(
     var id: String = "",
-    var mode_class: Boolean = false,
+    var mode_class: String = "",
     var type: String = "",
     var date: Timestamp = Timestamp.now(),
     var description: String = "",
