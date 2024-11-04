@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
@@ -39,10 +42,14 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.sharp.Star
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,6 +68,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,16 +85,19 @@ import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeStudentViewModel = viewModel()) {
     val monitorState by homeStudentViewModel.monitorList.observeAsState()
     val scrollState = rememberScrollState()
     val student: Student? by homeStudentViewModel.student.observeAsState(initial = null)
     var image = student?.photo
+    var filter by remember { mutableStateOf("") }
     val studentState by homeStudentViewModel.studentState.observeAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
+    val maxLength = 20
     LaunchedEffect(true) {
         homeStudentViewModel.getMonitors()
     }
@@ -190,14 +201,12 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
                         }
                     }
-
-                    Spacer(modifier = Modifier.weight(0.1f))
                 }
             }
-            Box(modifier = Modifier.weight(0.001f))
+            Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
-                    .padding(10.dp)
+                    .padding(horizontal = 20.dp)
                     .weight(1f)
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -207,52 +216,83 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
+                    Spacer(modifier = Modifier.height(10.dp))
                     Box(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(50))
-                            .border(2.dp, Color.Black, RoundedCornerShape(50))
+                        Modifier
+                            .width(250.dp)
+                            .align(Alignment.Start)
+                    ){
+                        BasicTextField(
+                            value = filter,
+                            onValueChange = {
+                                if (it.length <= maxLength) {
+                                filter = it
+                            } },
+                            textStyle = TextStyle(
+                                fontSize = 16.sp,
+                                color = Color.Black
+                            ),
+                            decorationBox = { innerTextField ->
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(40.dp)
+                                        .background(Color.LightGray, shape = RoundedCornerShape(50))
+                                        .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                        .padding(horizontal = 15.dp),
+                                        contentAlignment = Alignment.CenterStart
 
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(30.dp)
-                        ) {
-                            Text(
-                                text = "Filtrar",
-                                color = Color.Black,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                painter = painterResource(id = R.drawable.data_loss_prevention),
-                                contentDescription = "Search Icon",
-                                tint = Color.Black,
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .offset(x = (-3).dp)
-                            )
-                        }
+
+                                ) {
+                                    if (filter.isEmpty()) {
+                                        Text(
+                                            text = "Filtrar",
+                                            color = Color.Gray,
+                                        )
+                                    }
+                                    innerTextField()
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.data_loss_prevention),
+                                        contentDescription = "Search Icon",
+                                        tint = Color.Black,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .align(Alignment.CenterEnd)
+                                    )
+                                }
+                            },
+                            singleLine = true,
+                        )
                     }
-
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = "Monitores Destacados",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
+                    Spacer(modifier = Modifier.height(5.dp))
+
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         monitorState?.let { monitors ->
-                            monitors.forEach { monitor ->
+                            val m:List<Monitor?> = if(filter.isNotEmpty()) {
+                                monitors.filter {
+                                    it?.name!!.startsWith(
+                                        filter,
+                                        ignoreCase = true
+                                    )
+                                }
+                            } else{
+                                monitors
+                            }
+                                m.forEach { monitor ->
                                 monitor?.subjects?.forEach { subject ->
                                     ElevatedCard(
                                         elevation = CardDefaults.cardElevation(
-                                            defaultElevation = 20.dp,
+                                            defaultElevation = 5.dp,
                                         ), modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(10.dp),
+                                            .padding(vertical = 10.dp),
                                         onClick = {}
                                     ) {
                                         Row(
@@ -311,7 +351,8 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                     Icon(
                                                         imageVector = Icons.Outlined.DateRange,
                                                         contentDescription = "Calendar",
-                                                        modifier = Modifier.size(40.dp)
+                                                        modifier = Modifier
+                                                            .size(40.dp)
                                                             .padding(end = 5.dp)
                                                     )
                                                     Icon(
@@ -399,6 +440,5 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                 }
             }
         }
-
 }
 
