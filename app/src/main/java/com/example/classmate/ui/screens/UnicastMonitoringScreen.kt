@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -19,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -49,11 +52,17 @@ import com.example.classmate.R
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import com.example.classmate.ui.components.CustomTextField
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel()) {
+    val authState by unicastMonitoringViewModel.authState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -80,7 +89,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(230.dp),
+                    .height(150.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -93,12 +102,13 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                 IconButton(
                     onClick = { navController.navigate("monitorProfile") },
                     modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(start = 8.dp)
+                        .size(50.dp)
+                        .offset(y = (-25).dp, x = (-45).dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Regresar",
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back Icon",
+                        modifier = Modifier.size(50.dp),
                         tint = Color.White
                     )
                 }
@@ -112,7 +122,7 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(100.dp)
+                            .size(250.dp)
                     )
                 }
             }
@@ -233,48 +243,31 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
 
                 }
 
-
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Fecha y hora de solicitud
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(
                     verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 ) {
+                    CustomTextField(value =fecha.value , onValueChange = {fecha.value = it}, label =  "Fecha (dd/mm/yyyy)")
                     // Selector de fecha
-                    OutlinedTextField(
-                        value = fecha.value,
-                        onValueChange = { nuevaFecha -> fecha.value = nuevaFecha },
-                        label = { Text("Fecha (dd/mm/yyyy)") },
-                        modifier = Modifier.weight(1f),
-                        readOnly = false
-                    )
 
                     Spacer(modifier = Modifier.width(16.dp))
-
+                    CustomTextField(value = horaInicio.value, onValueChange ={horaInicio.value = it}, label = "Hora de inicio (HH:mm)" )
                     // Selector de hora inicio
-                    OutlinedTextField(
-                        value = horaInicio.value,
-                        onValueChange = { nuevaHora -> horaInicio.value = nuevaHora },
-                        label = { Text("Hora de inicio (HH:mm)") },
-                        modifier = Modifier.weight(1f),
-                        readOnly = false
-                    )
 
                     Spacer(modifier = Modifier.width(16.dp))
+                    CustomTextField(value = horafin.value, onValueChange ={horafin.value = it}, label = "Hora de fin (HH:mm)" )
 
-                    TextField(
-                        value = horafin.value,
-                        onValueChange = {nuevaHora -> horafin.value = nuevaHora},
-                        label = { Text("Hora de inicio (HH:mm)") },
-                        modifier = Modifier.weight(1f),
-                        readOnly = false
-                    )
                 }
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+
 
                 // Notas
                 OutlinedTextField(
@@ -300,22 +293,29 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                                     snackbarHostState.showSnackbar("modalidad no seleccionada")
                                 }
                             }
-                            if(modalidadSeleccionada.value == "Presencial" && direccion.value.isEmpty()){
+                            else if(modalidadSeleccionada.value == "Presencial" && direccion.value.isEmpty()){
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("no se ha especificado la dirección")
                                 }
                             }
-                            if(fecha.value.isEmpty() || horaInicio.value.isEmpty() || horafin.value.isEmpty()){
+                            else if(fecha.value.isEmpty() || horaInicio.value.isEmpty() || horafin.value.isEmpty()){
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("la fecha u hora no se han definido.")
                                 }
                             }
+                            else{
+
+                            }
                         },
                         modifier = Modifier
                             .size(48.dp)
-                            .border(2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                            .border(
+                                2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -328,7 +328,11 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                         onClick = { navController.navigate("monitorProfile") },
                         modifier = Modifier
                             .size(48.dp)
-                            .border(2.dp, color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                            .border(
+                                2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -340,5 +344,34 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
             }
         }
     }
+    if (authState == 1) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
+        }
+    } else if (authState == 2) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("Ha ocurrido un error")
+            }
+        }
+    } else if (authState == 3) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("La solicitud de monitoria enviada correctamente")
+            }
+        }
+        navController.navigate("HomeStudentScreen")
+    }
+
+
 }
 
