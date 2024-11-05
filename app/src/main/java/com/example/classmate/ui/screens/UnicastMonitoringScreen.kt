@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.RadioButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,9 +52,22 @@ import androidx.navigation.NavController
 import com.example.classmate.R
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.window.Dialog
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
@@ -63,33 +80,60 @@ import java.util.Date
 import java.util.Locale
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnicastMonitoringScreen(navController: NavController, monitor:String?, student:String?, materia:String?, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
+fun UnicastMonitoringScreen(
+    navController: NavController,
+    monitor: String?,
+    student: String?,
+    materia: String?,
+    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
+    notificationViewModel: NotificationViewModel = viewModel()
+) {
     val authState by unicastMonitoringViewModel.authState.observeAsState()
     val authState2 by notificationViewModel.authState2.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    val modalidadSeleccionada = remember { mutableStateOf("") }
-    val direccion = remember { mutableStateOf("") }
-    val fecha = remember { mutableStateOf("") }
-    val horaInicio = remember { mutableStateOf("") }
-    val horafin = remember { mutableStateOf("") }
-    val notas = remember { mutableStateOf("") }
-    val tipoMonitoria = remember { mutableStateOf("") }
-    val formatoFechaHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val fechaHoraString = "${fecha.value} ${horaInicio.value}"
-    val studentObj:Student = Gson().fromJson(student, Student::class.java)
-    val monitorObj:Monitor = Gson().fromJson(monitor, Monitor::class.java)
-    LaunchedEffect(true) {
-        Log.e(">>>",student?:"No")
-        Log.e(">>>",monitor?:"No")
-        Log.e(">>>",materia?:"No")
-    }
-    //val fechaHoraDate: Date? = formatoFechaHora.parse(fechaHoraString)
-    //val fechaHoraTimestamp = fechaHoraDate?.let { Timestamp(it) } ?: Timestamp.now()
+    var modalidadSeleccionada by remember { mutableStateOf("") }
+    var direccion by remember { mutableStateOf("") }
+    var fecha by remember { mutableStateOf("") }
+    var horaInicio by remember { mutableStateOf("") }
+    var horafin by remember { mutableStateOf("") }
+    var notas by remember { mutableStateOf("") }
+    var tipoMonitoria by remember { mutableStateOf("") }
+    val studentObj: Student = Gson().fromJson(student, Student::class.java)
+    val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
+
+    val intialTime by remember { mutableStateOf("") }
+    var initialTimeVisibility by remember { mutableStateOf(false) }
+    var datePickerVisibility by remember { mutableStateOf(false) }
+    var finalTimeVisibility by remember { mutableStateOf(false) }
+
+    var timestampGlobal by remember { mutableStateOf(Timestamp(Date())) }
+
+
+
+    val currentTime = Calendar.getInstance()
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = false,
+    )
+    val timePickerState2 = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = false,
+    )
+    val datePickerState = rememberDatePickerState(
+
+    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -101,45 +145,48 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-
             // Sección superior fija
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadorequest),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                IconButton(
-                    onClick = { navController.navigate("monitorProfile") },
-                    modifier = Modifier
-                        .size(50.dp)
-                        .offset(y = (-25).dp, x = (-45).dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back Icon",
-                        modifier = Modifier.size(50.dp),
-                        tint = Color.White
-                    )
-                }
-
+            Row() {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
-                ) {
+                        .fillMaxWidth()
+                        .height(120.dp),
+
+                    ) {
                     Image(
-                        painter = painterResource(id = R.drawable.classmatelogo),
+                        painter = painterResource(id = R.drawable.encabezadorequest),
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(250.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
+                    IconButton(
+                        onClick = { navController.navigate("monitorProfile") },
+                        modifier = Modifier
+                            .size(50.dp)
+                            .offset(y = (30).dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back Icon",
+                            modifier = Modifier.size(50.dp),
+                            tint = Color.White
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.classmatelogo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(250.dp)
+                        )
+                    }
                 }
             }
 
@@ -164,8 +211,8 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = modalidadSeleccionada.value == "Virtual",
-                            onClick = { modalidadSeleccionada.value = "Virtual" }
+                            selected = modalidadSeleccionada == "Virtual",
+                            onClick = { modalidadSeleccionada = "Virtual" }
                         )
                         Text(
                             text = "Virtual",
@@ -178,8 +225,8 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = modalidadSeleccionada.value == "Presencial",
-                            onClick = { modalidadSeleccionada.value = "Presencial" }
+                            selected = modalidadSeleccionada == "Presencial",
+                            onClick = { modalidadSeleccionada = "Presencial" }
                         )
                         Text(
                             text = "Presencial",
@@ -187,10 +234,12 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         )
 
                         // Campo para ingresar dirección (solo se muestra si es presencial)
-                        if (modalidadSeleccionada.value == "Presencial") {
+                        if (modalidadSeleccionada == "Presencial") {
                             OutlinedTextField(
-                                value = direccion.value,
-                                onValueChange = { nuevaDireccion -> direccion.value = nuevaDireccion },
+                                value = direccion,
+                                onValueChange = { nuevaDireccion ->
+                                    direccion = nuevaDireccion
+                                },
                                 modifier = Modifier
                                     .padding(start = 16.dp)
                                     .width(200.dp),
@@ -208,8 +257,8 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = tipoMonitoria.value == "Taller",
-                            onClick = { tipoMonitoria.value == "Taller" }
+                            selected = tipoMonitoria == "Taller",
+                            onClick = { tipoMonitoria = "Taller" } // Corregido aquí
                         )
                         Text(
                             text = "Taller",
@@ -221,8 +270,8 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = tipoMonitoria.value == "Monitoria",
-                            onClick = { tipoMonitoria.value == "Monitoria" }
+                            selected = tipoMonitoria == "Monitoria",
+                            onClick = { tipoMonitoria = "Monitoria" } // Corregido aquí
                         )
                         Text(
                             text = "Monitoria",
@@ -234,8 +283,8 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = tipoMonitoria.value == "Preparcial",
-                            onClick = { tipoMonitoria.value == "Preparcial" }
+                            selected = tipoMonitoria == "Preparcial",
+                            onClick = { tipoMonitoria = "Preparcial" } // Corregido aquí
                         )
                         Text(
                             text = "Preparcial",
@@ -247,17 +296,16 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         RadioButton(
-                            selected = tipoMonitoria.value == "Otro",
-                            onClick = { tipoMonitoria.value == "Otro" }
+                            selected = tipoMonitoria == "Otro",
+                            onClick = { tipoMonitoria = "Otro" } // Corregido aquí
                         )
                         Text(
                             text = "Otro",
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }
-
-
                 }
+
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -269,26 +317,117 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    CustomTextField(value =fecha.value , onValueChange = {fecha.value = it}, label =  "Fecha (dd/mm/yyyy)")
+
+
+                    OutlinedTextField(
+                        value = fecha,
+                        enabled = false,
+                        onValueChange = {},
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                        ),
+                        label = { Text("Fecha") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                datePickerVisibility = true
+                            },
+                    )
                     // Selector de fecha
 
                     Spacer(modifier = Modifier.width(16.dp))
-                    CustomTextField(value = horaInicio.value, onValueChange ={horaInicio.value = it}, label = "Hora de inicio (HH:mm)" )
+
+
+                    OutlinedTextField(
+                        value = horaInicio,
+                        enabled = false,
+                        onValueChange = {},
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                        ),
+                        label = { Text("Hora de inicio (HH:mm)") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                initialTimeVisibility = true
+                            },
+                    )
+
+                    TimePickerDialog(
+                        visible = initialTimeVisibility,
+                        timePickerState = timePickerState
+                    ) {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        cal.set(Calendar.MINUTE, timePickerState.minute)
+                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
+                        horaInicio = format
+                        initialTimeVisibility = false
+                    }
+
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+
+                    OutlinedTextField(
+                        value = horafin,
+                        enabled = false,
+                        onValueChange = {},
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                        ),
+                        label = { Text("Hora de fin (HH:mm)") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                finalTimeVisibility = true
+                            },
+                    )
+
+                    TimePickerDialog(
+                        visible = finalTimeVisibility,
+                        timePickerState = timePickerState2
+                    ) {
+                        val cal = Calendar.getInstance()
+                        cal.set(Calendar.HOUR_OF_DAY, timePickerState2.hour)
+                        cal.set(Calendar.MINUTE, timePickerState2.minute)
+                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
+                        horafin = format
+                        finalTimeVisibility = false
+                    }
+
+
+                    DatePickerDialog(
+                        visible = datePickerVisibility,
+                        datePickerState = datePickerState
+                    ) {
+                        datePickerState.selectedDateMillis?.let {
+                            val zonedDateTime = Instant.ofEpochMilli(it+6*60*60*1000).atZone(ZoneId.systemDefault())
+                            val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                            fecha = formattedDate
+                        }
+                        datePickerVisibility = false
+
+                    }
+
                     // Selector de hora inicio
 
                     Spacer(modifier = Modifier.width(16.dp))
-                    CustomTextField(value = horafin.value, onValueChange ={horafin.value = it}, label = "Hora de fin (HH:mm)" )
-
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
 
-
                 // Notas
                 OutlinedTextField(
-                    value = notas.value,
-                    onValueChange = { nuevaNota -> notas.value = nuevaNota },
+                    value = notas,
+                    onValueChange = { nuevaNota -> notas = nuevaNota },
                     label = { Text("Notas") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = false // Permite que el usuario edite el campo
@@ -303,36 +442,47 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
                 ) {
                     IconButton(
                         onClick = {
-                            if(modalidadSeleccionada.value.isEmpty()){
+                            if (modalidadSeleccionada.isEmpty()) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("modalidad no seleccionada")
                                 }
-                            }
-                            else if(modalidadSeleccionada.value == "Presencial" && direccion.value.isEmpty()){
+                            } else if (modalidadSeleccionada == "Presencial" && direccion.isEmpty()) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("no se ha especificado la dirección")
                                 }
-                            }
-                            else if(fecha.value.isEmpty() || horaInicio.value.isEmpty() || horafin.value.isEmpty()){
+
+                            }else if(tipoMonitoria.isEmpty()){
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("no se ha especificado el tipo de monitoria")
+                                }
+
+                            } else if (fecha.isEmpty() || horaInicio.isEmpty() || horafin.isEmpty()) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("la fecha u hora no se han definido.")
                                 }
                             }
-//                            else{
-//
-//                                unicastMonitoringViewModel.createRequest(
-//                                    Request("",
-//                                        modalidadSeleccionada.toString(),
-//                                        tipoMonitoria.toString(),fechaHoraTimestamp,
-//                                        notas.toString(),
-//                                        direccion.toString(),
-//                                        materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
-//                                )
-//
-//                            }
+                            else{
+                                val datetimeString = "${fecha} ${horaInicio}"
+
+                                val datetime = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeString)
+                                val timestamp = Timestamp(datetime)
+                                timestampGlobal = timestamp
+
+
+                                unicastMonitoringViewModel.createRequest(
+                                    Request("",
+                                        modalidadSeleccionada.toString(),
+                                        tipoMonitoria.toString(),timestamp,
+                                        notas.toString(),
+                                        direccion.toString(),
+                                        materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
+                                )
+
+                            }
                         },
                         modifier = Modifier
                             .size(48.dp)
@@ -396,10 +546,10 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
             }
         }
 
-//        notificationViewModel.createNotification(
-//            Notification("",fechaHoraTimestamp,"¡Tienes una nueva solicitud de monitoria!",
-//                materia.toString(),studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
-//        )
+        notificationViewModel.createNotification(
+            Notification("",timestampGlobal,"¡Tienes una nueva solicitud de monitoria!",
+                materia.toString(),studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
+        )
         if (authState2 == 1) {
             Box(
                 modifier = Modifier
@@ -432,5 +582,78 @@ fun UnicastMonitoringScreen(navController: NavController, monitor:String?, stude
     }
 
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDialog(visible: Boolean, timePickerState: TimePickerState, dismiss: () -> Unit) {
+    if (visible) {
+        Dialog(
+            onDismissRequest = {
+
+            }
+        ) {
+            Card {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally // Centra los elementos
+                ) {
+                    TimePicker(state = timePickerState)
+                    Button(
+                        onClick = {
+                            dismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(0.5f) // Ajusta el tamaño del botón
+                    ) {
+                        Text(
+                            text = "Confirmar",
+                            color = Color.White // Cambia el color del texto a blanco
+                        )
+                    }
+                }
+            }
+
+
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerDialog(visible: Boolean, datePickerState: DatePickerState, dismiss: () -> Unit) {
+    if (visible) {
+        Dialog(
+            onDismissRequest = {
+
+
+            }
+        ) {
+
+            Card( ) {
+
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.9f),
+                    horizontalAlignment = Alignment.CenterHorizontally // Centrar el contenido
+                ) {
+
+                    DatePicker(state = datePickerState)
+                    Button(
+                        onClick = {
+                            dismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(0.5f) // Ajusta el tamaño del botón si lo necesitas
+                    ) {
+                        Text(
+                            text = "Confirmar",
+                            color = Color.White // Cambiar el color del texto a blanco
+                        )
+                    }
+                }
+            }
+
+
+        }
+    }
 }
 
