@@ -82,6 +82,7 @@ import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
 import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -357,7 +358,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                         )
                                                     }
                                                     IconButton(onClick = {
-                                                        navController.navigate("signupMonitor?monitor=$monitor&student=${student?:"No"}&materia=${subject}")
+                                                        navController.navigate("unicastMonitoring?monitor=${Gson().toJson(monitor)?:"No"}&student=${Gson().toJson(student)?:"No"}&materia=${subject}")
                                                     }) {
                                                         Icon(
                                                             imageVector = Icons.Outlined.PlayArrow,

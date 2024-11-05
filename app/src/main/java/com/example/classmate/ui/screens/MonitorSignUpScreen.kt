@@ -73,8 +73,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun MonitorSignUpScreen(navController: NavController,
-                        monitor:String? = "No email", student:String? = "No pass", materiaa:String?="XD", monitorSignupViewModel: MonitorSignupViewModel = viewModel()) {
+fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: MonitorSignupViewModel = viewModel()) {
 
     val authState by monitorSignupViewModel.authState.observeAsState()
     var names by remember { mutableStateOf("") }
@@ -92,12 +91,6 @@ fun MonitorSignUpScreen(navController: NavController,
     val keyboardController = LocalSoftwareKeyboardController.current
     val emailRegex =
         "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
-    LaunchedEffect(true) {
-        Log.e(">>>",student?:"No")
-        Log.e(">>>",monitor?:"No")
-        Log.e(">>>",materiaa?:"No")
-    }
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

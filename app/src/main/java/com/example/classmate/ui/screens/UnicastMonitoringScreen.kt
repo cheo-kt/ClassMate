@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -61,11 +62,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.google.firebase.Timestamp
-
+import com.google.gson.Gson
 
 
 @Composable
-fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
+fun UnicastMonitoringScreen(navController: NavController, monitor:String?, student:String?, materia:String?, unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),notificationViewModel: NotificationViewModel = viewModel()) {
     val authState by unicastMonitoringViewModel.authState.observeAsState()
     val authState2 by notificationViewModel.authState2.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -80,11 +81,15 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
     val tipoMonitoria = remember { mutableStateOf("") }
     val formatoFechaHora = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     val fechaHoraString = "${fecha.value} ${horaInicio.value}"
-    val fechaHoraDate: Date? = formatoFechaHora.parse(fechaHoraString)
-    val fechaHoraTimestamp = fechaHoraDate?.let { Timestamp(it) } ?: Timestamp.now()
-    val student: Student
-    val monitor : Monitor
-    val materia = remember { mutableStateOf("") }
+    val studentObj:Student = Gson().fromJson(student, Student::class.java)
+    val monitorObj:Monitor = Gson().fromJson(monitor, Monitor::class.java)
+    LaunchedEffect(true) {
+        Log.e(">>>",student?:"No")
+        Log.e(">>>",monitor?:"No")
+        Log.e(">>>",materia?:"No")
+    }
+    //val fechaHoraDate: Date? = formatoFechaHora.parse(fechaHoraString)
+    //val fechaHoraTimestamp = fechaHoraDate?.let { Timestamp(it) } ?: Timestamp.now()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -110,7 +115,6 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-
                 IconButton(
                     onClick = { navController.navigate("monitorProfile") },
                     modifier = Modifier
@@ -317,20 +321,18 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
                                     snackbarHostState.showSnackbar("la fecha u hora no se han definido.")
                                 }
                             }
-                            else{
-
-                                unicastMonitoringViewModel.createRequest(
-                                    Request("",
-                                        modalidadSeleccionada.toString(),
-                                        tipoMonitoria.toString(),fechaHoraTimestamp,
-                                        notas.toString(),
-                                        direccion.toString(),
-                                        materia.toString(), student.id, student.name,monitor.id,monitor.name)
-                                )
-
-
-
-                            }
+//                            else{
+//
+//                                unicastMonitoringViewModel.createRequest(
+//                                    Request("",
+//                                        modalidadSeleccionada.toString(),
+//                                        tipoMonitoria.toString(),fechaHoraTimestamp,
+//                                        notas.toString(),
+//                                        direccion.toString(),
+//                                        materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
+//                                )
+//
+//                            }
                         },
                         modifier = Modifier
                             .size(48.dp)
@@ -394,10 +396,10 @@ fun UnicastMonitoringScreen(navController: NavController, unicastMonitoringViewM
             }
         }
 
-        notificationViewModel.createNotification(
-            Notification("",fechaHoraTimestamp,"¡Tienes una nueva solicitud de monitoria!",
-                materia.toString(),student.id,student.name,monitor.id,monitor.name)
-        )
+//        notificationViewModel.createNotification(
+//            Notification("",fechaHoraTimestamp,"¡Tienes una nueva solicitud de monitoria!",
+//                materia.toString(),studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
+//        )
         if (authState2 == 1) {
             Box(
                 modifier = Modifier

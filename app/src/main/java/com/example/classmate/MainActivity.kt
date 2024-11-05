@@ -80,20 +80,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "unicastMonitoring") {
+    NavHost(navController = navController, startDestination = "signing") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
         composable("HomeStudentScreen") { HomeStudentScreen(navController) } //HomeStrudiante
-        composable("signupMonitor?monitor={monitor}&student={student}&materia={materia}", arguments = listOf(    //Invocación alternativa, de la manera con / daño la ruta
-            navArgument("monitor"){type= NavType.StringType},
+        composable("unicastMonitoring?monitor={monitor}&student={student}&materia={materia}", arguments = listOf(    //Invocación alternativa, de la manera con / daño la ruta
+            navArgument("monitor"){type= NavType.StringType}, // Pantalla de solicitud de monitoria a monitor en particular.
             navArgument("student"){type= NavType.StringType},
             navArgument("materia"){type= NavType.StringType},
         )) {entry->
             val monitor =entry.arguments?.getString("monitor") //Recojo el argumento de la panatalla donde es creado y luego si lo mando al constructor de mi otra clase
             val student =entry.arguments?.getString("student")
             val materia = entry.arguments?.getString("materia")
-            MonitorSignUpScreen(navController,monitor,student,materia) } //Muestro la pantalla, estoy pasando la password por parametro para mostrarla en la otra pantalla.
+            UnicastMonitoringScreen(navController,monitor,student,materia) } //Muestro la pantalla, estoy pasando la password por parametro para mostrarla en la otra pantalla.
         composable("selectMonitorStudent"){MonitorStudentScreen(navController)} //Selección de registro
         composable("HomeMonitorScreen"){ HomeMonitorScreen(navController)} //HomeMonitor
         composable("introductionMonitor") { IntroductionsMonitorScreen(navController) } //introducción Estudiante
@@ -101,7 +101,7 @@ fun App() {
         composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
         composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
-        composable("unicastMonitoring"){ UnicastMonitoringScreen(navController) } // Pantalla de solicitud de monitoria a monitor en particular.
+        composable("signupMonitor"){ MonitorSignUpScreen(navController) }
     }
 }
 
