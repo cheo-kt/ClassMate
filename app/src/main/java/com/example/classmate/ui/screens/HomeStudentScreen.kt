@@ -304,7 +304,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 m.filter {
                                     hasSubject(search,it!!)
                                 }
-                            }else{git 
+                            }else{
                                 monitors
                             }
                                 m.forEach { monitor ->
