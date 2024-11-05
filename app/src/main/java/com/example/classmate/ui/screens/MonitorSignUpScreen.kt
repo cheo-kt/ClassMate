@@ -3,6 +3,7 @@ package com.example.classmate.ui.screens
 import PredictiveTextField
 import androidx.compose.runtime.remember
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -90,8 +91,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     val keyboardController = LocalSoftwareKeyboardController.current
     val emailRegex =
         "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
-
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

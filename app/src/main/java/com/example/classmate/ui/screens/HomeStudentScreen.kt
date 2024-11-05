@@ -82,6 +82,7 @@ import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
 import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -99,6 +100,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     LaunchedEffect(true) {
+        homeStudentViewModel.getStudent()
         homeStudentViewModel.getMonitors()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -241,8 +243,6 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                         .border(2.dp, Color.Black, RoundedCornerShape(50))
                                         .padding(horizontal = 15.dp),
                                         contentAlignment = Alignment.CenterStart
-
-
                                 ) {
                                     if (filter.isEmpty()) {
                                         Text(
@@ -292,8 +292,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                             defaultElevation = 5.dp,
                                         ), modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 10.dp),
-                                        onClick = {}
+                                            .padding(vertical = 10.dp)
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
@@ -346,20 +345,27 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                 Row(
                                                     modifier = Modifier
                                                         .align(Alignment.CenterEnd)
-                                                        .padding(end = 10.dp)
+                                                        .padding(horizontal = 5.dp)
                                                 ) {
-                                                    Icon(
-                                                        imageVector = Icons.Outlined.DateRange,
-                                                        contentDescription = "Calendar",
-                                                        modifier = Modifier
-                                                            .size(40.dp)
-                                                            .padding(end = 5.dp)
-                                                    )
-                                                    Icon(
-                                                        imageVector = Icons.Outlined.PlayArrow,
-                                                        contentDescription = "Arrow",
-                                                        modifier = Modifier.size(40.dp)
-                                                    )
+                                                    IconButton(onClick = {
+                                                        navController.navigate("")
+                                                    }) {
+                                                        Icon(
+                                                            imageVector = Icons.Outlined.DateRange,
+                                                            contentDescription = "Calendar",
+                                                            modifier = Modifier
+                                                                .size(40.dp)
+                                                        )
+                                                    }
+                                                    IconButton(onClick = {
+                                                        navController.navigate("unicastMonitoring?monitor=${Gson().toJson(monitor)?:"No"}&student=${Gson().toJson(student)?:"No"}&materia=${subject}")
+                                                    }) {
+                                                        Icon(
+                                                            imageVector = Icons.Outlined.PlayArrow,
+                                                            contentDescription = "Arrow",
+                                                            modifier = Modifier.size(50.dp),
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
