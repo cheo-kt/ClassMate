@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import PredictiveTextField
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,8 +9,6 @@ import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -40,6 +39,8 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.sharp.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +80,7 @@ import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
+import com.example.classmate.domain.model.Subjects
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
 import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
@@ -97,8 +99,10 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     val studentState by homeStudentViewModel.studentState.observeAsState()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var expandedFilter by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
+    var search by remember { mutableStateOf("") }
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
         homeStudentViewModel.getMonitors()
@@ -265,6 +269,16 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         )
                     }
                     Spacer(modifier = Modifier.height(10.dp))
+                    PredictiveTextField(
+                        value = search,
+                        onValueChange = { search = it },
+                        label = "Busca una materia para filtrar",
+                        modifier = Modifier
+                            .height(5.dp)
+                            .width(10.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = "Monitores Destacados",
                         fontSize = 20.sp,
@@ -275,14 +289,22 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
 
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         monitorState?.let { monitors ->
-                            val m:List<Monitor?> = if(filter.isNotEmpty()) {
+                            var m:List<Monitor?> = if(filter.isNotEmpty()) {
                                 monitors.filter {
                                     it?.name!!.startsWith(
                                         filter,
                                         ignoreCase = true
                                     )
                                 }
+
                             } else{
+                                monitors
+                            }
+                            m = if(search.isNotEmpty()){
+                                m.filter {
+                                    hasSubject(search,it!!)
+                                }
+                            }else{git 
                                 monitors
                             }
                                 m.forEach { monitor ->
@@ -448,3 +470,12 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
         }
 }
 
+fun hasSubject(search:String,monitor: Monitor) : Boolean{
+        for (subject in monitor.subjects){
+            if(subject.nombre == search){
+                return true
+            }
+
+    }
+   return false
+}
