@@ -8,6 +8,6 @@ data class RequestBroadcast(var id: String = "",
                             var date: Timestamp = Timestamp.now(),
                             var description: String = "",
                             var place: String = "",
-                            var subject: String = "",
+                            var subjectID: String = "",
                             var studentId: String = "",
                             var studentName: String = "")

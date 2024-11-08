@@ -68,6 +68,8 @@ dependencies {
 //Nos permite usar await para llamados a la red
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
+    implementation ("androidx.compose.material:material:1.4.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

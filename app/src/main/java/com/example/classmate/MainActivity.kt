@@ -57,6 +57,7 @@ import com.example.classmate.ui.screens.MonitorEditScreen
 import com.example.classmate.ui.screens.MonitorProfileScreen
 import com.example.classmate.ui.screens.MonitorSignUpScreen
 import com.example.classmate.ui.screens.MonitorStudentScreen
+import com.example.classmate.ui.screens.RequestBroadcastStudentScreen
 import com.example.classmate.ui.screens.StudentEditScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentProfileScreen
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "HomeStudentScreen") {
+    NavHost(navController = navController, startDestination = "signing") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
@@ -102,6 +103,12 @@ fun App() {
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
         composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
+        composable("requestBroadcast?student={student}", arguments = listOf(
+            navArgument("student"){type= NavType.StringType}
+        )) { entry ->
+            val student =entry.arguments?.getString("student")
+            RequestBroadcastStudentScreen(navController,student)
+        }
     }
 }
 

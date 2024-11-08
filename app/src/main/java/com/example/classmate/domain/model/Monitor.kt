@@ -5,7 +5,7 @@ data class Monitor(
     var name: String = "",
     var lastname: String = "",
     var phone: String = "",
-    var subjects: List<Subject> = ArrayList<Subject>(),
+    var subjects: List<MonitorSubject> = emptyList(),
     var email: String = "",
     var description: String ="",
     var photoUrl: String = "",
@@ -13,7 +13,5 @@ data class Monitor(
     var appointments: List<Appointment> = listOf(),
     var notifications: List<Notification> = listOf(),
     var requests: List<Request> = listOf()
-
-
 
 )

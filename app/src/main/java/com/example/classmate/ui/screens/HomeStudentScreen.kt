@@ -197,6 +197,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
+                                navController.navigate("requestBroadcast?student=${Gson().toJson(student)?:"No"}")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -317,7 +318,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                     modifier = Modifier.padding(top = 10.dp)
                                                 )
                                                 androidx.compose.material3.Text(
-                                                    text = ("Materia: ${subject.nombre}"),
+                                                    text = ("Materia: ${subject.name}"),
                                                     fontSize = 12.sp,
                                                 )
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -333,7 +334,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                     )
                                                     Spacer(modifier = Modifier.width(50.dp))
                                                     Text(
-                                                        text = "$" + subject.precio,
+                                                        text = "$" + subject.price,
                                                         fontSize = 16.sp,
                                                         modifier = Modifier.padding(bottom = 10.dp)
                                                     )

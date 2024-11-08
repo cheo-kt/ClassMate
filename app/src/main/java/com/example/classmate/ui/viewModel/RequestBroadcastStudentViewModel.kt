@@ -3,28 +3,29 @@ package com.example.classmate.ui.viewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.classmate.data.repository.AuthRepositoryImpl
-import com.example.classmate.data.repository.MonitorAuthRepository
-import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
-import com.example.classmate.data.repository.StudentAuthRepository
+import com.example.classmate.data.repository.RequestBroadcastRepository
+import com.example.classmate.data.repository.RequestBroadcastRepositoryImpl
 import com.example.classmate.data.repository.SubjectRepository
 import com.example.classmate.data.repository.SubjectRepositoryImpl
-import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.Student
+import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Subject
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MonitorSignupViewModel(
-    val repo: MonitorAuthRepository = MonitorAuthRepositoryImpl(),
+
+class RequestBroadcastStudentViewModel(
+    val repo: RequestBroadcastRepository = RequestBroadcastRepositoryImpl(),
     val repoSubjects: SubjectRepository = SubjectRepositoryImpl()
-): ViewModel() {
+): ViewModel(){
     val authState = MutableLiveData(0)
     //0. Idle
     //1. Loading
     //2. Error
+    //3. Success
+
     //3. Success
     val subjects = MutableLiveData<List<Subject>>(emptyList())
 
@@ -45,11 +46,11 @@ class MonitorSignupViewModel(
         }
     }
 
-    fun signup(monitor: Monitor, password: String) {
+    fun createRequest(UserID: String, request: RequestBroadcast) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { authState.value = 1 }
             try {
-                repo.signup(monitor, password)
+                repo.createRequestBroadcast(UserID,request)
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }
@@ -57,5 +58,4 @@ class MonitorSignupViewModel(
             }
         }
     }
-
 }

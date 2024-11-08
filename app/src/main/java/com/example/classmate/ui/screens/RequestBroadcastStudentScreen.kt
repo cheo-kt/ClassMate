@@ -1,5 +1,7 @@
 package com.example.classmate.ui.screens
 
+
+
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +25,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.RadioButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -64,6 +68,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -71,11 +76,14 @@ import androidx.compose.ui.window.Dialog
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.components.DatePickerDialog
 import com.example.classmate.ui.components.TimePickerDialog
 import com.example.classmate.ui.viewModel.NotificationViewModel
+import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -90,16 +98,12 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UnicastMonitoringScreen(
+fun RequestBroadcastStudentScreen(
     navController: NavController,
-    monitor: String?,
     student: String?,
-    materia: String?,
-    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
-    notificationViewModel: NotificationViewModel = viewModel()
+    requestBroadcastStudentViewmodel: RequestBroadcastStudentViewModel = viewModel()
 ) {
-    val authState by unicastMonitoringViewModel.authState.observeAsState()
-    val authState2 by notificationViewModel.authState2.observeAsState()
+    val authState by requestBroadcastStudentViewmodel.authState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -110,8 +114,16 @@ fun UnicastMonitoringScreen(
     var horafin by remember { mutableStateOf("") }
     var notas by remember { mutableStateOf("") }
     var tipoMonitoria by remember { mutableStateOf("") }
+
+    val subjects by requestBroadcastStudentViewmodel.subjects.observeAsState(emptyList())
+    LaunchedEffect(true) {
+        requestBroadcastStudentViewmodel.getSubject()
+    }
+    var selectedSubject = remember { mutableStateOf<Subject?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+
+
     val studentObj: Student = Gson().fromJson(student, Student::class.java)
-    val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
 
     val intialTime by remember { mutableStateOf("") }
     var initialTimeVisibility by remember { mutableStateOf(false) }
@@ -147,25 +159,29 @@ fun UnicastMonitoringScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Sección superior fija
-            Row() {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
-
-                    ) {
+                        .weight(1f)
+                ) {
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadorequest),
+                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
+
                     IconButton(
-                        onClick = { navController.navigate("monitorProfile") },
+                        onClick = { navController.navigate("HomeStudentScreen") },
                         modifier = Modifier
                             .size(50.dp)
-                            .offset(y = (30).dp)
+                            .align(Alignment.TopStart)
+                            .offset(y = 30.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -175,22 +191,20 @@ fun UnicastMonitoringScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
-
                     Box(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .padding(16.dp)
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.classmatelogo),
                             contentDescription = null,
                             modifier = Modifier
-                                .size(250.dp)
+                                .fillMaxSize(1f) // Ajusta el tamaño de la imagen como un porcentaje del contenedor
                         )
                     }
                 }
             }
+
 
             // Sección desplazable
             Column(
@@ -203,9 +217,30 @@ fun UnicastMonitoringScreen(
 
 
                 // Opciones de modalidad (Virtual, Presencial, etc.)
-                Text("¡Haz tu solicitud!", style = MaterialTheme.typography.titleLarge)
+                Text("¡Haz tu solicitud!", style = MaterialTheme.typography.titleLarge,fontWeight = FontWeight.Bold)
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    androidx.compose.material3.Button(onClick = { expanded = !expanded }) {
+                        Text("Escoge tu materia")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ){
+                        subjects.forEach { subject ->
+                            DropdownMenuItem(onClick = {
+                                selectedSubject.value = subject
+                                expanded = false
+                            }) {
+                                Text(
+                                    text = subject.name,
+                                    style = MaterialTheme.typography.headlineMedium
+                                )
+                            }
+                        }
+                    }
+                }
                 // Opciones de modalidad
                 Column {
                     Row(
@@ -218,7 +253,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Virtual",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
                     }
 
@@ -232,7 +267,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Presencial",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
 
                         // Campo para ingresar dirección (solo se muestra si es presencial)
@@ -264,7 +299,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Taller",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
                     }
                     Row(
@@ -277,7 +312,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Monitoria",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
                     }
                     Row(
@@ -290,7 +325,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Preparcial",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
                     }
                     Row(
@@ -303,7 +338,7 @@ fun UnicastMonitoringScreen(
                         )
                         Text(
                             text = "Otro",
-                            modifier = Modifier.padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp),fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -475,15 +510,18 @@ fun UnicastMonitoringScreen(
                                 timestampGlobal = timestamp
 
 
-                                unicastMonitoringViewModel.createRequest(
-                                    Request("",
-                                        modalidadSeleccionada.toString(),
-                                        tipoMonitoria.toString(),timestamp,
+                                requestBroadcastStudentViewmodel.createRequest(studentObj.id,
+                                    RequestBroadcast("", modalidadSeleccionada.toString(),
+                                        tipoMonitoria.toString(),
+                                        timestamp,
                                         notas.toString(),
                                         direccion.toString(),
-                                        materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
-                                )
+                                        selectedSubject.value?.id.toString(),
+                                        studentObj.id,
+                                        studentObj.name
+                                        )
 
+                                )
                             }
                         },
                         modifier = Modifier
@@ -547,42 +585,9 @@ fun UnicastMonitoringScreen(
                 snackbarHostState.showSnackbar("La solicitud de monitoria enviada correctamente")
             }
         }
-
-        notificationViewModel.createNotification(
-            Notification("",timestampGlobal,"¡Tienes una nueva solicitud de monitoria!",
-                materia.toString(),studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
-        )
-        if (authState2 == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
-            }
-        } else if (authState2 == 2) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Ha ocurrido un error")
-                }
-            }
-        } else if (authState2 == 3) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("La notificación fue enviada correctamente")
-                }
-            }
-            navController.navigate("HomeStudentScreen")
-
-        }
+        navController.navigate("HomeStudentScreen")
 
     }
 
 
 }
-

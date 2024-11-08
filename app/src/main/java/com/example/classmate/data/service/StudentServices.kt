@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,6 +23,7 @@ interface StudentServices {
     suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
     suspend fun updateStudentField(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url: String)
+    suspend fun createRequestBroadcast(id:String, requestBroadcast: RequestBroadcast)
 }
 
 class StudentServicesImpl: StudentServices {
@@ -74,6 +76,10 @@ class StudentServicesImpl: StudentServices {
             .document(id)
             .update("photo", url)
             .await()
+
+    }
+
+    override suspend fun createRequestBroadcast(id: String, requestBroadcast: RequestBroadcast) {
 
     }
 
