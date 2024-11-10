@@ -7,7 +7,8 @@ import kotlinx.coroutines.tasks.await
 
 interface RequestBroadcastService {
     suspend fun createRequestInMainCollection(request: RequestBroadcast)
-    suspend fun createRequestForStudent(studentId: String, request: RequestBroadcast)
+    suspend fun createRequestForStudent(studentId: String, requestId: String)
+    suspend fun createRequestForSubject(subjectId:String,requestId: String )
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
@@ -20,12 +21,21 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
             .await()
     }
 
-    override suspend fun createRequestForStudent(studentId: String, request: RequestBroadcast) {
+    override suspend fun createRequestForStudent(studentId: String, requestId: String) {
         Firebase.firestore.collection("student")
             .document(studentId)
             .collection("requestBroadcast")
-            .document(request.id)
-            .set(request)
+            .document(requestId)
+            .set(mapOf("id" to requestId))
+            .await()
+    }
+
+    override suspend fun createRequestForSubject(subjectId: String, requestId: String) {
+        Firebase.firestore.collection("subject")
+            .document(subjectId)
+            .collection("requestBroadcast")
+            .document(requestId)
+            .set(mapOf("id" to requestId))
             .await()
     }
 

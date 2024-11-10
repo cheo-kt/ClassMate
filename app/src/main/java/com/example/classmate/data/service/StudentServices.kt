@@ -23,7 +23,6 @@ interface StudentServices {
     suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
     suspend fun updateStudentField(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url: String)
-    suspend fun createRequestBroadcast(id:String, requestBroadcast: RequestBroadcast)
 }
 
 class StudentServicesImpl: StudentServices {
@@ -79,8 +78,5 @@ class StudentServicesImpl: StudentServices {
 
     }
 
-    override suspend fun createRequestBroadcast(id: String, requestBroadcast: RequestBroadcast) {
-
-    }
 
 }
