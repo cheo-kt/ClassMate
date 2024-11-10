@@ -14,6 +14,7 @@ firebaseFirestore = "25.1.0"
 firebaseAuthKtx = "23.0.0"
 firebaseStorageKtx = "21.0.1"
 navigationSafeArgsGenerator = "2.8.3"
+pagingCommonAndroid = "3.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 androidx-navigation-safe-args-generator = { group = "androidx.navigation", name = "navigation-safe-args-generator", version.ref = "navigationSafeArgsGenerator" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

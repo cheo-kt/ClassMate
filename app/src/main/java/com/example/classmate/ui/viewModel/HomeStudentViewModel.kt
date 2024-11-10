@@ -11,6 +11,7 @@ import com.example.classmate.data.repository.StudentRepository
 import com.example.classmate.data.repository.StudentRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,20 +21,22 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
     val studentState = MutableLiveData<Int?>(0)
+    private val limit = 10
+    private var monitor: Monitor? = null
     private val _monitorList = MutableLiveData(listOf<Monitor?>())
     val monitorList: LiveData<List<Monitor?>> get() = _monitorList
     fun getStudent0() {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {studentState.value = 1}
+            withContext(Dispatchers.Main) { studentState.value = 1 }
             try {
                 val currentUser = repo.getCurrentStudent()
                 withContext(Dispatchers.Main) {
                     if (currentUser != null) {
                         _student.value = currentUser
-                        withContext(Dispatchers.Main) {studentState.value = 3}
+                        withContext(Dispatchers.Main) { studentState.value = 3 }
                     } else {
                         _student.value = null
-                        withContext(Dispatchers.Main) {studentState.value = 2}
+                        withContext(Dispatchers.Main) { studentState.value = 2 }
                     }
                 }
             } catch (e: Exception) {
@@ -46,6 +49,7 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
             }
         }
     }
+
     fun getStudent() {
         viewModelScope.launch(Dispatchers.IO) {
             val me = repo.getCurrentStudent()
@@ -54,11 +58,24 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
             }
         }
     }
-    fun getMonitors() {
+    fun loadMoreMonitors() {
         viewModelScope.launch(Dispatchers.IO) {
-            val monitors = repoMonitor.getMonitors()
-            withContext(Dispatchers.Main) {
-                _monitorList.value = monitors
+            viewModelScope.launch(Dispatchers.Main) { studentState.value = 1 }
+            try {
+                val newMonitors = repoMonitor.getMonitors(limit, monitor)
+                withContext(Dispatchers.Main) {
+                    if (newMonitors.isNotEmpty()) {
+                        _monitorList.value = _monitorList.value.orEmpty() + newMonitors
+                        monitor = _monitorList.value?.lastOrNull()
+                        viewModelScope.launch(Dispatchers.Main) { studentState.value = 3 }
+                    }
+                    else{
+                        viewModelScope.launch(Dispatchers.Main) { studentState.value = 0 }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                viewModelScope.launch(Dispatchers.Main) { studentState.value = 2 }
             }
         }
     }
