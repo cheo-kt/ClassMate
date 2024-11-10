@@ -73,7 +73,7 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             ) {
                 IconButton(
                     onClick = {
-                        navController.navigate("signing")
+                        navController.popBackStack()
                     },
                     modifier = Modifier
                         .size(50.dp)
