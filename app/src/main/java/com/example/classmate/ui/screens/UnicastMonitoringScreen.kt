@@ -162,7 +162,7 @@ fun UnicastMonitoringScreen(
                         contentScale = ContentScale.Crop
                     )
                     IconButton(
-                        onClick = { navController.navigate("monitorProfile") },
+                        onClick = { navController.popBackStack() },
                         modifier = Modifier
                             .size(50.dp)
                             .offset(y = (30).dp)

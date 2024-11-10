@@ -177,7 +177,7 @@ fun RequestBroadcastStudentScreen(
                     )
 
                     IconButton(
-                        onClick = { navController.navigate("HomeStudentScreen") },
+                        onClick = { navController.popBackStack() },
                         modifier = Modifier
                             .size(50.dp)
                             .align(Alignment.TopStart)
