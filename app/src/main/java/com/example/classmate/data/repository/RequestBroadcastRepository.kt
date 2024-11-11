@@ -24,7 +24,7 @@ class RequestBroadcastRepositoryImpl(
 
 
         requestBroadcastServices.createRequestInMainCollection(requestWithId)
-        requestBroadcastServices.createRequestForStudent(userID, requestId)
+        requestBroadcastServices.createRequestForStudent(userID, requestWithId)
         requestBroadcastServices.createRequestForSubject(requestBroadcast.subjectID, requestId)
     }
 

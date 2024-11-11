@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,22 +40,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.components.CalendarWithMonthNavigation
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.CalendarStudentViewModel
-import com.example.classmate.ui.viewModel.NotificationStudentViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
-fun CalendarStudentScreen(navController: NavController, calendarStudentViewModel: CalendarStudentViewModel = viewModel()) {
+fun CalendarStudentScreen(navController: NavController, student: String?,calendarStudentViewModel: CalendarStudentViewModel = viewModel()) {
 
     var expanded by remember { mutableStateOf(false) }
-    val student: Student? by calendarStudentViewModel.student.observeAsState(initial = null)
+    val studentObj: Student = Gson().fromJson(student, Student::class.java)
     val studentState by calendarStudentViewModel.studentState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var image = student?.photo
+    var image = studentObj?.photo
     val scope = rememberCoroutineScope()
+    val requestBroadcastState by calendarStudentViewModel.requestBroadcastlist.observeAsState()
+    val appointmentsState by calendarStudentViewModel.appointmentlist.observeAsState()
+
+    LaunchedEffect(true) {
+        calendarStudentViewModel.getAppointments()
+        calendarStudentViewModel.getRequestBroadcast()
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
         Column(
@@ -123,7 +133,7 @@ fun CalendarStudentScreen(navController: NavController, calendarStudentViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                         ) {
-                            student?.let {
+                            studentObj?.let {
                                 image = it.photo
                                 if (studentState == 2) {
                                     scope.launch {
@@ -170,7 +180,8 @@ fun CalendarStudentScreen(navController: NavController, calendarStudentViewModel
 
             Box(modifier = Modifier.weight(0.1f))
 
-
+            CalendarWithMonthNavigation(requestBroadcastState as List<RequestBroadcast>? ?: emptyList(),
+                appointmentsState as List<Appointment>? ?: emptyList(),navController)
 
             Box(modifier = Modifier.weight(0.1f))
 
