@@ -63,6 +63,7 @@ import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Student
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
 import com.google.gson.Gson
@@ -296,6 +297,19 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             } else{
                                 monitors
                             }
+                            subjectsState?.let {
+                                m = if(search.isNotEmpty()) {
+                                    monitors.filter { it2 ->
+                                        it.any { it3 ->
+                                            it3.monitorsID.contains(it2?.id)
+                                        }
+
+                                    }
+                                } else{
+                                    monitors
+                                }
+                            }
+
 
                             m.forEach { monitor ->
 
