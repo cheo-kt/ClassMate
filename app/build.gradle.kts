@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+    implementation(platform("androidx.compose:compose-bom:2024.10.01"))
+    implementation("androidx.paging:paging-compose:3.3.0-alpha05")
     implementation ("androidx.compose.material3:material3:<latest_version>")
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation(libs.firebase.storage)
@@ -82,6 +84,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.storage.ktx)
+    implementation(libs.androidx.paging.common.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
