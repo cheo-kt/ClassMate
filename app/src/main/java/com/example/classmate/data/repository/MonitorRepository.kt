@@ -7,6 +7,7 @@ import com.example.classmate.domain.model.Monitor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.content.Context
+import com.example.classmate.domain.model.RequestBroadcast
 
 interface MonitorRepository {
 
@@ -18,6 +19,7 @@ interface MonitorRepository {
     suspend fun updateMonitorInformation(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url:String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+    suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
 
 }
 class MonitorRepositoryImpl(
@@ -49,6 +51,9 @@ class MonitorRepositoryImpl(
 
     override suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?> {
         return monitorServices.getMonitors(limit,monitor)
+    }
+    override suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?> {
+        return monitorServices.getBroadRequest(limit, request)
     }
 
 }

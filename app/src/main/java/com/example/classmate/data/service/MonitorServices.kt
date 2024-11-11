@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -24,6 +25,7 @@ interface MonitorServices {
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+    suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
 
 }
 
@@ -88,6 +90,19 @@ class MonitorServicesImpl: MonitorServices {
                 .await()
 
             querySnapshot.documents.mapNotNull { it.toObject(Monitor::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast> {
+        return try {
+            val querySnapshot = Firebase.firestore.collection("requestBroadcast")
+                .orderBy("id")
+                .startAfter(broadRequest?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.toObject(RequestBroadcast::class.java) }
         } catch (e: Exception) {
             emptyList()
         }
