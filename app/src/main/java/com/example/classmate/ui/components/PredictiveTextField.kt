@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.domain.model.Subjects
 
 @Composable
@@ -12,13 +13,14 @@ fun PredictiveTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier
-) {
+    modifier: Modifier,
+    subjects: List<Subject>
+): Subject? {
     var expanded by remember { mutableStateOf(false) }
-    val subjects = Subjects().materias
+    var subj by remember { mutableStateOf<Subject?>(null) }
 
     val filteredSubjects = if (value.length >= 3) {
-        subjects.filter { it.contains(value, ignoreCase = true) }
+        subjects.filter { it.name.contains(value, ignoreCase = true) }
     } else {
         emptyList()
     }
@@ -39,13 +41,15 @@ fun PredictiveTextField(
         filteredSubjects.forEach { suggestion ->
             DropdownMenuItem(
                 {
-                    Text(text = suggestion)
+                    Text(text = suggestion.name)
                 }, onClick = {
-                    onValueChange(suggestion)
+                    onValueChange(suggestion.name)
                     expanded = false
+                    subj = suggestion
                 }
             )
         }
     }
+    return subj
 }
 

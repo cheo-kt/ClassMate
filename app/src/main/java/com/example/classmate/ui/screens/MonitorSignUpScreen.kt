@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import PredictiveTextField
 import androidx.compose.runtime.remember
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -81,7 +82,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
     var SubjectWithPrice = remember { mutableStateListOf<MonitorSubject>() }
+    var subj  by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+    var selectedSubject:Subject? = null
     val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
     val emailRegex =
@@ -91,7 +94,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     LaunchedEffect(true) {
         monitorSignupViewModel.getSubject()
     }
-    var selectedSubject = remember { mutableStateOf<Subject?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -171,41 +173,28 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Button(onClick = { expanded = !expanded }) {
-                                Text("Escoge tu matera")
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ){
-                                subjects.forEach { subject ->
-                                    DropdownMenuItem(onClick = {
-                                        selectedSubject.value = subject
-                                        expanded = false // Cierra el menú al seleccionar una opción
-                                    }) {
-                                        Text(
-                                            text = subject.name,
-                                            style = MaterialTheme.typography.headlineMedium
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
+                       selectedSubject = PredictiveTextField(
+                            value = subj,
+                            onValueChange = {subj = it},
+                            label = "Materias a monitorear",
+                            modifier = Modifier.fillMaxWidth(),
+                            subjects = subjects
+                        )
                         Spacer(modifier = Modifier.width(20.dp))
                         IconButton(
                             onClick = {
-                                selectedSubject?.let {
-                                    SubjectWithPrice.add(
-                                        MonitorSubject(
-                                            it.value?.id.toString(),
-                                            it.value?.name.toString(),
-                                            ""
+                                selectedSubject?.let { selected ->
+                                    if (!SubjectWithPrice.any { it.name == selected.name }) {
+                                        SubjectWithPrice.add(
+                                            MonitorSubject(
+                                                selected.id,
+                                                selected.name,
+                                                ""
+                                            )
                                         )
-                                    )
-                                    selectedSubject.value = null
+                                        selectedSubject = null
+                                        subj = ""
+                                    }
                                 }
                             }, modifier = Modifier
                                 .align(Alignment.CenterVertically)
