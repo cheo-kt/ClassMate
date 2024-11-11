@@ -25,8 +25,8 @@ interface StudentServices {
     suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
     suspend fun updateStudentField(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url: String)
-    suspend fun getAppointments(IDStudent:String):List<Appointment?>
-    suspend fun getRequestBroadcast(IDStudent:String):List<RequestBroadcast?>
+    suspend fun getAppointments(idStudent:String):List<Appointment?>
+    suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?>
 }
 
 class StudentServicesImpl: StudentServices {
@@ -82,11 +82,11 @@ class StudentServicesImpl: StudentServices {
 
     }
 
-    override suspend fun getAppointments(IDStudent:String):List<Appointment?> {
+    override suspend fun getAppointments(idStudent:String):List<Appointment?> {
         return try {
             val appointmentList = Firebase.firestore
                 .collection("student")
-                .document(IDStudent)
+                .document(idStudent)
                 .collection("appointment")
                 .get()
                 .await()
@@ -100,21 +100,18 @@ class StudentServicesImpl: StudentServices {
         }
     }
 
-    override suspend fun getRequestBroadcast(IDStudent:String):List<RequestBroadcast?> {
-        return try {
+    override suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?> {
             val requestBroadcast = Firebase.firestore
                 .collection("student")
-                .document(IDStudent)
+                .document(idStudent)
                 .collection("requestBroadcast")
                 .get()
                 .await()
 
-            requestBroadcast.documents.map { document ->
+            return requestBroadcast.documents.map { document ->
                 document.toObject(RequestBroadcast::class.java)
             }
-        } catch (e: Exception) {
-            emptyList()
-        }
+
     }
 
 }

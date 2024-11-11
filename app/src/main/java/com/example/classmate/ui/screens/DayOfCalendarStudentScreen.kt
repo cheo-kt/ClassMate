@@ -113,7 +113,6 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                     }
                 }
             }
-            Box(modifier = Modifier.weight(0.1f))
 
             Column(modifier = Modifier.verticalScroll(scrollState)) {
                  listRequest.forEach { requestBroadcast ->
@@ -122,7 +121,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                     defaultElevation = 5.dp,
                                 ), modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 10.dp)
+                                    .padding(10.dp)
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
@@ -170,8 +169,9 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                                 .padding(horizontal = 5.dp)
                                         ) {
                                             IconButton(onClick = {
-                                                navController.navigate("requestBroadcastView?requestBroadcast=${Gson().toJson(requestBroadcast)?:"No"}")
-                                            }) {
+                                                val jsonRequestBroadcast = Gson().toJson(requestBroadcast)
+                                                navController.navigate("requestBroadcastView?requestBroadcast=${jsonRequestBroadcast}")
+                                            }){
                                                 Icon(
                                                     imageVector = Icons.Outlined.PlayArrow,
                                                     contentDescription = "Arrow",

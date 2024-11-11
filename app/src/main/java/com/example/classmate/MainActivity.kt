@@ -66,7 +66,8 @@ import com.example.classmate.ui.screens.RequestBroadcastStudentScreen
 import com.example.classmate.ui.screens.StudentEditScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentProfileScreen
-import com.example.classmate.ui.components.deserializeList
+import com.example.classmate.ui.components.deserializeListAppointment
+import com.example.classmate.ui.components.deserializeListRequestBroadcast
 import com.example.classmate.ui.screens.AppoimentStudentScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
@@ -74,6 +75,7 @@ import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
+import com.google.gson.Gson
 
 
 class MainActivity : ComponentActivity() {
@@ -132,18 +134,24 @@ fun App() {
         )) { entry ->
             val requestsForDayJson = entry.arguments?.getString("requestsForDay")
             val appointmentsForDayJson = entry.arguments?.getString("appointmentsForDay")
-            val requestsForDay = deserializeList(requestsForDayJson)
-            val appointmentsForDay = deserializeList(appointmentsForDayJson)
-            DayOfCalendarStudentScreen(navController,
-                requestsForDay as List<RequestBroadcast>, appointmentsForDay as List<Appointment>
+
+            // Deserializar los datos en listas específicas
+            val requestsForDay = deserializeListRequestBroadcast(requestsForDayJson)
+            val appointmentsForDay = deserializeListAppointment(appointmentsForDayJson)
+
+            // Navegar a la pantalla con los datos deserializados
+            DayOfCalendarStudentScreen(
+                navController,
+                requestsForDay,
+                appointmentsForDay
             )
         }
-        composable("requestBroadcastView?requestBroadcast={requestBroadcast}}", arguments = listOf(
-            navArgument("requestBroadcast"){type= NavType.StringType}
-        )) {entry->
-            val requestBroadcast =entry.arguments?.getString("requestBroadcast") //Recojo el argumento de la panatalla donde es creado y luego si lo mando al constructor de mi otra clase
-            RequestBroadcastStudentView(navController,requestBroadcast) }
-
+        composable("requestBroadcastView?requestBroadcast={requestBroadcast}", arguments = listOf(
+            navArgument("requestBroadcast") { type = NavType.StringType }
+        )) { entry ->
+            val jsonRequestBroadcast = entry.arguments?.getString("requestBroadcast")
+                RequestBroadcastStudentView(navController, jsonRequestBroadcast)
+        }
         composable("AppoimentStudentView?appointment={appointment}}", arguments = listOf(
             navArgument("appointment"){type= NavType.StringType}
         )) {entry->

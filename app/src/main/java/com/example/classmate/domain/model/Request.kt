@@ -11,7 +11,7 @@ data class Request(
     var description: String = "",
     var place: String = "",
     var subjectId: String = "",
-    var subjectname: String,
+    var subjectname: String= "",
     var studentId: String = "",
     var studentName: String = "",
     var monitorId: String = "",
