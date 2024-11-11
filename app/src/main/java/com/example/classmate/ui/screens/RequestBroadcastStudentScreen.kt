@@ -130,7 +130,6 @@ fun RequestBroadcastStudentScreen(
     var datePickerVisibility by remember { mutableStateOf(false) }
     var finalTimeVisibility by remember { mutableStateOf(false) }
 
-    var timestampGlobal by remember { mutableStateOf(Timestamp(Date())) }
 
 
 
@@ -503,20 +502,24 @@ fun RequestBroadcastStudentScreen(
                                 }
                             }
                             else{
-                                val datetimeString = "${fecha} ${horaInicio}"
+                                val datetimeInitialString = "${fecha} ${horaInicio}"
+                                val datetimeFinalString = "${fecha} ${horafin}"
 
-                                val datetime = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeString)
-                                val timestamp = Timestamp(datetime)
-                                timestampGlobal = timestamp
+                                val datetimeInitial = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeInitialString)
+                                val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
+                                val timestampInitial = Timestamp(datetimeInitial)
+                                val timestampFinal = Timestamp(datetimeFinal)
 
 
                                 requestBroadcastStudentViewmodel.createRequest(studentObj.id,
                                     RequestBroadcast("", modalidadSeleccionada.toString(),
                                         tipoMonitoria.toString(),
-                                        timestamp,
+                                        timestampInitial,
+                                        timestampFinal,
                                         notas.toString(),
                                         direccion.toString(),
                                         selectedSubject.value?.id.toString(),
+                                        selectedSubject.value?.name.toString(),
                                         studentObj.id,
                                         studentObj.name
                                         )

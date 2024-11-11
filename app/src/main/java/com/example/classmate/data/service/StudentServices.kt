@@ -5,6 +5,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.google.firebase.firestore.ktx.firestore
@@ -23,6 +25,8 @@ interface StudentServices {
     suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
     suspend fun updateStudentField(id: String, field: String, value: Any)
     suspend fun updateStudentImageUrl(id:String,url: String)
+    suspend fun getAppointments(idStudent:String):List<Appointment?>
+    suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?>
 }
 
 class StudentServicesImpl: StudentServices {
@@ -78,5 +82,36 @@ class StudentServicesImpl: StudentServices {
 
     }
 
+    override suspend fun getAppointments(idStudent:String):List<Appointment?> {
+        return try {
+            val appointmentList = Firebase.firestore
+                .collection("student")
+                .document(idStudent)
+                .collection("appointment")
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            // Si ocurre una excepción, retorna una lista vacía
+            emptyList()
+        }
+    }
+
+    override suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?> {
+            val requestBroadcast = Firebase.firestore
+                .collection("student")
+                .document(idStudent)
+                .collection("requestBroadcast")
+                .get()
+                .await()
+
+            return requestBroadcast.documents.map { document ->
+                document.toObject(RequestBroadcast::class.java)
+            }
+
+    }
 
 }
