@@ -468,17 +468,19 @@ fun UnicastMonitoringScreen(
                                 }
                             }
                             else{
-                                val datetimeString = "${fecha} ${horaInicio}"
+                                val datetimeInitialString = "${fecha} ${horaInicio}"
+                                val datetimeFinalString = "${fecha} ${horafin}"
 
-                                val datetime = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeString)
-                                val timestamp = Timestamp(datetime)
-                                timestampGlobal = timestamp
+                                val datetimeInitial = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeInitialString)
+                                val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
+                                val timestampInitial = Timestamp(datetimeInitial)
+                                val timestampFinal = Timestamp(datetimeFinal)
 
 
                                 unicastMonitoringViewModel.createRequest(
                                     Request("",
                                         modalidadSeleccionada.toString(),
-                                        tipoMonitoria.toString(),timestamp,
+                                        tipoMonitoria.toString(),timestampInitial,timestampFinal,
                                         notas.toString(),
                                         direccion.toString(),
                                         materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)

@@ -1,5 +1,6 @@
 package com.example.classmate.data.service
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -75,6 +76,7 @@ class MonitorServicesImpl: MonitorServices {
             .await()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override suspend fun getMonitors():List<Monitor?> {
     val monitorList = Firebase.firestore
             .collection("Monitor")

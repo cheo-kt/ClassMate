@@ -48,7 +48,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.screens.CalendarStudentScreen
 import com.example.classmate.ui.screens.HomeMonitorScreen
 import com.example.classmate.ui.screens.HomeStudentScreen
 import com.example.classmate.ui.screens.IntroductionsMonitorScreen
@@ -63,6 +66,10 @@ import com.example.classmate.ui.screens.RequestBroadcastStudentScreen
 import com.example.classmate.ui.screens.StudentEditScreen
 import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentProfileScreen
+import com.example.classmate.ui.components.deserializeList
+import com.example.classmate.ui.screens.AppoimentStudentScreen
+import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
+import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.theme.ClassMateTheme
@@ -83,7 +90,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "OpinionStudent") {
+    NavHost(navController = navController, startDestination = "signing") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
@@ -113,10 +120,40 @@ fun App() {
         }
         composable("notificationStudentPrincipal"){ NotificationStudentScreen(navController) }
         composable("OpinionStudent"){ OpinionStudentScreen(navController) }
+        composable("CalendarStudent?student={student}", arguments = listOf(
+            navArgument("student"){type= NavType.StringType}
+        )){  entry ->
+            val student =entry.arguments?.getString("student")
+            CalendarStudentScreen(navController,student)
+        }
+        composable("DayOfCalendar?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
+            navArgument("requestsForDay") { type = NavType.StringType },
+            navArgument("appointmentsForDay") { type = NavType.StringType }
+        )) { entry ->
+            val requestsForDayJson = entry.arguments?.getString("requestsForDay")
+            val appointmentsForDayJson = entry.arguments?.getString("appointmentsForDay")
+            val requestsForDay = deserializeList(requestsForDayJson)
+            val appointmentsForDay = deserializeList(appointmentsForDayJson)
+            DayOfCalendarStudentScreen(navController,
+                requestsForDay as List<RequestBroadcast>, appointmentsForDay as List<Appointment>
+            )
+        }
+        composable("requestBroadcastView?requestBroadcast={requestBroadcast}}", arguments = listOf(
+            navArgument("requestBroadcast"){type= NavType.StringType}
+        )) {entry->
+            val requestBroadcast =entry.arguments?.getString("requestBroadcast") //Recojo el argumento de la panatalla donde es creado y luego si lo mando al constructor de mi otra clase
+            RequestBroadcastStudentView(navController,requestBroadcast) }
+
+        composable("AppoimentStudentView?appointment={appointment}}", arguments = listOf(
+            navArgument("appointment"){type= NavType.StringType}
+        )) {entry->
+            val appointment =entry.arguments?.getString("appointment")
+            AppoimentStudentScreen(navController,appointment) }
 
 
     }
 }
+
 
 
 

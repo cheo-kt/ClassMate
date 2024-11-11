@@ -60,7 +60,7 @@ dependencies {
 // Incluye los objetos LiveData y MutableLiveData. Además del método observeAsState()
     implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
 // Nos permite cargar imágenes de la web en un composable de imagen de forma asincrónica
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 // Nos permite serializar objetos en JSON
     implementation("com.google.code.gson:gson:2.11.0")
 //Nos permite usar las corutinas en el contexto de ViewModel

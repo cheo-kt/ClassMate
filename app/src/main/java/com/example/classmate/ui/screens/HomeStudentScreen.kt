@@ -402,7 +402,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(modifier = Modifier.weight(0.1f))
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {  navController.navigate("CalendarStudent?student=${Gson().toJson(student) ?: "No"}")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendar_today),
                                 contentDescription = "calendario",

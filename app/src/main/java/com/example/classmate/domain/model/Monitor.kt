@@ -10,8 +10,4 @@ data class Monitor(
     var description: String ="",
     var photoUrl: String = "",
     var rating: Int = 0,
-    var appointments: List<Appointment> = listOf(),
-    var notifications: List<Notification> = listOf(),
-    var requests: List<Request> = listOf()
-
 )
