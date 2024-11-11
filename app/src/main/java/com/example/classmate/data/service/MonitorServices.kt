@@ -4,7 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.example.classmate.domain.model.Monitor
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -21,10 +23,12 @@ interface MonitorServices {
     suspend fun uploadProfileImage(id: String, uri: Uri, context: Context): String
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
+    suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+
 }
 
 class MonitorServicesImpl: MonitorServices {
-    override suspend fun createMonitor(monitor: Monitor) {
+    override suspend fun createMonitor(monitor: Monitor){
         Firebase.firestore
             .collection("Monitor")
             .document(monitor.id)
@@ -72,5 +76,20 @@ class MonitorServicesImpl: MonitorServices {
             .document(id)
             .update("photoUrl", url)
             .await()
+    }
+
+    override suspend fun getMonitors(limit: Int, monitor: Monitor?): List<Monitor> {
+        return try {
+            val querySnapshot = Firebase.firestore.collection("Monitor")
+                .orderBy("id")
+                .startAfter(monitor?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+
+            querySnapshot.documents.mapNotNull { it.toObject(Monitor::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }

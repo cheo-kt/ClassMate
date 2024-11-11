@@ -1,12 +1,11 @@
 package com.example.classmate.domain.model
 
 data class Subject(
-    val nombre: String  ,
-    var precio: String // Puedes cambiar a otro tipo de datos si el precio es numérico
-
-
+    val id: String = "",
+    val name: String = "",
+    val monitorsID: List<String> = emptyList(),
+    val requestBroadcast: List<RequestBroadcast> = emptyList()
 ){
-    // Constructor vacío requerido para Firebase
-    constructor() : this("", "")
+    constructor() : this("", "", emptyList(), emptyList())
 
 }

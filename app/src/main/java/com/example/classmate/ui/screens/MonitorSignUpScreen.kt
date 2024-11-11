@@ -3,12 +3,14 @@ package com.example.classmate.ui.screens
 import PredictiveTextField
 import androidx.compose.runtime.remember
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,17 +20,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,8 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -54,7 +51,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Subject
-import com.example.classmate.domain.model.Subjects
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.components.CustomTextFieldWithNumericKeyBoard
 import com.example.classmate.ui.viewModel.MonitorSignupViewModel
@@ -62,15 +58,17 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.classmate.R
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import com.example.classmate.domain.model.MonitorSubject
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
@@ -84,16 +82,20 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
-    var materia by remember { mutableStateOf("") }
-    var materiasConPrecio = remember { mutableStateListOf<Subject>() }
+    var SubjectWithPrice = remember { mutableStateListOf<MonitorSubject>() }
+    var subj  by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
+    var selectedSubject:Subject? = null
     val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
-    val keyboardController = LocalSoftwareKeyboardController.current
     val emailRegex =
         "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex() //Garantizar formato válido de email
 
-
+    val subjects by monitorSignupViewModel.subjects.observeAsState(emptyList())
+    LaunchedEffect(true) {
+        monitorSignupViewModel.getSubject()
+    }
+    var expanded by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -172,36 +174,29 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        PredictiveTextField(
-                            value = materia,
-                            onValueChange = { materia = it },
+                       selectedSubject = PredictiveTextField(
+                            value = subj,
+                            onValueChange = {subj = it},
                             label = "Materias a monitorear",
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            subjects = subjects
                         )
                         Spacer(modifier = Modifier.width(20.dp))
                         IconButton(
                             onClick = {
-                                if (!Subjects().materias.contains(materia)) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("La materia no existe")
-                                    }
-                                } else if (materiasConPrecio.any() { it.nombre == materia }) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("La materia ya está anadida")
-                                    }
-                                } else {
-                                    materiasConPrecio.add(
-                                        Subject(
-                                            nombre = materia,
-                                            precio = ""
+                                selectedSubject?.let { selected ->
+                                    if (!SubjectWithPrice.any { it.name == selected.name }) {
+                                        SubjectWithPrice.add(
+                                            MonitorSubject(
+                                                selected.id,
+                                                selected.name,
+                                                ""
+                                            )
                                         )
-                                    )
+                                        selectedSubject = null
+                                        subj = ""
+                                    }
                                 }
-                                materia = ""
-                                keyboardController?.hide()
                             }, modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .size(50.dp)
@@ -213,8 +208,8 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                             )
                         }
                     }
-                    materiasConPrecio.forEachIndexed { index, materia ->
-                        var precios by remember { mutableStateOf("") }
+                    SubjectWithPrice.forEachIndexed { index, subject ->
+                        var price by remember { mutableStateOf("") }
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             modifier = Modifier
@@ -228,17 +223,17 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                 modifier = Modifier.size(30.dp)
                             )
                             Text(
-                                text = materia.nombre,
+                                text = subject.name,
                                 modifier = Modifier
                                     .weight(1f)
                                     .align(Alignment.CenterVertically)
                             )
                             CustomTextFieldWithNumericKeyBoard(
-                                value = precios,
-                                onValueChange = { nuevoPrecio ->
-                                    val updatedMateria = materia.copy(precio = nuevoPrecio)
-                                    materiasConPrecio[index] = updatedMateria
-                                    precios = nuevoPrecio
+                                value = price,
+                                onValueChange = { newPrice ->
+                                    val updatedSubject = subject.copy(price = newPrice)
+                                    SubjectWithPrice[index] = updatedSubject
+                                    price = newPrice
                                 },
                                 label = "Precio/hora",
                                 modifier = Modifier.weight(1f)
@@ -246,7 +241,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                             Spacer(modifier = Modifier.width(10.dp))
                             IconButton(
                                 onClick = {
-                                    materiasConPrecio.removeAt(index)
+                                    SubjectWithPrice.removeAt(index)
                                 },
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
@@ -300,15 +295,15 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     Button(
                         onClick = {
                             if (names == "" || lastnames == "" || phone == "" || email == "" ||
-                                password == "" || confirmPassword == "" || materiasConPrecio.any() {
-                                    it.precio == ""
+                                password == "" || confirmPassword == "" || SubjectWithPrice.any() {
+                                    it.price == ""
                                 }
                             ) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("Completa todos los campos")
                                 }
-                            } else if (materiasConPrecio.size == 0) {
+                            } else if (SubjectWithPrice.size == 0) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("Añade las materias a monitorear")
@@ -330,13 +325,16 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                         names,
                                         lastnames,
                                         phone,
-                                        materiasConPrecio,
+                                        SubjectWithPrice,
                                         email,
                                         "",
                                         "", 0
                                     ),
                                     password
                                 )
+
+
+
                             } else {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
@@ -382,7 +380,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 }
             }
         } else if (authState == 3) {
-            navController.navigate("introductionMonitor")
+            navController.navigate("HomeMonitorScreen")
         }
     }
 }
