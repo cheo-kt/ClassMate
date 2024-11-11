@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.example.classmate.domain.model.Monitor
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -25,7 +26,7 @@ interface MonitorServices {
 }
 
 class MonitorServicesImpl: MonitorServices {
-    override suspend fun createMonitor(monitor: Monitor) {
+    override suspend fun createMonitor(monitor: Monitor){
         Firebase.firestore
             .collection("Monitor")
             .document(monitor.id)

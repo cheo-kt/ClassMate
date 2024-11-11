@@ -2,6 +2,7 @@ package com.example.classmate.ui.screens
 
 import androidx.compose.runtime.remember
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -342,6 +343,9 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                     ),
                                     password
                                 )
+
+
+
                             } else {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
@@ -387,7 +391,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 }
             }
         } else if (authState == 3) {
-            navController.navigate("introductionMonitor")
+            navController.navigate("HomeMonitorScreen")
         }
     }
 }

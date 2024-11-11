@@ -9,6 +9,7 @@ import com.example.classmate.domain.model.Subject
 interface SubjectRepository {
     suspend fun getAllSubjects(): List<Subject>
     suspend fun getSubjectById(id: String): Subject?
+    suspend fun addMonitorToSubject(monitorId:String,subjectId: String)
 }
 
 class SubjectRepositoryImpl(
@@ -22,4 +23,9 @@ class SubjectRepositoryImpl(
     override suspend fun getSubjectById(id: String): Subject? {
         return subjectService.getSubjectById(id)
     }
+
+    override suspend fun addMonitorToSubject(monitorId:String,subjectId: String) {
+        subjectService.addMonitorToSubjectColecction(monitorId,subjectId)
+    }
+
 }

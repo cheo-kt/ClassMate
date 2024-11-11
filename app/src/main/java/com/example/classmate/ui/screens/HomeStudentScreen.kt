@@ -311,13 +311,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             } else{
                                 monitors
                             }
-                            m = if(search.isNotEmpty()){
-                                m.filter {
-                                    hasSubject(search,it!!)
-                                }
-                            }else{
-                                m
-                            }
+
                                 m.forEach { monitor ->
                                 monitor?.subjects?.forEach { subject ->
                                     ElevatedCard(
@@ -481,12 +475,3 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
         }
 }
 
-fun hasSubject(search:String,monitor: Monitor) : Boolean{
-        for (subject in monitor.subjects){
-            if(subject.nombre == search){
-                return true
-            }
-
-    }
-   return false
-}

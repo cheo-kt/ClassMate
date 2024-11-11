@@ -11,7 +11,7 @@ import com.google.firebase.ktx.Firebase
 
 interface MonitorAuthRepository {
 
-    suspend fun signup(monitor: Monitor, password:String)
+    suspend fun signup(monitor: Monitor, password:String):String
     suspend fun signin(email:String, password: String)
 
 }
@@ -19,7 +19,7 @@ class MonitorAuthRepositoryImpl(
     val authServiceMonitor: MonitorAuthService = MonitorAuthServiceImpl(),
     val monitorRepository: MonitorRepository = MonitorRepositoryImpl()
 ) : MonitorAuthRepository {
-    override suspend fun signup(monitor: Monitor, password: String) {
+    override suspend fun signup(monitor: Monitor, password: String):String {
         //1. Registro en modulo de autenticación
         authServiceMonitor.createMonitor(monitor.email, password)
         //2. Obtenemos el UID
@@ -28,7 +28,9 @@ class MonitorAuthRepositoryImpl(
         uid?.let {
             monitor.id = it
             monitorRepository.createMonitor(monitor)
+            return it
         }
+        return ""
     }
     override suspend fun signin(email: String, password: String) {
         authServiceMonitor.loginWithEmailAndPassword(email, password)
