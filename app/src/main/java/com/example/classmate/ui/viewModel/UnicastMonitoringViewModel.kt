@@ -22,11 +22,11 @@ class UnicastMonitoringViewModel (
     //1. Loading
     //2. Error
     //3. Success
-    fun createRequest(request: Request) {
+    fun createRequest(StudentID:String, MonitorID:String,request: Request) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { authState.value = 1 }
             try {
-                repo.createRequest(request)
+                repo.createRequest(StudentID,MonitorID,request)
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }

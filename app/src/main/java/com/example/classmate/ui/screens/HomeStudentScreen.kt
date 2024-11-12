@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import PredictiveTextField
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -81,6 +83,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
@@ -103,10 +106,14 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
+    var search by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    val subjectsState by homeStudentViewModel.subjectList.observeAsState()
+
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
         homeStudentViewModel.loadMoreMonitors()
+        homeStudentViewModel.getSubjects()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -116,57 +123,64 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(120.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                    contentDescription = "Encabezado",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Center)
+                        .weight(1f)
                 ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        contentDescription = "Encabezado",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                     Image(
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = "classMateLogo",
-                        modifier = Modifier.size(200.dp)
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 2.dp, top = 0.dp)
+                            .width(200.dp)
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(70.dp)
-                            .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
+                            .align(Alignment.TopEnd)
+                            .padding(end = 24.dp, top = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.live_help),
-                            contentDescription = "Ayuda",
-                            tint = Color.White,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.weight(0.1f))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Botón de foto de perfil
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(70.dp)
+                                .width(50.dp)
+                                .aspectRatio(1f)
                         ) {
                             student?.let {
                                 image = it.photo
@@ -189,6 +203,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 contentScale = ContentScale.Crop
                             )
                         }
+
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -202,13 +217,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate(
-                                    "requestBroadcast?student=${
-                                        Gson().toJson(
-                                            student
-                                        ) ?: "No"
-                                    }"
-                                )
+                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -236,46 +245,62 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             .width(250.dp)
                             .align(Alignment.Start)
                     ) {
-                        BasicTextField(
-                            value = filter,
-                            onValueChange = {
-                                if (it.length <= maxLength) {
-                                    filter = it
-                                }
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 16.sp,
-                                color = Color.Black
-                            ),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .background(Color.LightGray, shape = RoundedCornerShape(50))
-                                        .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                        .padding(horizontal = 15.dp),
+                        Column {
+                            BasicTextField(
+                                value = filter,
+                                onValueChange = {
+                                    if (it.length <= maxLength) {
+                                        filter = it
+                                    }
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 16.sp,
+                                    color = Color.Black
+                                ),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .background(
+                                                Color.LightGray,
+                                                shape = RoundedCornerShape(50)
+                                            )
+                                            .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                            .padding(horizontal = 15.dp),
                                         contentAlignment = Alignment.CenterStart
-                                ) {
-                                    if (filter.isEmpty()) {
-                                        Text(
-                                            text = "Filtrar",
-                                            color = Color.Gray,
+                                    ) {
+                                        if (filter.isEmpty()) {
+                                            Text(
+                                                text = "Filtrar",
+                                                color = Color.Gray,
+                                            )
+                                        }
+                                        innerTextField()
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.data_loss_prevention),
+                                            contentDescription = "Search Icon",
+                                            tint = Color.Black,
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .align(Alignment.CenterEnd)
                                         )
                                     }
-                                    innerTextField()
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.data_loss_prevention),
-                                        contentDescription = "Search Icon",
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .align(Alignment.CenterEnd)
-                                    )
-                                }
-                            },
-                            singleLine = true,
-                        )
+                                },
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            subjectsState?.let {
+                                PredictiveTextField(
+                                    value = search,
+                                    onValueChange = { newSearch -> search = newSearch },
+                                    label = "Filtrar por materia",
+                                    modifier = Modifier.fillMaxWidth(),
+                                    subjects = it
+                                )
+                            }
+                        }
+
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -288,102 +313,49 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
 
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         monitorState?.let { monitors ->
-                            val m:List<Monitor?> = if(filter.isNotEmpty()) {
+                            var m:List<Monitor?> = if(filter.isNotEmpty()) {
                                 monitors.filter {
                                     it?.name!!.startsWith(
                                         filter,
                                         ignoreCase = true
                                     )
                                 }
-                            } else {
+                            } else{
                                 monitors
                             }
+                            subjectsState?.let {
+                                m = if(search.isNotEmpty()) {
+                                    m.filter { it2 ->
+                                        it.any { it3 ->
+                                            it3.monitorsID.contains(it2?.id)
+                                        }
+
+                                    }
+                                } else{
+                                    m
+                                }
+                            }
+
+
                             m.forEach { monitor ->
+
                                 monitor?.subjects?.forEach { subject ->
-                                        ElevatedCard(
-                                            elevation = CardDefaults.cardElevation(
-                                                defaultElevation = 5.dp,
-                                            ), modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(vertical = 10.dp)
-                                        ) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                AsyncImage(
-                                                    model = monitor.photoUrl,
-                                                    contentDescription = "",
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier
-                                                        .padding(horizontal = 10.dp)
-                                                        .size(50.dp)
-                                                        .clip(CircleShape)
-                                                )
-                                                Column(
-                                                    modifier = Modifier.align(Alignment.CenterVertically),
-                                                    verticalArrangement = Arrangement.spacedBy((-5).dp)
-                                                ) {
-                                                    androidx.compose.material3.Text(
-                                                        text = monitor.name,
-                                                        color = Color.Blue,
-                                                        fontSize = 16.sp,
-                                                        modifier = Modifier.padding(top = 10.dp)
-                                                    )
-                                                    androidx.compose.material3.Text(
-                                                        text = ("Materia: ${subject.name}"),
-                                                        fontSize = 12.sp,
-                                                    )
-                                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                                        Icon(
-                                                            imageVector = Icons.Outlined.Star,
-                                                            contentDescription = "Star",
-                                                            modifier = Modifier.padding(bottom = 10.dp)
-                                                        )
-                                                        Text(
-                                                            text = "${monitor.rating}/5",
-                                                            fontSize = 16.sp,
-                                                            modifier = Modifier.padding(bottom = 10.dp)
-                                                        )
-                                                        Spacer(modifier = Modifier.width(50.dp))
-                                                        Text(
-                                                            text = "$" + subject.price,
-                                                            fontSize = 16.sp,
-                                                            modifier = Modifier.padding(bottom = 10.dp)
-                                                        )
-                                                    }
-                                                }
-                                                Box(
-                                                    modifier = Modifier.fillMaxWidth()
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .align(Alignment.CenterEnd)
-                                                            .padding(horizontal = 5.dp)
-                                                    ) {
-                                                        IconButton(onClick = {
-                                                            navController.navigate("")
-                                                        }) {
-                                                            Icon(
-                                                                imageVector = Icons.Outlined.DateRange,
-                                                                contentDescription = "Calendar",
-                                                                modifier = Modifier
-                                                                    .size(40.dp)
-                                                            )
-                                                        }
-                                                        IconButton(onClick = {
-                                                            navController.navigate(
-                                                                "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${subject}"
-                                                            )
-                                                        }) {
-                                                            Icon(
-                                                                imageVector = Icons.Outlined.PlayArrow,
-                                                                contentDescription = "Arrow",
-                                                                modifier = Modifier.size(50.dp),
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                    if(search.isNotEmpty()) {
+                                        if(subject.name.lowercase().startsWith(search.lowercase())){
+                                            CreateMonitorCard(
+                                                monitor = monitor,
+                                                subject = subject,
+                                                navController = navController,
+                                                student = student
+                                            )
+                                        }
+                                    }else{
+                                        CreateMonitorCard(
+                                            monitor = monitor,
+                                            subject = subject,
+                                            navController = navController,
+                                            student = student
+                                        )
                                     }
                                 }
                             }
@@ -443,7 +415,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
@@ -490,3 +462,91 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     }
 }
 
+@Composable
+fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject, navController: NavController, student: Student?){
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 5.dp,
+        ), modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = monitor.photoUrl,
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .size(50.dp)
+                    .clip(CircleShape)
+            )
+            Column(
+                modifier = Modifier.align(Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy((-5).dp)
+            ) {
+                androidx.compose.material3.Text(
+                    text = monitor.name,
+                    color = Color.Blue,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 10.dp)
+                )
+                androidx.compose.material3.Text(
+                    text = ("Materia: ${subject.name}"),
+                    fontSize = 12.sp,
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.Star,
+                        contentDescription = "Star",
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    Text(
+                        text = "${monitor.rating}/5",
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    Spacer(modifier = Modifier.width(50.dp))
+                    Text(
+                        text = "$" + subject.price,
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(horizontal = 5.dp)
+                ) {
+                    IconButton(onClick = {
+                        navController.navigate("")
+                    }) {
+                        Icon(
+                            imageVector = Icons.Outlined.DateRange,
+                            contentDescription = "Calendar",
+                            modifier = Modifier
+                                .size(40.dp)
+                        )
+                    }
+                    IconButton(onClick = {
+                        navController.navigate(
+                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
+                        )
+                    }) {
+                        Icon(
+                            imageVector = Icons.Outlined.PlayArrow,
+                            contentDescription = "Arrow",
+                            modifier = Modifier.size(50.dp),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}

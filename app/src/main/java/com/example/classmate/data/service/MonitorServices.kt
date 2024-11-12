@@ -35,7 +35,7 @@ interface MonitorServices {
 }
 
 class MonitorServicesImpl: MonitorServices {
-    override suspend fun createMonitor(monitor: Monitor) {
+    override suspend fun createMonitor(monitor: Monitor){
         Firebase.firestore
             .collection("Monitor")
             .document(monitor.id)

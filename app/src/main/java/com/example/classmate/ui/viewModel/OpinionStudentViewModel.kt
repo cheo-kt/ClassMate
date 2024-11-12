@@ -49,5 +49,4 @@ class OpinionStudentViewModel(val repo: NotificationRepository = NotificationRep
             }
         }
     }
-    }
 }
