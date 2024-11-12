@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,6 +37,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
@@ -98,10 +100,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor by homeMonitorViewModel.monitor.observeAsState()
-    val monitorState by homeMonitorViewModel.monitorState.observeAsState()
     var image = monitor?.photoUrl
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     val listState = rememberLazyListState()
@@ -120,101 +119,123 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(120.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                    contentDescription = "Encabezado",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Center)
+                        .height(100.dp)
+                        .background(Color(0xFF209619)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.classmatelogo),
-                        contentDescription = "classMateLogo",
-                        modifier = Modifier.size(200.dp)
-                    )
-
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
-                        modifier = Modifier
-                            .size(70.dp)
-                            .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.live_help),
-                            contentDescription = "Ayuda",
-                            tint = Color.White,
-                            modifier = Modifier.fillMaxSize()
+                    Row(Modifier.align(Alignment.TopStart)) {
+                        IconButton(
+                            onClick = {
+                                navController.navigate("monitorProfile")
+                            },
+                            modifier = Modifier
+                                .size(50.dp)
+                                .offset(y = (25.dp))
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back Icon",
+                                modifier = Modifier.size(50.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.classmatelogo),
+                            contentDescription = "classMateLogo",
+                            modifier = Modifier
+                                .padding(start = 2.dp, bottom = 0.dp)
+                                .width(150.dp)
+                                .aspectRatio(1f),
+                            contentScale = ContentScale.Fit
                         )
                     }
 
-                    Spacer(modifier = Modifier.weight(0.1f))
-
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(end = 24.dp, top = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                        ) {
+                            IconButton(
+                                onClick = { },
+                                modifier = Modifier
+                                    .width(50.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.notifications),
+                                    contentDescription = "Ayuda",
+                                    tint = Color.White,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .width(50.dp)
+                                .offset(y = 5.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(70.dp)
+                                .width(50.dp)
+                                .aspectRatio(1f)
                         ) {
-                            monitor?.let {
-                                image = it.photoUrl
-                                if (monitorState == 2) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                                    }
+                            Column {
+                                Image(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape),
+                                    painter = rememberAsyncImagePainter(
+                                        image,
+                                        error = painterResource(R.drawable.botonestudiante)
+                                    ),
+                                    contentDescription = "Foto de perfil",
+                                    contentScale = ContentScale.Crop
+                                )
+
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier
+                                        .background(Color(0xFFCCD0CF))
+                                        .border(1.dp, Color.Black)
+                                        .padding(2.dp)
+                                ) {
+                                    DropdownMenuItemWithSeparator("Tu perfil", onClick = {
+                                        navController.navigate("studentProfile")
+                                    }, onDismiss = { expanded = false })
+
+                                    DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                    }, onDismiss = { expanded = false })
                                 }
                             }
-                            Image(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape),
-                                painter = rememberAsyncImagePainter(
-                                    image,
-                                    error = painterResource(R.drawable.botonestudiante)
-                                ),
-                                contentDescription = "foto de perfil",
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier
-                                .background(Color(0xFFCCD0CF))
-                                .border(1.dp, Color.Black)
-                                .padding(4.dp)
-                        ) {
-                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("studentProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate(
-                                    ""
-                                )
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                            }, onDismiss = { expanded = false })
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
@@ -222,7 +243,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = "¿Qué necesitas?",
+                        text = "¿A quién vamos a ayudar?",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -275,13 +296,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         )
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Monitores Destacados",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(5.dp))
 
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         requestState?.let { requests ->
@@ -300,57 +314,64 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         elevation = CardDefaults.cardElevation(
                                             defaultElevation = 5.dp,
                                         ), modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 10.dp)
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp)
                                     ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        AsyncImage(
+                                            model = R.drawable.botonestudiante,
+                                            contentDescription = "",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .padding(horizontal = 10.dp)
+                                                .size(50.dp)
+                                                .clip(CircleShape)
+                                        )
                                             Column(
-                                                modifier = Modifier.align(Alignment.CenterVertically),
-                                                verticalArrangement = Arrangement.spacedBy((-5).dp)
+                                                modifier = Modifier
+                                                    .align(Alignment.CenterVertically)
+                                                    .padding(20.dp)
                                             ) {
                                                 androidx.compose.material3.Text(
                                                     text = request!!.studentName,
-                                                    color = Color.Blue,
+                                                    color = Color(0xFF209619),
                                                     fontSize = 16.sp,
-                                                    modifier = Modifier.padding(top = 10.dp)
                                                 )
                                                 androidx.compose.material3.Text(
-                                                    text = ("Materia:"),
+                                                    text = ("Materia:" + request.subjectname),
                                                     fontSize = 12.sp,
                                                 )
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Icon(
-                                                        imageVector = Icons.Outlined.Star,
-                                                        contentDescription = "Star",
-                                                        modifier = Modifier.padding(bottom = 10.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(50.dp))
                                             }
-                                            Box(
-                                                modifier = Modifier.fillMaxWidth()
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .align(Alignment.CenterEnd)
+                                                    .padding(horizontal = 5.dp)
                                             ) {
-                                                Row(
-                                                    modifier = Modifier
-                                                        .align(Alignment.CenterEnd)
-                                                        .padding(horizontal = 5.dp)
-                                                ) {
                                                     IconButton(onClick = {
-                                                        navController.navigate("DecisionMonitor?request=${
-                                                            Gson().toJson(
-                                                                request
-                                                            ) ?: "No"
-                                                        }&monitor=${Gson().toJson(monitor) ?: "No"}")
+                                                        navController.navigate(
+                                                            "DecisionMonitor?request=${
+                                                                Gson().toJson(
+                                                                    request
+                                                                ) ?: "No"
+                                                            }&monitor=${
+                                                                Gson().toJson(
+                                                                    monitor
+                                                                ) ?: "No"
+                                                            }"
+                                                        )
                                                     }) {
                                                         Icon(
                                                             imageVector = Icons.Outlined.PlayArrow,
                                                             contentDescription = "Arrow",
-                                                            modifier = Modifier.size(50.dp),
+                                                            modifier = Modifier.size(50.dp)
                                                         )
                                                     }
                                                 }
-                                            }
                                         }
                                     }
                                 }
@@ -367,12 +388,12 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     }
                 }
             }
-
+            Spacer(modifier = Modifier.height(10.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -384,7 +405,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendar_today),
+                            painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
@@ -396,27 +417,28 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     Box(
                         modifier = Modifier
                             .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
+                            .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ) {
+                    ){
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
+                                tint = Color.White
                             )
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.notifications),
+                            painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",
                             modifier = Modifier
-                                .size(52.dp)
+                                .size(100.dp)
                                 .padding(4.dp),
                             tint = Color.White
                         )
@@ -428,30 +450,11 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                }
-            }
-        }
-        if (monitorState == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
-            }
-        } else if (monitorState == 2) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Ha ocurrido un error")
                 }
             }
         }

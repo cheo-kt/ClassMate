@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,7 +32,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,23 +43,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
 
 @Composable
 fun BroadcastDecisionScreen(
     navController: NavController,
     request: String?,
-    monitor: String?) {
+    monitor: String?,
+    appointmentViewModel: AppointmentViewModel = viewModel()
+    ) {
 
     val scope = rememberCoroutineScope()
     val requestObj: RequestBroadcast = Gson().fromJson(request, RequestBroadcast::class.java)
@@ -203,12 +202,15 @@ fun BroadcastDecisionScreen(
             Box(modifier = Modifier.weight(0.1f))
             Column {
                 Text(text = requestObj.studentName)
-                Text(text = requestObj.subjectID)
+                Text(text = requestObj.subjectname)
                 Text(text = "Tipo de ayuda")
                 Row {
                     Text(text = "Horarios:")
                     Spacer(modifier = Modifier.width(20.dp))
-                    Text(text = requestObj.date.toDate().toString())
+                    Column {
+                        Text(text = requestObj.dateInitial.toDate().toString())
+                        Text(text = requestObj.dateFinal.toDate().toString())
+                    }
                 }
                 Row {
                     Text(text = "Presencial/Virtual:")
@@ -218,7 +220,23 @@ fun BroadcastDecisionScreen(
                 Row {
                     IconButton(
                         onClick = {
-                            //Crear appoinment
+                            appointmentViewModel.createAppointment(
+                                Appointment(
+                                    "",
+                                    requestObj.mode_class,
+                                    requestObj.type,
+                                    requestObj.dateInitial,
+                                    requestObj.dateFinal,
+                                    requestObj.description,
+                                    requestObj.place,
+                                    requestObj.subjectID,
+                                    requestObj.subjectname,
+                                    requestObj.studentId,
+                                    requestObj.studentName,
+                                    monitorObj.id,
+                                    monitorObj.name
+                                )
+                            )
                         },
                         modifier = Modifier
                             .size(48.dp)
@@ -235,7 +253,7 @@ fun BroadcastDecisionScreen(
                         )
                     }
                     IconButton(
-                        onClick = { navController.navigate("monitorProfile") },
+                        onClick = { navController.navigate("HomeMonitorScreen") },
                         modifier = Modifier
                             .size(48.dp)
                             .border(

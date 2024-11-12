@@ -7,11 +7,11 @@ import com.example.classmate.domain.model.Monitor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.content.Context
+import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.RequestBroadcast
+import java.util.UUID
 
 interface MonitorRepository {
-
-
 
     suspend fun  createMonitor(monitor: Monitor)
     suspend fun  getCurrentMonitor(): Monitor?
@@ -20,7 +20,7 @@ interface MonitorRepository {
     suspend fun updateMonitorImageUrl(id:String,url:String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
-
+    suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
 }
 class MonitorRepositoryImpl(
     val monitorServices : MonitorServices = MonitorServicesImpl()
@@ -54,6 +54,15 @@ class MonitorRepositoryImpl(
     }
     override suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?> {
         return monitorServices.getBroadRequest(limit, request)
+    }
+
+    override suspend fun calificateMonitor(
+        opinionsAndQualifications: OpinionsAndQualifications,
+        monitorId: String
+    ) {
+        val requestId = UUID.randomUUID().toString()
+        opinionsAndQualifications.id = requestId
+       return monitorServices.calificateMonitor(opinionsAndQualifications,monitorId)
     }
 
 }

@@ -4,10 +4,13 @@ import com.example.classmate.data.service.AppointmentService
 import com.example.classmate.data.service.NotificationService
 import com.example.classmate.data.service.NotificationServiceImpl
 import com.example.classmate.domain.model.Notification
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 
 interface NotificationRepository {
-    suspend fun  createNotification(notification: Notification)
+    suspend fun createNotification(notification: Notification)
+    suspend fun loadMoreNotifications(limit: Int, notification: Notification?):List<Notification?>
 }
 
 class NotificationRepositoryImpl(
@@ -18,8 +21,13 @@ class NotificationRepositoryImpl(
         val documentId = FirebaseFirestore.getInstance().collection("notification").document().id
         notification.id = documentId
         notificationServices.createNotification(notification)
-
     }
 
-
+    override suspend fun loadMoreNotifications(
+        limit: Int,
+        notification: Notification?
+    ): List<Notification?> {
+        val user=Firebase.auth.currentUser!!.uid
+        return notificationServices.loadMoreNotifications(limit, notification,user)
+    }
 }

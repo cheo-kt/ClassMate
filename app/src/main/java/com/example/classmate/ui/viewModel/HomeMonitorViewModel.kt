@@ -17,7 +17,6 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState = MutableLiveData<Int?>(0)
-    private var broadcastReq: RequestBroadcast? = null
     private var lastReq: RequestBroadcast? = null
     private val _broadcastReqList = MutableLiveData(listOf<RequestBroadcast?>())
     val broadcastList: LiveData<List<RequestBroadcast?>> get() = _broadcastReqList
@@ -35,7 +34,7 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
         viewModelScope.launch(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.Main) { monitorState.value = 1 }
             try {
-                val newRequests = repoMonitor.getBroadRequest(limit, broadcastReq)
+                val newRequests = repoMonitor.getBroadRequest(limit, lastReq)
                 withContext(Dispatchers.Main) {
                     if (newRequests.isNotEmpty()) {
                         _broadcastReqList.value = _broadcastReqList.value.orEmpty() + newRequests

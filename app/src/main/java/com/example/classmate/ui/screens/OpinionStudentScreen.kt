@@ -1,11 +1,9 @@
 package com.example.classmate.ui.screens
 
 import android.annotation.SuppressLint
-import android.widget.Button
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.content.MediaType.Companion.Text
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
@@ -22,8 +20,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -38,7 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,15 +43,21 @@ import androidx.navigation.NavController
 import com.example.classmate.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.ui.platform.LocalConfiguration
+import com.example.classmate.domain.model.Notification
+import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.ui.components.RatingBar
 import com.example.classmate.ui.viewModel.OpinionStudentViewModel
+import com.google.gson.Gson
 
 @SuppressLint("Range")
 @Composable
-fun OpinionStudentScreen(navController: NavController, opinionStudentViewModel: OpinionStudentViewModel = viewModel()) {
+fun OpinionStudentScreen(navController: NavController, notification: String?, opinionStudentViewModel: OpinionStudentViewModel = viewModel()) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     var note by remember { mutableStateOf("") }
+    var notiObj: Notification = Gson().fromJson(notification, Notification::class.java)
+    var rating by remember { mutableStateOf(3) }
+
 
 
     Scaffold(
@@ -66,31 +67,22 @@ fun OpinionStudentScreen(navController: NavController, opinionStudentViewModel: 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.1f)
+                    .height(125.dp)
+                    .background(Color(0xFF3F21DB)),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-
                     IconButton(
                         onClick = { navController.popBackStack() },
                         modifier = Modifier
                             .size(50.dp)
                             .align(Alignment.TopStart)
-                            .offset(y = 20.dp)
+                            .offset(y = 40.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -99,7 +91,6 @@ fun OpinionStudentScreen(navController: NavController, opinionStudentViewModel: 
                             tint = Color.White
                         )
                     }
-
                     Box(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -108,82 +99,59 @@ fun OpinionStudentScreen(navController: NavController, opinionStudentViewModel: 
                             painter = painterResource(id = R.drawable.classmatelogo),
                             contentDescription = null,
                             modifier = Modifier
-                                .height(500.dp).fillMaxWidth(1f)
+                                .height(400.dp)
+                                .fillMaxWidth(1f)
                         )
                     }
                 }
-            }
-            Box(Modifier.fillMaxWidth()
-                .background(Color(0xFFCCD0CF))
-            ){
-                Column(Modifier.fillMaxWidth().align(Alignment.CenterEnd)) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFCCD0CF))
+                    .height(80.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement =Arrangement.Center
+            ) {
                     Text(
-                        text = "EJEMPLO DE MONITOR",
+                        text = notiObj.monitorName,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
-                        modifier = Modifier.padding(12.dp)
-                            .fillMaxWidth()
-                            .height(80.dp)
+                        modifier = Modifier
+                            .padding(12.dp)
                     )
                 }
-
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "¿Que tal de parecio?",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+            RatingBar(
+                rating = rating,
+                onRatingChanged = { newRating -> rating = newRating })
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center) {
+                Text(
+                    text = "¡Cuéntanos al respecto!",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
             }
             Box(modifier = Modifier.weight(0.01f))
-            Text(
-                text = "¿Que tal de parecio?",
-                fontSize = 25.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
-            Box(modifier = Modifier.weight(0.01f))
-            Box(Modifier.fillMaxWidth()){
-                Row(modifier = Modifier.padding(horizontal =2.dp).fillMaxWidth()) {
-                    val starSize = LocalConfiguration.current.screenWidthDp.dp / 8
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star",
-                        tint = Color.Black,
-                        modifier = Modifier.size(starSize)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Start",
-                        tint = Color.Black,
-                        modifier = Modifier.size(starSize)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Start",
-                        tint = Color.Black,
-                        modifier = Modifier.size(starSize)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Start",
-                        tint = Color.Black,
-                        modifier = Modifier.size(starSize)
-                    )
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Start",
-                        tint = Color.Black,
-                        modifier = Modifier.size(starSize)
-                            .border(width = 3.dp, color = Color.Black)
-                    )
-                }
-            }
-            Box(modifier = Modifier.weight(0.01f))
-            Text(
-                text = "¡Cuéntanos al respecto!",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black
-            )
 
-            Box(modifier = Modifier.weight(0.01f))
-
-            Box(modifier = Modifier.fillMaxHeight()
+            Box(modifier = Modifier
+                .fillMaxHeight()
                 .fillMaxWidth()
                 .weight(0.1f)) {
 
@@ -202,7 +170,15 @@ fun OpinionStudentScreen(navController: NavController, opinionStudentViewModel: 
 
             Box(modifier = Modifier.align(Alignment.CenterHorizontally)){
                 Button(
-                    onClick = {},
+                    onClick = {
+                        opinionStudentViewModel.calificateMonitor(
+                            OpinionsAndQualifications("",rating,note
+                            ),
+                            notiObj.monitorId
+                        )
+                        navController.navigate("notificationStudentPrincipal   ")
+                    },
+
                     modifier = Modifier
                         .wrapContentSize(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3F21DB)),

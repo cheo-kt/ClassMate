@@ -443,7 +443,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
