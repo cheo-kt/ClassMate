@@ -194,7 +194,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
+                                navController.navigate("requestBroadcast")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -364,7 +364,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarStudent?student=${Gson().toJson(student) ?: "No"}") }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",

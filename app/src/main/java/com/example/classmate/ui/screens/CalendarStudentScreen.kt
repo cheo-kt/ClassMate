@@ -50,16 +50,19 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
-fun CalendarStudentScreen(navController: NavController, student: String?,calendarStudentViewModel: CalendarStudentViewModel = viewModel()) {
-
+fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel: CalendarStudentViewModel = viewModel()) {
+    val studentObj: Student? by calendarStudentViewModel.student.observeAsState(initial = null)
     var expanded by remember { mutableStateOf(false) }
-    val studentObj: Student = Gson().fromJson(student, Student::class.java)
     val studentState by calendarStudentViewModel.studentState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var image = studentObj?.photo
     val scope = rememberCoroutineScope()
     val requestBroadcastState by calendarStudentViewModel.requestBroadcastlist.observeAsState()
     val appointmentsState by calendarStudentViewModel.appointmentlist.observeAsState()
+
+    LaunchedEffect(true) {
+        calendarStudentViewModel.getStudent()
+    }
 
     LaunchedEffect(true) {
         calendarStudentViewModel.getAppointments()
@@ -168,7 +171,7 @@ fun CalendarStudentScreen(navController: NavController, student: String?,calenda
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
+                                navController.navigate("requestBroadcast")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {

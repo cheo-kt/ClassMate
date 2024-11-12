@@ -156,14 +156,14 @@ fun DayBox(
         )
 
         // Indicadores de objetos con puntos de color
-        Row(horizontalArrangement = Arrangement.Center) {
+        Row() {
             // Si hay requests, mostrar punto azul
             requests.forEach { _ ->
                 Box(
                     modifier = Modifier
                         .size(6.dp)
-                        .background(Color.Blue)
-                        .padding(1.dp)
+                        .background(Color.Green)
+                        .padding(4.dp)
                         .clip(shape = CircleShape)
                         .align(Alignment.CenterVertically)
                 )
@@ -174,8 +174,8 @@ fun DayBox(
                 Box(
                     modifier = Modifier
                         .size(6.dp)
-                        .background(Color.Green)
-                        .padding(1.dp)
+                        .background(Color.Blue)
+                        .padding(4.dp)
                         .clip(shape = CircleShape)
                         .align(Alignment.CenterVertically)
                 )
