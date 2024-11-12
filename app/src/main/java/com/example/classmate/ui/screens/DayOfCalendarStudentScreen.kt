@@ -189,7 +189,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                             defaultElevation = 5.dp,
                         ), modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp)
+                            .padding(10.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically

@@ -114,20 +114,10 @@ fun App() {
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
         composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
-        composable("requestBroadcast?student={student}", arguments = listOf(
-            navArgument("student"){type= NavType.StringType}
-        )) { entry ->
-            val student =entry.arguments?.getString("student")
-            RequestBroadcastStudentScreen(navController,student)
-        }
+        composable("requestBroadcast") { RequestBroadcastStudentScreen(navController) }
         composable("notificationStudentPrincipal"){ NotificationStudentScreen(navController) }
         composable("OpinionStudent"){ OpinionStudentScreen(navController) }
-        composable("CalendarStudent?student={student}", arguments = listOf(
-            navArgument("student"){type= NavType.StringType}
-        )){  entry ->
-            val student =entry.arguments?.getString("student")
-            CalendarStudentScreen(navController,student)
-        }
+        composable("CalendarStudent"){ CalendarStudentScreen(navController) }
         composable("DayOfCalendar?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
             navArgument("requestsForDay") { type = NavType.StringType },
             navArgument("appointmentsForDay") { type = NavType.StringType }
