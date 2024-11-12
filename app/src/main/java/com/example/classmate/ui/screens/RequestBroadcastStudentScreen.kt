@@ -94,6 +94,8 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,6 +128,8 @@ fun RequestBroadcastStudentScreen(
     var initialTimeVisibility by remember { mutableStateOf(false) }
     var datePickerVisibility by remember { mutableStateOf(false) }
     var finalTimeVisibility by remember { mutableStateOf(false) }
+    val currentDateTime = LocalDateTime.now()
+    val minimumDateTime = currentDateTime.plusHours(1)
 
 
 
@@ -394,11 +398,21 @@ fun RequestBroadcastStudentScreen(
                         visible = initialTimeVisibility,
                         timePickerState = timePickerState
                     ) {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                        cal.set(Calendar.MINUTE, timePickerState.minute)
-                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
-                        horaInicio = format
+                        val selectedHour = timePickerState.hour
+                        val selectedMinute = timePickerState.minute
+
+                        val selectedTime = LocalTime.of(selectedHour, selectedMinute)
+
+                        if (selectedTime.isAfter(minimumDateTime.toLocalTime()) ||
+                            (currentDateTime.toLocalDate() != minimumDateTime.toLocalDate())) {
+                            val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                            horaInicio = formattedTime
+                        } else {
+                            scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar("Selecciona una hora al menos una hora después de la actual.")
+                            }
+                        }
                         initialTimeVisibility = false
                     }
 
@@ -423,23 +437,34 @@ fun RequestBroadcastStudentScreen(
                             },
                     )
 
+
                     TimePickerDialog(
                         visible = finalTimeVisibility,
-                        timePickerState = timePickerState2
+                        timePickerState = timePickerState
                     ) {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState2.hour)
-                        cal.set(Calendar.MINUTE, timePickerState2.minute)
-                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
-                        horafin = format
+                        val selectedHour = timePickerState.hour
+                        val selectedMinute = timePickerState.minute
+
+                        val selectedTime = LocalTime.of(selectedHour, selectedMinute)
+
+                        if (selectedTime.isAfter(minimumDateTime.toLocalTime()) ||
+                            (currentDateTime.toLocalDate() != minimumDateTime.toLocalDate())) {
+                            val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                            horafin = formattedTime
+                        } else {
+                            scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar("Selecciona una hora al menos una hora después de la actual.")
+                            }
+                        }
                         finalTimeVisibility = false
                     }
-
 
                     DatePickerDialog(
                         visible = datePickerVisibility,
                         datePickerState = datePickerState
                     ) {
+
                         datePickerState.selectedDateMillis?.let {
                             val zonedDateTime = Instant.ofEpochMilli(it+6*60*60*1000).atZone(ZoneId.systemDefault())
                             val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
@@ -448,8 +473,6 @@ fun RequestBroadcastStudentScreen(
                         datePickerVisibility = false
 
                     }
-
-                    // Selector de hora inicio
 
                     Spacer(modifier = Modifier.width(16.dp))
                 }
@@ -475,7 +498,13 @@ fun RequestBroadcastStudentScreen(
                 ) {
                     IconButton(
                         onClick = {
-                            if (modalidadSeleccionada.isEmpty()) {
+                            if(selectedSubject.value?.id == null){
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Selecciona una materia")
+                                }
+                            }
+                            else if (modalidadSeleccionada.isEmpty()) {
                                 scope.launch {
                                     snackbarHostState.currentSnackbarData?.dismiss()
                                     snackbarHostState.showSnackbar("modalidad no seleccionada")

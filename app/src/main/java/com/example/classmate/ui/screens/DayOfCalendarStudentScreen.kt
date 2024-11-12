@@ -55,6 +55,8 @@ import com.example.classmate.ui.viewModel.DayOfCalendarViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 
 @Composable
@@ -68,6 +70,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
     // Observar los datos de appointments y requests usando LiveData
     val appointments by dayOfCalendarViewModel.appointments.observeAsState(emptyList())
     val requests by dayOfCalendarViewModel.requests.observeAsState(emptyList())
+    
 
     LaunchedEffect(true) {
         dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, listRequest)
@@ -278,21 +281,36 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                         .padding(horizontal = 5.dp)
                                 ) {
                                     IconButton(onClick = {
-                                        dayOfCalendarViewModel.deleteAppointment(appointment.id
-                                            ,appointment.studentId
-                                            ,appointment.monitorId,
-                                            onSuccess = {
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar("Cita eliminada")
-                                                }
-                                            },
-                                            onError = { e ->
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar("Error al eliminar la Cita: ${e.message}")
-                                                }
+                                        // Obtenemos la hora actual y los límites de la cita
+                                        val now = LocalDateTime.now()
+                                        val appointmentStart = appointment.dateInitial.toDate().toInstant()
+                                            .atZone(ZoneId.systemDefault()).toLocalDateTime()
+                                        val appointmentEnd = appointment.dateFinal.toDate().toInstant()
+                                            .atZone(ZoneId.systemDefault()).toLocalDateTime()
 
+                                        // Verificamos si la cita puede ser eliminada
+                                        if (now.isBefore(appointmentStart.minusHours(1)) || now.isAfter(appointmentEnd)) {
+                                            dayOfCalendarViewModel.deleteAppointment(
+                                                appointment.id,
+                                                appointment.studentId,
+                                                appointment.monitorId,
+                                                onSuccess = {
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Cita eliminada")
+                                                    }
+                                                },
+                                                onError = { e ->
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Error al eliminar la cita: ${e.message}")
+                                                    }
+                                                }
+                                            )
+                                        } else {
+                                            // Mostrar mensaje de error si no es posible eliminar
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar("No se puede eliminar una cita que está por iniciar o en progreso.")
                                             }
-                                        )
+                                        }
                                     }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
