@@ -11,6 +11,7 @@ interface NotificationService {
     suspend fun createNotification(notification: Notification)
     suspend fun loadMoreNotifications(limit: Int, notification: Notification?, userId:String): List<Notification?>
     suspend fun createNotificationQualification(notification: Notification)
+    suspend fun deleteNotification(notification: Notification, userId: String)
 }
 
 class NotificationServiceImpl: NotificationService {
@@ -52,4 +53,22 @@ class NotificationServiceImpl: NotificationService {
             emptyList()
         }
     }
+    override suspend fun deleteNotification(notification: Notification, userId: String) {
+        //General
+        Firebase.firestore
+            .collection("notification")
+            .document(notification.id)
+            .delete()
+            .await()
+
+        //Student
+        Firebase.firestore
+            .collection("student")
+            .document(userId)
+            .collection("notification")
+            .document(notification.id)
+            .delete()
+            .await()
+    }
+
 }

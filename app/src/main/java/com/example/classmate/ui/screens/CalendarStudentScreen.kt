@@ -208,7 +208,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ){
-                    IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("CalendarStudent") }){
                         Icon(
                             painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",
@@ -220,7 +220,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                     }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -232,7 +232,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                        IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
                                 contentDescription = "calendario",

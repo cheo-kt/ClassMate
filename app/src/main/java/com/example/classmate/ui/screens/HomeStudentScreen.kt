@@ -400,7 +400,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {navController.navigate("HomeStudentScreen")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",

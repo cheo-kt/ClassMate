@@ -183,7 +183,7 @@ fun RequestBroadcastStudentView(navController: NavController, requestBroadcast: 
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendar_today),
                                 contentDescription = "calendario",
@@ -195,10 +195,10 @@ fun RequestBroadcastStudentView(navController: NavController, requestBroadcast: 
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
-                            contentDescription = "calendario",
+                            contentDescription = "home",
                             modifier = Modifier
                                 .size(52.dp)
                                 .padding(4.dp),
@@ -207,7 +207,7 @@ fun RequestBroadcastStudentView(navController: NavController, requestBroadcast: 
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",

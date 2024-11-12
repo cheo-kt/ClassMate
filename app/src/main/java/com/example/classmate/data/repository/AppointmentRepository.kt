@@ -3,8 +3,6 @@ package com.example.classmate.data.repository
 import com.example.classmate.data.service.AppointmentService
 import com.example.classmate.data.service.AppointmentServiceImpl
 import com.example.classmate.domain.model.Appointment
-import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore

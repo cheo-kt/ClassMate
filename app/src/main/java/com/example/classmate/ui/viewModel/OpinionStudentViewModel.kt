@@ -17,6 +17,7 @@ import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.Student
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -38,15 +39,15 @@ class OpinionStudentViewModel(val repo: NotificationRepository = NotificationRep
             }
         }
     }
-    fun deleteNotification(notification: Notification){
+    fun deleteNotification(notification: Notification): Job =
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { studentState.value = 1 }
             try {
+                repo.deleteNotification(notification)
                 withContext(Dispatchers.Main) { studentState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { studentState.value = 2 }
                 ex.printStackTrace()
-            }
         }
     }
 }

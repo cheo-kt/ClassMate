@@ -8,7 +8,10 @@ import com.example.classmate.data.repository.NotificationRepository
 import com.example.classmate.data.repository.NotificationRepositoryImpl
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Student
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -44,5 +47,15 @@ class NotificationStudentViewModel(val repo: NotificationRepository = Notificati
             }
         }
     }
+    fun deleteNotification(notification: Notification): Job = viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { studentState.value = 1 }
+            try {
+                repo.deleteNotification(notification)
+                withContext(Dispatchers.Main) { studentState.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { studentState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
 
 }
