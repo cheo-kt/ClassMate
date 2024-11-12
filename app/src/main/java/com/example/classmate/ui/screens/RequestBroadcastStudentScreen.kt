@@ -100,7 +100,6 @@ import java.util.Calendar
 @Composable
 fun RequestBroadcastStudentScreen(
     navController: NavController,
-    student: String?,
     requestBroadcastStudentViewmodel: RequestBroadcastStudentViewModel = viewModel()
 ) {
     val authState by requestBroadcastStudentViewmodel.authState.observeAsState()
@@ -114,16 +113,14 @@ fun RequestBroadcastStudentScreen(
     var horafin by remember { mutableStateOf("") }
     var notas by remember { mutableStateOf("") }
     var tipoMonitoria by remember { mutableStateOf("") }
-
+    val studentObj: Student? by requestBroadcastStudentViewmodel.student.observeAsState(initial = null)
     val subjects by requestBroadcastStudentViewmodel.subjects.observeAsState(emptyList())
     LaunchedEffect(true) {
+        requestBroadcastStudentViewmodel.getStudent()
         requestBroadcastStudentViewmodel.getSubject()
     }
     var selectedSubject = remember { mutableStateOf<Subject?>(null) }
     var expanded by remember { mutableStateOf(false) }
-
-
-    val studentObj: Student = Gson().fromJson(student, Student::class.java)
 
     val intialTime by remember { mutableStateOf("") }
     var initialTimeVisibility by remember { mutableStateOf(false) }
@@ -511,7 +508,7 @@ fun RequestBroadcastStudentScreen(
                                 val timestampFinal = Timestamp(datetimeFinal)
 
 
-                                requestBroadcastStudentViewmodel.createRequest(studentObj.id,
+                                requestBroadcastStudentViewmodel.createRequest(
                                     RequestBroadcast("", modalidadSeleccionada.toString(),
                                         tipoMonitoria.toString(),
                                         timestampInitial,
@@ -520,8 +517,8 @@ fun RequestBroadcastStudentScreen(
                                         direccion.toString(),
                                         selectedSubject.value?.id.toString(),
                                         selectedSubject.value?.name.toString(),
-                                        studentObj.id,
-                                        studentObj.name
+                                        studentObj?.id ?: " ",
+                                        studentObj?.name?:" "
                                         )
 
                                 )

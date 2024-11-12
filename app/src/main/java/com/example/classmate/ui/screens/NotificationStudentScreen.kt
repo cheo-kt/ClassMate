@@ -1,9 +1,11 @@
 package com.example.classmate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,113 +17,144 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.ui.components.FormatterDate
+import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.example.classmate.ui.viewModel.NotificationStudentViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
-fun NotificationStudentScreen(navController: NavController, notificationStudentViewModel: NotificationStudentViewModel= viewModel()) {
+fun NotificationStudentScreen(navController: NavController,
+                              notificationStudentViewModel: NotificationStudentViewModel= viewModel(),
+                              appointmentViewModel: AppointmentViewModel = viewModel() ) {
 
     var expanded by remember { mutableStateOf(false) }
     val student: Student? by notificationStudentViewModel.student.observeAsState(initial = null)
     val studentState by notificationStudentViewModel.studentState.observeAsState()
+    val notificationState by notificationStudentViewModel.notificationList.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val listState = rememberLazyListState()
     var image = student?.photo
+    var notification = remember { mutableStateListOf<Notification>() }
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(true) {
+        val job = appointmentViewModel.verifyAppointments(Timestamp.now())
+        job.join()
+        notificationStudentViewModel.loadMoreNotifications()
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Row(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(150.dp)
             ) {
-                Box(
+                Image(
+                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                    contentDescription = "Encabezado",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
+                        .align(Alignment.Center)
                 ) {
-
-                    Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                        contentDescription = "Encabezado",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
                     Image(
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = "classMateLogo",
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(start = 2.dp, top = 0.dp)
-                            .width(200.dp)
-                            .aspectRatio(1f),
-                        contentScale = ContentScale.Fit
+                        modifier = Modifier.size(200.dp)
                     )
 
-                    Row(
+                    Spacer(modifier = Modifier.weight(1f))
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(end = 24.dp, top = 24.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .size(70.dp)
+                            .background(Color.Transparent)
+                            .clickable(onClick = { /*TODO*/ })
                     ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.live_help),
+                            contentDescription = "Ayuda",
+                            tint = Color.White,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
 
-                        Box(
-                            modifier = Modifier
-                                .width(50.dp)
-                                .aspectRatio(1f)
-                                .background(Color.Transparent)
-                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.live_help),
-                                contentDescription = "Ayuda",
-                                tint = Color.White,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                    Spacer(modifier = Modifier.weight(0.1f))
 
-                        Spacer(modifier = Modifier.width(16.dp))
-                        // Botón de foto de perfil
+
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .width(50.dp)
-                                .aspectRatio(1f)
+                                .size(70.dp)
                         ) {
                             student?.let {
                                 image = it.photo
@@ -140,11 +173,10 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                                     image,
                                     error = painterResource(R.drawable.botonestudiante)
                                 ),
-                                contentDescription = "Foto de perfil",
+                                contentDescription = "foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
-
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -158,7 +190,13 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
+                                navController.navigate(
+                                    "requestBroadcast?student=${
+                                        Gson().toJson(
+                                            student
+                                        ) ?: "No"
+                                    }"
+                                )
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -167,13 +205,103 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .weight(1f)
+            ) {
+                Column(modifier = Modifier.verticalScroll(scrollState)) {
+                    notificationState?.let { notification ->
+                        notification.forEachIndexed{ _, n ->
+                            ElevatedCard(
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = 5.dp,
+                                ), modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp)
+                                    .clickable {
+                                        navController.navigate("OpinionStudent?notification=${Gson().toJson(n)?:"No"}"
+                                        )
+                                    }
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    AsyncImage(
+                                        model = R.drawable.botonestudiante,
+                                        contentDescription = "a",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .padding(horizontal = 10.dp)
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                    )
+                                    Column(
+                                        modifier = Modifier.align(Alignment.CenterVertically),
+                                        verticalArrangement = Arrangement.spacedBy((-5).dp)
+                                    ) {
+                                        androidx.compose.material3.Text(
+                                            text = n!!.content,
+                                            fontSize = 12.sp,
+                                            color = Color.Blue,
+                                        )
+                                        androidx.compose.material3.Text(
+                                            text = n.monitorName,
+                                            fontSize = 15.sp,
+                                        )
+                                        androidx.compose.material3.Text(
+                                            text = n.subject,
+                                            fontSize = 12.sp,
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .align(Alignment.CenterEnd)
+                                                .padding(horizontal = 5.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = FormatterDate(timestamp = n!!.date),
+                                                fontSize = 16.sp,
+                                            )
+                                            Spacer(modifier = Modifier.width(20.dp))
+                                            IconButton(
+                                                onClick = { },
+                                                modifier = Modifier
+                                                    .size(48.dp)
+                                                    .border(
+                                                        2.dp,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        shape = RoundedCornerShape(8.dp)
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "Cancelar",
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    LaunchedEffect(listState) {
+                        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == notificationState?.lastIndex }
+                            .collect { isAtBottom ->
+                                if (isAtBottom) {
+                                    notificationStudentViewModel.loadMoreNotifications()
+                                }
+                            }
+                    }
+                }
 
-            Box(modifier = Modifier.weight(0.1f))
-
-
-
-            Box(modifier = Modifier.weight(0.1f))
-
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -199,27 +327,15 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
                     Box(
                         modifier = Modifier
                             .size(58.dp)
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.notifications),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
@@ -227,6 +343,17 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                                 tint = Color(0xFF3F21DB)
                             )
                         }
+                    }
+                    Box(modifier = Modifier.weight(0.1f))
+                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.notifications),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
                     }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
@@ -240,6 +367,25 @@ fun NotificationStudentScreen(navController: NavController, notificationStudentV
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
+                }
+            }
+        }
+        if (studentState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (studentState == 2) {
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
                 }
             }
         }

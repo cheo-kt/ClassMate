@@ -9,5 +9,5 @@ data class Monitor(
     var email: String = "",
     var description: String ="",
     var photoUrl: String = "",
-    var rating: Int = 0,
+    var rating: Double = 0.0,
 )

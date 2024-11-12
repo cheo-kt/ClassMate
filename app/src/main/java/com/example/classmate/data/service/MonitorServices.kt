@@ -3,9 +3,12 @@ package com.example.classmate.data.service
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.util.Log
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -15,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import kotlin.math.round
+import kotlin.math.roundToInt
 
 interface MonitorServices {
 
@@ -24,6 +29,8 @@ interface MonitorServices {
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+    suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
+    suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
 
 }
 
@@ -91,5 +98,59 @@ class MonitorServicesImpl: MonitorServices {
         } catch (e: Exception) {
             emptyList()
         }
+    }
+    override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast> {
+        return try {
+            val querySnapshot = Firebase.firestore.collection("requestBroadcast")
+                .orderBy("id")
+                .startAfter(broadRequest?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.toObject(RequestBroadcast::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun calificateMonitor(
+        opinionsAndQualifications: OpinionsAndQualifications,
+        monitorId: String
+    ) {
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .collection("calificationsOpinions")
+            .document(opinionsAndQualifications.id)
+            .set(opinionsAndQualifications)
+            .await()
+
+        val califications = getCalifications(monitorId)
+
+        val averageRating = califications.average()
+            .toBigDecimal()
+            .setScale(1, java.math.RoundingMode.HALF_UP)
+            .toDouble()
+
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .update("rating", averageRating)
+            .await()
+
+    }
+    suspend fun getCalifications(monitorId: String): List<Int> {
+        val calificationsList = mutableListOf<Int>()
+        val querySnapshot = Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .collection("calificationsOpinions")
+            .get()
+            .await()
+
+        for (document in querySnapshot) {
+            val calification = document.getLong("calification")?.toInt()
+            if (calification != null) {
+                calificationsList.add(calification)
+            }
+        }
+        return calificationsList
     }
 }

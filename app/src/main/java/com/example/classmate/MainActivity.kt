@@ -48,9 +48,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.classmate.domain.model.Appointment
-import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.screens.BroadcastDecisionScreen
 import com.example.classmate.ui.screens.CalendarStudentScreen
 import com.example.classmate.ui.screens.HomeMonitorScreen
 import com.example.classmate.ui.screens.HomeStudentScreen
@@ -114,20 +112,15 @@ fun App() {
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
         composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
-        composable("requestBroadcast?student={student}", arguments = listOf(
-            navArgument("student"){type= NavType.StringType}
-        )) { entry ->
-            val student =entry.arguments?.getString("student")
-            RequestBroadcastStudentScreen(navController,student)
-        }
+        composable("requestBroadcast") { RequestBroadcastStudentScreen(navController) }
         composable("notificationStudentPrincipal"){ NotificationStudentScreen(navController) }
-        composable("OpinionStudent"){ OpinionStudentScreen(navController) }
-        composable("CalendarStudent?student={student}", arguments = listOf(
-            navArgument("student"){type= NavType.StringType}
-        )){  entry ->
-            val student =entry.arguments?.getString("student")
-            CalendarStudentScreen(navController,student)
+        composable("OpinionStudent?notification={notification}", arguments =
+        listOf(navArgument("notification"){ type=NavType.StringType}
+        )){ entry ->
+            val notification =entry.arguments?.getString("notification")
+            OpinionStudentScreen(navController, notification)
         }
+        composable("CalendarStudent"){ CalendarStudentScreen(navController) }
         composable("DayOfCalendar?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
             navArgument("requestsForDay") { type = NavType.StringType },
             navArgument("appointmentsForDay") { type = NavType.StringType }
@@ -152,13 +145,22 @@ fun App() {
             val jsonRequestBroadcast = entry.arguments?.getString("requestBroadcast")
                 RequestBroadcastStudentView(navController, jsonRequestBroadcast)
         }
-        composable("AppoimentStudentView?appointment={appointment}}", arguments = listOf(
+        composable("AppointmentStudentView?appointment={appointment}", arguments = listOf(
             navArgument("appointment"){type= NavType.StringType}
         )) {entry->
-            val appointment =entry.arguments?.getString("appointment")
-            AppoimentStudentScreen(navController,appointment) }
+            val jsonRequestBroadcast =entry.arguments?.getString("appointment")
+            AppoimentStudentScreen(navController,jsonRequestBroadcast)
+        }
 
 
+        composable("DecisionMonitor?request={request}&monitor={monitor}",
+        arguments = listOf(
+            navArgument("request"){type= NavType.StringType},
+            navArgument("monitor"){type= NavType.StringType}
+        )) {entry->
+        val request =entry.arguments?.getString("request")
+        val monitor =entry.arguments?.getString("monitor")
+        BroadcastDecisionScreen(navController,request,monitor) }
     }
 }
 

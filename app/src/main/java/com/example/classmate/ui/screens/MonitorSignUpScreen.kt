@@ -185,7 +185,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                         IconButton(
                             onClick = {
                                 selectedSubject?.let { selected ->
-                                    if (!SubjectWithPrice.any { it.name == selected.name }) {
+                                        if (!SubjectWithPrice.any { it.name == selected.name }) {
                                         SubjectWithPrice.add(
                                             MonitorSubject(
                                                 selected.id,
@@ -328,7 +328,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                                         SubjectWithPrice,
                                         email,
                                         "",
-                                        "", 0
+                                        "", 0.0
                                     ),
                                     password
                                 )

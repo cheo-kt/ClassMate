@@ -1,21 +1,14 @@
 package com.example.classmate.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,100 +16,70 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.sharp.Star
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
-import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
-import com.example.classmate.ui.viewModel.HomeMonitorViewModel
-import com.example.classmate.ui.viewModel.HomeStudentViewModel
-import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
+import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.google.gson.Gson
-import kotlinx.coroutines.launch
-import kotlin.math.sqrt
 
 @Composable
-fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
-    val requestState by homeMonitorViewModel.broadcastList.observeAsState()
-    val scrollState = rememberScrollState()
-    var filter by remember { mutableStateOf("") }
-    val monitor by homeMonitorViewModel.monitor.observeAsState()
-    var image = monitor?.photoUrl
+fun BroadcastDecisionScreen(
+    navController: NavController,
+    request: String?,
+    monitor: String?,
+    appointmentViewModel: AppointmentViewModel = viewModel()
+    ) {
+
+    val scope = rememberCoroutineScope()
+    val requestObj: RequestBroadcast = Gson().fromJson(request, RequestBroadcast::class.java)
+    val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
+    var image = monitor
+    val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     val listState = rememberLazyListState()
-    LaunchedEffect(true) {
-        homeMonitorViewModel.getMonitor()
-        homeMonitorViewModel.loadMoreRequestB()
-    }
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
@@ -236,159 +199,80 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     }
                 }
             }
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .weight(1f)
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Text(
-                        text = "¿A quién vamos a ayudar?",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Box(
-                        Modifier
-                            .width(250.dp)
-                            .align(Alignment.Start)
+            Box(modifier = Modifier.weight(0.1f))
+            Column {
+                Text(text = requestObj.studentName)
+                Text(text = requestObj.subjectname)
+                Text(text = "Tipo de ayuda")
+                Row {
+                    Text(text = "Horarios:")
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column {
+                        Text(text = requestObj.dateInitial.toDate().toString())
+                        Text(text = requestObj.dateFinal.toDate().toString())
+                    }
+                }
+                Row {
+                    Text(text = "Presencial/Virtual:")
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Text(text = requestObj.place)
+                }
+                Row {
+                    IconButton(
+                        onClick = {
+                            appointmentViewModel.createAppointment(
+                                Appointment(
+                                    "",
+                                    requestObj.mode_class,
+                                    requestObj.type,
+                                    requestObj.dateInitial,
+                                    requestObj.dateFinal,
+                                    requestObj.description,
+                                    requestObj.place,
+                                    requestObj.subjectID,
+                                    requestObj.subjectname,
+                                    requestObj.studentId,
+                                    requestObj.studentName,
+                                    monitorObj.id,
+                                    monitorObj.name
+                                )
+                            )
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .border(
+                                2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(8.dp)
+                            )
                     ) {
-                        BasicTextField(
-                            value = filter,
-                            onValueChange = {
-                                if (it.length <= maxLength) {
-                                    filter = it
-                                }
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 16.sp,
-                                color = Color.Black
-                            ),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .background(Color.LightGray, shape = RoundedCornerShape(50))
-                                        .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                        .padding(horizontal = 15.dp),
-                                    contentAlignment = Alignment.CenterStart
-                                ) {
-                                    if (filter.isEmpty()) {
-                                        Text(
-                                            text = "Filtrar",
-                                            color = Color.Gray,
-                                        )
-                                    }
-                                    innerTextField()
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.data_loss_prevention),
-                                        contentDescription = "Search Icon",
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .align(Alignment.CenterEnd)
-                                    )
-                                }
-                            },
-                            singleLine = true,
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Aceptar",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        requestState?.let { requests ->
-                            val rb:List<RequestBroadcast?> = if(filter.isNotEmpty()) {
-                                requests.filter {
-                                    it?.studentName!!.startsWith(
-                                        filter,
-                                        ignoreCase = true
-                                    )
-                                }
-                            } else {
-                                requests
-                            }
-                            rb.forEach { request ->
-                                ElevatedCard(
-                                        elevation = CardDefaults.cardElevation(
-                                            defaultElevation = 5.dp,
-                                        ), modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 10.dp)
-                                    ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        AsyncImage(
-                                            model = R.drawable.botonestudiante,
-                                            contentDescription = "",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .padding(horizontal = 10.dp)
-                                                .size(50.dp)
-                                                .clip(CircleShape)
-                                        )
-                                            Column(
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterVertically)
-                                                    .padding(20.dp)
-                                            ) {
-                                                androidx.compose.material3.Text(
-                                                    text = request!!.studentName,
-                                                    color = Color(0xFF209619),
-                                                    fontSize = 16.sp,
-                                                )
-                                                androidx.compose.material3.Text(
-                                                    text = ("Materia:" + request.subjectname),
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterEnd)
-                                                    .padding(horizontal = 5.dp)
-                                            ) {
-                                                    IconButton(onClick = {
-                                                        navController.navigate(
-                                                            "DecisionMonitor?request=${
-                                                                Gson().toJson(
-                                                                    request
-                                                                ) ?: "No"
-                                                            }&monitor=${
-                                                                Gson().toJson(
-                                                                    monitor
-                                                                ) ?: "No"
-                                                            }"
-                                                        )
-                                                    }) {
-                                                        Icon(
-                                                            imageVector = Icons.Outlined.PlayArrow,
-                                                            contentDescription = "Arrow",
-                                                            modifier = Modifier.size(50.dp)
-                                                        )
-                                                    }
-                                                }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    LaunchedEffect(listState) {
-                        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
-                            .collect { isAtBottom ->
-                                if (isAtBottom) {
-                                    homeMonitorViewModel.loadMoreRequestB()
-                                }
-                            }
+                    IconButton(
+                        onClick = { navController.navigate("HomeMonitorScreen") },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .border(
+                                2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cancelar",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+
+            Box(modifier = Modifier.weight(0.1f))
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

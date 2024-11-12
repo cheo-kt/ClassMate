@@ -227,7 +227,7 @@ fun StudentMonitorSigninScreen (navController: NavController, authViewModel: Stu
         } else if (authStateMonitor == 3 || authState == 3) {
             if (authStateMonitor == 3) {
                 LaunchedEffect(Unit) {
-                    navController.navigate("monitorProfile")
+                    navController.navigate("HomeMonitorScreen")
                 }
             } else {
                 LaunchedEffect(Unit) {

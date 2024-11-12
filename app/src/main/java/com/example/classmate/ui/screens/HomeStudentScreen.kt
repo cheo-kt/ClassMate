@@ -1,21 +1,31 @@
 package com.example.classmate.ui.screens
 
 import PredictiveTextField
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -28,18 +38,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.sharp.Star
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,9 +66,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,8 +84,10 @@ import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeStudentViewModel
+import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -99,57 +119,64 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(120.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                    contentDescription = "Encabezado",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Center)
+                        .weight(1f)
                 ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        contentDescription = "Encabezado",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                     Image(
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = "classMateLogo",
-                        modifier = Modifier.size(200.dp)
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 2.dp, top = 0.dp)
+                            .width(200.dp)
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(70.dp)
-                            .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
+                            .align(Alignment.TopEnd)
+                            .padding(end = 24.dp, top = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.live_help),
-                            contentDescription = "Ayuda",
-                            tint = Color.White,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.weight(0.1f))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Botón de foto de perfil
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(70.dp)
+                                .width(50.dp)
+                                .aspectRatio(1f)
                         ) {
                             student?.let {
                                 image = it.photo
@@ -168,10 +195,11 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                     image,
                                     error = painterResource(R.drawable.botonestudiante)
                                 ),
-                                contentDescription = "foto de perfil",
+                                contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
+
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -185,13 +213,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate(
-                                    "requestBroadcast?student=${
-                                        Gson().toJson(
-                                            student
-                                        ) ?: "No"
-                                    }"
-                                )
+                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -299,14 +321,14 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }
                             subjectsState?.let {
                                 m = if(search.isNotEmpty()) {
-                                    monitors.filter { it2 ->
+                                    m.filter { it2 ->
                                         it.any { it3 ->
                                             it3.monitorsID.contains(it2?.id)
                                         }
 
                                     }
                                 } else{
-                                    monitors
+                                    m
                                 }
                             }
 
@@ -361,7 +383,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",
@@ -390,7 +412,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
@@ -511,7 +533,7 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
                     }
                     IconButton(onClick = {
                         navController.navigate(
-                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${subject}"
+                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
                         )
                     }) {
                         Icon(

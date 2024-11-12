@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
@@ -30,9 +31,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,14 +53,27 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.ui.viewModel.DayOfCalendarViewModel
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
 fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<RequestBroadcast>, listAppointment: List<Appointment>, dayOfCalendarViewModel: DayOfCalendarViewModel= viewModel()) {
 
+
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+
+    // Observar los datos de appointments y requests usando LiveData
+    val appointments by dayOfCalendarViewModel.appointments.observeAsState(emptyList())
+    val requests by dayOfCalendarViewModel.requests.observeAsState(emptyList())
+
+    LaunchedEffect(true) {
+        dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, listRequest)
+    }
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost =
@@ -115,7 +131,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
             }
 
             Column(modifier = Modifier.verticalScroll(scrollState)) {
-                 listRequest.forEach { requestBroadcast ->
+                requests.forEach { requestBroadcast ->
                             ElevatedCard(
                                 elevation = CardDefaults.cardElevation(
                                     defaultElevation = 5.dp,
@@ -169,6 +185,31 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                                 .padding(horizontal = 5.dp)
                                         ) {
                                             IconButton(onClick = {
+                                                dayOfCalendarViewModel.deleteRequestBroadcast(
+                                                    requestBroadcast.id.toString(),
+                                                    requestBroadcast.subjectID.toString(),
+                                                    onSuccess = {
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar("Solicitud eliminada")
+                                                        }
+                                                    },
+                                                    onError = { e ->
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar("Error al eliminar la solicitud: ${e.message}")
+                                                        }
+
+                                                    }
+                                                )
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = "Delete",
+                                                    modifier = Modifier.size(30.dp),
+                                                    tint = Color.Red
+                                                )
+                                            }
+
+                                            IconButton(onClick = {
                                                 val jsonRequestBroadcast = Gson().toJson(requestBroadcast)
                                                 navController.navigate("requestBroadcastView?requestBroadcast=${jsonRequestBroadcast}")
                                             }){
@@ -183,13 +224,13 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                 }
                             }
                  }
-                listAppointment.forEach { appointment ->
+                appointments.forEach { appointment ->
                     ElevatedCard(
                         elevation = CardDefaults.cardElevation(
                             defaultElevation = 5.dp,
                         ), modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp)
+                            .padding(10.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -237,7 +278,33 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequest: List<R
                                         .padding(horizontal = 5.dp)
                                 ) {
                                     IconButton(onClick = {
-                                        navController.navigate("requestBroadcastView?requestBroadcast=${Gson().toJson(appointment)?:"No"}")
+                                        dayOfCalendarViewModel.deleteAppointment(appointment.id
+                                            ,appointment.studentId
+                                            ,appointment.monitorId,
+                                            onSuccess = {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Cita eliminada")
+                                                }
+                                            },
+                                            onError = { e ->
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Error al eliminar la Cita: ${e.message}")
+                                                }
+
+                                            }
+                                        )
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            modifier = Modifier.size(30.dp),
+                                            tint = Color.Red
+                                        )
+                                    }
+
+                                    IconButton(onClick = {
+                                        val jsonAppointment = Gson().toJson(appointment)
+                                        navController.navigate("AppointmentStudentView?appointment=${jsonAppointment}")
                                     }) {
                                         Icon(
                                             imageVector = Icons.Outlined.PlayArrow,
