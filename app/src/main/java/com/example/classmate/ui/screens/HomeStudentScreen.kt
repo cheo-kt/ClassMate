@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -99,57 +100,64 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(120.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                    contentDescription = "Encabezado",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Center)
+                        .weight(1f)
                 ) {
+
+                    Image(
+                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        contentDescription = "Encabezado",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                     Image(
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = "classMateLogo",
-                        modifier = Modifier.size(200.dp)
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 2.dp, top = 0.dp)
+                            .width(200.dp)
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(70.dp)
-                            .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
+                            .align(Alignment.TopEnd)
+                            .padding(end = 24.dp, top = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.live_help),
-                            contentDescription = "Ayuda",
-                            tint = Color.White,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.weight(0.1f))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Botón de foto de perfil
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(70.dp)
+                                .width(50.dp)
+                                .aspectRatio(1f)
                         ) {
                             student?.let {
                                 image = it.photo
@@ -168,10 +176,11 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                     image,
                                     error = painterResource(R.drawable.botonestudiante)
                                 ),
-                                contentDescription = "foto de perfil",
+                                contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
+
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -185,13 +194,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate(
-                                    "requestBroadcast?student=${
-                                        Gson().toJson(
-                                            student
-                                        ) ?: "No"
-                                    }"
-                                )
+                                navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -361,7 +364,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent?student=${Gson().toJson(student) ?: "No"}") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",
@@ -390,7 +393,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
