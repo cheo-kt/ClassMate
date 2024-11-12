@@ -7,9 +7,10 @@ import com.example.classmate.data.service.RequestServicesImpl
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.Student
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.UUID
 
 interface RequestRepository {
-    suspend fun  createRequest(request: Request)
+    suspend fun  createRequest(studentID:String, monitorID:String,request: Request)
 }
 
 
@@ -20,10 +21,14 @@ class RequestRRepositoryImpl(
 ): RequestRepository {
 
 
-    override suspend fun createRequest(request: Request) {
-        val documentId = FirebaseFirestore.getInstance().collection("request").document().id
+    override suspend fun createRequest(studentID:String, monitorID:String,request:Request) {
+        val documentId = UUID.randomUUID().toString()
         request.id = documentId
+
+
         requestServices.createRequest(request)
+        requestServices.createRequestForStudent(studentID,request)
+        requestServices.createRequestForMonitor(monitorID,request)
     }
 
 

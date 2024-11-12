@@ -511,7 +511,7 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
                     }
                     IconButton(onClick = {
                         navController.navigate(
-                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${subject}"
+                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
                         )
                     }) {
                         Icon(

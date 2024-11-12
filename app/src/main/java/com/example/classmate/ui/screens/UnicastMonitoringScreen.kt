@@ -69,9 +69,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.window.Dialog
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.Student
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.components.DatePickerDialog
 import com.example.classmate.ui.components.TimePickerDialog
@@ -112,6 +114,7 @@ fun UnicastMonitoringScreen(
     var tipoMonitoria by remember { mutableStateOf("") }
     val studentObj: Student = Gson().fromJson(student, Student::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
+    val subjectObj: MonitorSubject= Gson().fromJson(materia, MonitorSubject::class.java)
 
     val intialTime by remember { mutableStateOf("") }
     var initialTimeVisibility by remember { mutableStateOf(false) }
@@ -478,12 +481,16 @@ fun UnicastMonitoringScreen(
 
 
                                 unicastMonitoringViewModel.createRequest(
+                                    studentObj.id,
+                                    monitorObj.id,
+
                                     Request("",
-                                        modalidadSeleccionada.toString(),
-                                        tipoMonitoria.toString(),timestampInitial,timestampFinal,
-                                        notas.toString(),
-                                        direccion.toString(),
-                                        materia.toString(), studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
+                                        modalidadSeleccionada,
+                                        tipoMonitoria,timestampInitial,timestampFinal,
+                                        notas,
+                                        direccion,
+                                        subjectObj.subjectId,subjectObj.name,
+                                        studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
                                 )
 
                             }
@@ -552,7 +559,7 @@ fun UnicastMonitoringScreen(
 
         notificationViewModel.createNotification(
             Notification("",timestampGlobal,"¡Tienes una nueva solicitud de monitoria!",
-                materia.toString(),studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
+                subjectObj.name,studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
         )
         if (authState2 == 1) {
             Box(
