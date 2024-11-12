@@ -120,14 +120,6 @@ fun App() {
             val notification =entry.arguments?.getString("notification")
             OpinionStudentScreen(navController, notification)
         }
-
-        composable("CalendarStudent?student={student}", arguments = listOf(
-            navArgument("student"){type= NavType.StringType}
-        )){  entry ->
-            val student =entry.arguments?.getString("student")
-            CalendarStudentScreen(navController,student)
-        }
-        composable("OpinionStudent"){ OpinionStudentScreen(navController) }
         composable("CalendarStudent"){ CalendarStudentScreen(navController) }
         composable("DayOfCalendar?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
             navArgument("requestsForDay") { type = NavType.StringType },
