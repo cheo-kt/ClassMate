@@ -176,7 +176,8 @@ fun OpinionStudentScreen(navController: NavController, notification: String?, op
                             ),
                             notiObj.monitorId
                         )
-                        navController.navigate("notificationStudentPrincipal   ")
+                        opinionStudentViewModel.deleteNotification(notiObj)
+                        navController.navigate("notificationStudentPrincipal")
                     },
 
                     modifier = Modifier
