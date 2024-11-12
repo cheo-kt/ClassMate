@@ -142,11 +142,12 @@ fun App() {
             val jsonRequestBroadcast = entry.arguments?.getString("requestBroadcast")
                 RequestBroadcastStudentView(navController, jsonRequestBroadcast)
         }
-        composable("AppoimentStudentView?appointment={appointment}}", arguments = listOf(
+        composable("AppointmentStudentView?appointment={appointment}", arguments = listOf(
             navArgument("appointment"){type= NavType.StringType}
         )) {entry->
-            val appointment =entry.arguments?.getString("appointment")
-            AppoimentStudentScreen(navController,appointment) }
+            val jsonRequestBroadcast =entry.arguments?.getString("appointment")
+            AppoimentStudentScreen(navController,jsonRequestBroadcast)
+        }
 
 
     }

@@ -9,6 +9,9 @@ interface RequestBroadcastService {
     suspend fun createRequestInMainCollection(request: RequestBroadcast)
     suspend fun createRequestForStudent(studentId: String, requestWithId: RequestBroadcast)
     suspend fun createRequestForSubject(subjectId:String,requestId: String )
+    suspend fun deleteRequestFromMainCollection(requestId: String)
+    suspend fun deleteRequestForStudent(studentId: String, requestId: String)
+    suspend fun deleteRequestForSubject(subjectId: String, requestId: String)
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
@@ -38,5 +41,29 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
             .set(mapOf("id" to requestId))
             .await()
     }
+
+    override suspend fun deleteRequestFromMainCollection(requestId: String) {
+        Firebase.firestore.collection("requestBroadcast")
+            .document(requestId)
+            .delete()
+            .await()
+    }
+    override suspend fun deleteRequestForStudent(studentId: String, requestId: String) {
+        Firebase.firestore.collection("student")
+            .document(studentId)
+            .collection("requestBroadcast")
+            .document(requestId)
+            .delete()
+            .await()
+    }
+    override suspend fun deleteRequestForSubject(subjectId: String, requestId: String) {
+        Firebase.firestore.collection("subject")
+            .document(subjectId)
+            .collection("requestBroadcast")
+            .document(requestId)
+            .delete()
+            .await()
+    }
+
 
 }

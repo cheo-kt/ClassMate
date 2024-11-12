@@ -14,7 +14,34 @@ import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 
 interface AppointmentService {
+    suspend fun deleteAppointmentFromMainCollection(appointmentId: String)
+    suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String)
+    suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String)
 }
 class AppointmentServiceImpl: AppointmentService {
+    override suspend fun deleteAppointmentFromMainCollection(appointmentId: String) {
+        Firebase.firestore.collection("appointment")
+            .document(appointmentId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String) {
+        Firebase.firestore.collection("student")
+            .document(studentId)
+            .collection("appointment")
+            .document(appointmentId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String) {
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .collection("appointment")
+            .document(appointmentId)
+            .delete()
+            .await()
+    }
 
 }

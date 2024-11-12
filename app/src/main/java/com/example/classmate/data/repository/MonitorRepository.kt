@@ -18,6 +18,7 @@ interface MonitorRepository {
     suspend fun updateMonitorInformation(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url:String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+    suspend fun getMonitorById(id: String): Monitor? // Nuevo método
 
 }
 class MonitorRepositoryImpl(
@@ -49,6 +50,10 @@ class MonitorRepositoryImpl(
 
     override suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?> {
         return monitorServices.getMonitors(limit,monitor)
+    }
+
+    override suspend fun getMonitorById(id: String): Monitor? {
+        return monitorServices.getMonitorById(id)
     }
 
 }
