@@ -23,6 +23,9 @@ interface AppointmentService {
     suspend fun createAppointmentForStudent(appointment: Appointment)
     suspend fun createAppointmentForMonitor(appointment: Appointment)
     suspend fun verifyAppointmentForStudent(date: Timestamp, userId:String)
+    suspend fun deleteAppointmentFromMainCollection(appointmentId: String)
+    suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String)
+    suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String)
 }
 class AppointmentServiceImpl: AppointmentService {
     val notificationService : NotificationService = NotificationServiceImpl()
@@ -30,6 +33,30 @@ class AppointmentServiceImpl: AppointmentService {
         Firebase.firestore.collection("appointment")
             .document(appointment.id)
             .set(appointment)
+            .await()
+    }
+    override suspend fun deleteAppointmentFromMainCollection(appointmentId: String) {
+        Firebase.firestore.collection("appointment")
+            .document(appointmentId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String) {
+        Firebase.firestore.collection("student")
+            .document(studentId)
+            .collection("appointment")
+            .document(appointmentId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String) {
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .collection("appointment")
+            .document(appointmentId)
+            .delete()
             .await()
     }
 

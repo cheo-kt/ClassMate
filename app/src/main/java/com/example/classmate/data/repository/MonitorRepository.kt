@@ -13,6 +13,8 @@ import java.util.UUID
 
 interface MonitorRepository {
 
+
+
     suspend fun  createMonitor(monitor: Monitor)
     suspend fun  getCurrentMonitor(): Monitor?
     suspend fun updateMonitorPhoto(id: String, imageUri: Uri, context: Context): String
@@ -21,6 +23,8 @@ interface MonitorRepository {
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
     suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
+    suspend fun getMonitorById(id: String): Monitor? // Nuevo método
+
 }
 class MonitorRepositoryImpl(
     val monitorServices : MonitorServices = MonitorServicesImpl()
@@ -63,6 +67,10 @@ class MonitorRepositoryImpl(
         val requestId = UUID.randomUUID().toString()
         opinionsAndQualifications.id = requestId
        return monitorServices.calificateMonitor(opinionsAndQualifications,monitorId)
+    }
+
+    override suspend fun getMonitorById(id: String): Monitor? {
+        return monitorServices.getMonitorById(id)
     }
 
 }

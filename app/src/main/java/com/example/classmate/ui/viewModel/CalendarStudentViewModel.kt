@@ -40,6 +40,7 @@ class CalendarStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
                 }
         }
     }
+
     fun getStudent() {
         viewModelScope.launch(Dispatchers.IO) {
             val me = repo.getCurrentStudent()

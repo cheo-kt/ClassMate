@@ -32,13 +32,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
@@ -199,7 +195,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                     image,
                                     error = painterResource(R.drawable.botonestudiante)
                                 ),
-                                contentDescription = "foto de perfil",
+                                contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
@@ -357,6 +353,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                             student = student
                                         )
                                     }
+
                                 }
                             }
                         }
@@ -386,7 +383,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.calendar_today),
                             contentDescription = "calendario",
@@ -463,7 +460,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
 }
 
 @Composable
-fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject, navController: NavController, student: Student?){
+fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: NavController,student: Student?){
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 5.dp,
