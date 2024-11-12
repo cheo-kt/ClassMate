@@ -68,6 +68,7 @@ import com.example.classmate.ui.components.deserializeListAppointment
 import com.example.classmate.ui.components.deserializeListRequestBroadcast
 import com.example.classmate.ui.screens.AppoimentStudentScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
+import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
@@ -113,6 +114,17 @@ fun App() {
         composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
         composable("requestBroadcast") { RequestBroadcastStudentScreen(navController) }
+        composable("previewMonitorProfile?monitor={monitor}&student={student}&materia={materia}", arguments = listOf(    //Invocación alternativa, de la manera con / daño la ruta
+            navArgument("monitor"){type= NavType.StringType}, // Pantalla de solicitud de monitoria a monitor en particular.
+            navArgument("student"){type= NavType.StringType},
+            navArgument("materia"){type= NavType.StringType},
+        )) {entry->
+            val monitor =entry.arguments?.getString("monitor") //Recojo el argumento de la panatalla donde es creado y luego si lo mando al constructor de mi otra clase
+            val student =entry.arguments?.getString("student")
+            val materia = entry.arguments?.getString("materia")
+            PreviewMonitorProfile(navController, monitor , student , materia )
+        }
+
         composable("notificationStudentPrincipal"){ NotificationStudentScreen(navController) }
         composable("OpinionStudent?notification={notification}", arguments =
         listOf(navArgument("notification"){ type=NavType.StringType}

@@ -522,7 +522,10 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
                         .padding(horizontal = 5.dp)
                 ) {
                     IconButton(onClick = {
-                        navController.navigate("")
+                        navController.navigate(
+                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
+                        )
+
                     }) {
                         Icon(
                             imageVector = Icons.Outlined.DateRange,
@@ -533,8 +536,9 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
                     }
                     IconButton(onClick = {
                         navController.navigate(
-                            "unicastMonitoring?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
+                            "previewMonitorProfile?monitor=${Gson().toJson(monitor) ?: "No"}&student=${Gson().toJson(student) ?: "No"}&materia=${Gson().toJson(subject)}"
                         )
+
                     }) {
                         Icon(
                             imageVector = Icons.Outlined.PlayArrow,

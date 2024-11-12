@@ -7,6 +7,7 @@ import com.example.classmate.domain.model.Monitor
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.content.Context
+import android.util.Log
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.RequestBroadcast
 import java.util.UUID
@@ -24,6 +25,9 @@ interface MonitorRepository {
     suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
     suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
     suspend fun getMonitorById(id: String): Monitor? // Nuevo método
+    suspend fun getOpinionMonitor(monitorId: String, limit: Int)
+    suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
+
 
 }
 class MonitorRepositoryImpl(
@@ -71,6 +75,20 @@ class MonitorRepositoryImpl(
 
     override suspend fun getMonitorById(id: String): Monitor? {
         return monitorServices.getMonitorById(id)
+    }
+
+    override suspend fun getOpinionMonitor(monitorId: String, limit: Int) {
+        monitorServices.getOpinionMonitor(monitorId, limit)
+    }
+
+    override suspend fun loadMoreOpinions(
+        limit: Int,
+        lastOpinion: OpinionsAndQualifications?,
+        monitorId: String
+    ):List<OpinionsAndQualifications> {
+        Log.e(">>>>", "Estoy en repo")
+        return monitorServices.loadMoreOpinions(limit, lastOpinion, monitorId)
+
     }
 
 }
