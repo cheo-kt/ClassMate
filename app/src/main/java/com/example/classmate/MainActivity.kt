@@ -72,6 +72,8 @@ import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
@@ -185,6 +187,8 @@ fun App() {
         composable("guia3Student") { guia3StudentScreen(navController) }
         composable("guia4Student") { guia4StudentScreen(navController) }
         composable("guia5Student") { guia5StudentScreen(navController) }//Registro estudiante
+        composable("guia6Student") { guia6StudentScreen(navController) }
+        composable("guia7Student") { guia7StudentScreen(navController) }
     }
 }
 

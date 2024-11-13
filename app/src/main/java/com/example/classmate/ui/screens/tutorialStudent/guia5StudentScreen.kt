@@ -408,7 +408,7 @@ fun guia5StudentScreen(navController: NavController) {
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .clickable {
                             // Acción de navegación al presionar "Continuar"
-                            navController.navigate("guia2Student")
+                            navController.navigate("guia6Student")
                         }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
