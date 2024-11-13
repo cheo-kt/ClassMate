@@ -68,6 +68,7 @@ import com.example.classmate.ui.components.deserializeListAppointment
 import com.example.classmate.ui.components.deserializeListRequestBroadcast
 import com.example.classmate.ui.screens.AppoimentStudentScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
+import com.example.classmate.ui.screens.HelpStudentScreen
 import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
@@ -98,7 +99,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "guia1Student" +
+    NavHost(navController = navController, startDestination = "signing" +
             "") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
@@ -189,6 +190,7 @@ fun App() {
         composable("guia5Student") { guia5StudentScreen(navController) }//Registro estudiante
         composable("guia6Student") { guia6StudentScreen(navController) }
         composable("guia7Student") { guia7StudentScreen(navController) }
+        composable("HelpStudent") { HelpStudentScreen(navController) }
     }
 }
 
