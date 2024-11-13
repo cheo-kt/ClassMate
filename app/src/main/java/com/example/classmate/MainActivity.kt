@@ -75,6 +75,8 @@ import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
+import guia1StudentScreen
+import guia2StudentScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -91,7 +93,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "signing") {
+    NavHost(navController = navController, startDestination = "guia1Student" +
+            "") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
@@ -173,6 +176,9 @@ fun App() {
         val request =entry.arguments?.getString("request")
         val monitor =entry.arguments?.getString("monitor")
         BroadcastDecisionScreen(navController,request,monitor) }
+        //GUIA
+        composable("guia1Student") { guia1StudentScreen(navController) }
+        composable("guia2Student") { guia2StudentScreen(navController) } //Registro estudiante
     }
 }
 
