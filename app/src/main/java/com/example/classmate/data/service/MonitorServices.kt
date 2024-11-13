@@ -159,7 +159,6 @@ class MonitorServicesImpl: MonitorServices {
                 .limit(limit.toLong())
                 .get()
                 .await()
-                Log.e(">>>","Estoy en services")
            return querySnapshot.documents.mapNotNull { it.toObject(OpinionsAndQualifications::class.java) }
     }
 
