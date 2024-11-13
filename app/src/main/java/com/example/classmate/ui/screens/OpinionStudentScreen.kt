@@ -43,11 +43,15 @@ import androidx.navigation.NavController
 import com.example.classmate.R
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.ui.components.RatingBar
 import com.example.classmate.ui.viewModel.OpinionStudentViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 
 @SuppressLint("Range")
 @Composable
@@ -57,8 +61,7 @@ fun OpinionStudentScreen(navController: NavController, notification: String?, op
     var note by remember { mutableStateOf("") }
     var notiObj: Notification = Gson().fromJson(notification, Notification::class.java)
     var rating by remember { mutableStateOf(3) }
-
-
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -176,9 +179,12 @@ fun OpinionStudentScreen(navController: NavController, notification: String?, op
                             ),
                             notiObj.monitorId
                         )
-                        opinionStudentViewModel.deleteNotification(notiObj)
-                        navController.navigate("notificationStudentPrincipal")
-                    },
+                            scope.launch {
+                                val job = opinionStudentViewModel.deleteNotification(notiObj)
+                                job.join()
+                                navController.navigate("notificationStudentPrincipal")
+                            }
+                              },
 
                     modifier = Modifier
                         .wrapContentSize(),

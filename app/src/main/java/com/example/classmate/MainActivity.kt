@@ -68,12 +68,21 @@ import com.example.classmate.ui.components.deserializeListAppointment
 import com.example.classmate.ui.components.deserializeListRequestBroadcast
 import com.example.classmate.ui.screens.AppoimentStudentScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
+import com.example.classmate.ui.screens.HelpStudentScreen
+import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
+import guia1StudentScreen
+import guia2StudentScreen
+import guia3StudentScreen
+import guia4StudentScreen
+import guia5StudentScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -90,7 +99,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "signing") {
+    NavHost(navController = navController, startDestination = "signing" +
+            "") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
         composable("introductionStudent") { IntroductionsStudentScreen(navController) } //introducción Estudiante
@@ -119,6 +129,17 @@ fun App() {
             StudentEditScreen(navController,student,image)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
         composable("requestBroadcast") { RequestBroadcastStudentScreen(navController) }
+        composable("previewMonitorProfile?monitor={monitor}&student={student}&materia={materia}", arguments = listOf(    //Invocación alternativa, de la manera con / daño la ruta
+            navArgument("monitor"){type= NavType.StringType}, // Pantalla de solicitud de monitoria a monitor en particular.
+            navArgument("student"){type= NavType.StringType},
+            navArgument("materia"){type= NavType.StringType},
+        )) {entry->
+            val monitor =entry.arguments?.getString("monitor") //Recojo el argumento de la panatalla donde es creado y luego si lo mando al constructor de mi otra clase
+            val student =entry.arguments?.getString("student")
+            val materia = entry.arguments?.getString("materia")
+            PreviewMonitorProfile(navController, monitor , student , materia )
+        }
+
         composable("notificationStudentPrincipal"){ NotificationStudentScreen(navController) }
         composable("OpinionStudent?notification={notification}", arguments =
         listOf(navArgument("notification"){ type=NavType.StringType}
@@ -167,6 +188,15 @@ fun App() {
         val request =entry.arguments?.getString("request")
         val monitor =entry.arguments?.getString("monitor")
         BroadcastDecisionScreen(navController,request,monitor) }
+        //GUIA
+        composable("guia1Student") { guia1StudentScreen(navController) }
+        composable("guia2Student") { guia2StudentScreen(navController) }
+        composable("guia3Student") { guia3StudentScreen(navController) }
+        composable("guia4Student") { guia4StudentScreen(navController) }
+        composable("guia5Student") { guia5StudentScreen(navController) }//Registro estudiante
+        composable("guia6Student") { guia6StudentScreen(navController) }
+        composable("guia7Student") { guia7StudentScreen(navController) }
+        composable("HelpStudent") { HelpStudentScreen(navController) }
     }
 }
 

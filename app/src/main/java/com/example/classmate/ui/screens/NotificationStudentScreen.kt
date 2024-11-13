@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -107,14 +108,10 @@ fun NotificationStudentScreen(navController: NavController,
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(125.dp)
+                    .background(Color(0xFF3F21DB)),
+                contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.encabezadoestudaintes),
-                    contentDescription = "Encabezado",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -205,14 +202,50 @@ fun NotificationStudentScreen(navController: NavController,
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFFCCD0CF))
+                    .height(80.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement =Arrangement.Center
+            ) {
+                Text(
+                    text = "Tus Notificaciones",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(12.dp)
+                )
+            }
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .weight(1f)
+                    .weight(1f),
             ) {
-                Column(modifier = Modifier.verticalScroll(scrollState)) {
+                Column(modifier = Modifier.verticalScroll(scrollState),
+                    ) {
                     notificationState?.let { notification ->
+                            if (notification.isEmpty()) {
+                                Box(modifier = Modifier.height(80.dp))
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.notifications_off),
+                                            contentDescription = "Sin notificaciones",
+                                            modifier = Modifier.size(200.dp).offset(x=30.dp)
+                                        )
+                                    }
+                                    Text(
+                                        text = "No tienes notificaciones",
+                                        fontSize = 25.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                }
+                        }else{
                         notification.forEachIndexed{ _, n ->
                             ElevatedCard(
                                 elevation = CardDefaults.cardElevation(
@@ -221,7 +254,8 @@ fun NotificationStudentScreen(navController: NavController,
                                     .fillMaxWidth()
                                     .padding(vertical = 10.dp)
                                     .clickable {
-                                        navController.navigate("OpinionStudent?notification=${Gson().toJson(n)?:"No"}"
+                                        navController.navigate(
+                                            "OpinionStudent?notification=${Gson().toJson(n) ?: "No"}"
                                         )
                                     }
                             ) {
@@ -270,7 +304,13 @@ fun NotificationStudentScreen(navController: NavController,
                                             )
                                             Spacer(modifier = Modifier.width(20.dp))
                                             IconButton(
-                                                onClick = { },
+                                                onClick = {
+                                                    scope.launch {
+                                                        val job = notificationStudentViewModel.deleteNotification(n)
+                                                        job.join()
+                                                        navController.navigate("notificationStudentPrincipal")
+                                                    }
+                                                },
                                                 modifier = Modifier
                                                     .size(48.dp)
                                                     .border(
@@ -288,6 +328,7 @@ fun NotificationStudentScreen(navController: NavController,
                                         }
                                     }
                                 }
+                            }
                             }
                         }
                     }
@@ -316,15 +357,26 @@ fun NotificationStudentScreen(navController: NavController,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendar_today),
+                            painter = painterResource(id = R.drawable.calendario),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
                                 .padding(4.dp),
                             tint = Color.White
                         )
+                    }
+                    Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.add_home),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
                     }
                     Box(modifier = Modifier.weight(0.1f))
                     Box(
@@ -333,9 +385,9 @@ fun NotificationStudentScreen(navController: NavController,
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.add_home),
+                                painter = painterResource(id = R.drawable.notifications),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
@@ -343,17 +395,6 @@ fun NotificationStudentScreen(navController: NavController,
                                 tint = Color(0xFF3F21DB)
                             )
                         }
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notifications),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
                     }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {

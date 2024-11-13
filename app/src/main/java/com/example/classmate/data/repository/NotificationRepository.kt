@@ -11,6 +11,7 @@ import com.google.firebase.ktx.Firebase
 interface NotificationRepository {
     suspend fun createNotification(notification: Notification)
     suspend fun loadMoreNotifications(limit: Int, notification: Notification?):List<Notification?>
+    suspend fun deleteNotification(notification: Notification)
 }
 
 class NotificationRepositoryImpl(
@@ -30,4 +31,10 @@ class NotificationRepositoryImpl(
         val user=Firebase.auth.currentUser!!.uid
         return notificationServices.loadMoreNotifications(limit, notification,user)
     }
+
+    override suspend fun deleteNotification(notification: Notification) {
+        var userid = Firebase.auth.currentUser!!.uid
+        notificationServices.deleteNotification(notification,userid)
+    }
+
 }

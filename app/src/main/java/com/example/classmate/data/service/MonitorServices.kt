@@ -31,7 +31,8 @@ interface MonitorServices {
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
     suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
-
+    suspend fun getOpinionMonitor(monitorId:String, limit: Int)
+    suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -42,6 +43,7 @@ class MonitorServicesImpl: MonitorServices {
             .set(monitor)
             .await()
     }
+
 
     override suspend fun getMonitorById(id: String): Monitor? {
         val user = Firebase.firestore
@@ -137,6 +139,29 @@ class MonitorServicesImpl: MonitorServices {
             .await()
 
     }
+
+    override suspend fun getOpinionMonitor(monitorId: String, limit: Int) {
+
+
+    }
+
+    override suspend fun loadMoreOpinions(
+        limit: Int,
+        lastOpinion: OpinionsAndQualifications?,
+        monitorId: String
+    ):List<OpinionsAndQualifications> {
+
+            val querySnapshot = Firebase.firestore.collection("Monitor")
+                .document(monitorId)
+                .collection("calificationsOpinions")
+                .orderBy("id")
+                .startAfter(lastOpinion?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+           return querySnapshot.documents.mapNotNull { it.toObject(OpinionsAndQualifications::class.java) }
+    }
+
     suspend fun getCalifications(monitorId: String): List<Int> {
         val calificationsList = mutableListOf<Int>()
         val querySnapshot = Firebase.firestore.collection("Monitor")
