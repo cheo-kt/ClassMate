@@ -51,7 +51,7 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.MonitorSubject
 
 @Composable
-fun guia3StudentScreen(navController: NavController) {
+fun guia4StudentScreen(navController: NavController) {
     val monitorState =listOf(
         Monitor(
             id = "1",
@@ -397,7 +397,7 @@ fun guia3StudentScreen(navController: NavController) {
                         .border(2.dp, Color.Gray, CircleShape) // Borde opcional
                         .background(Color.Transparent)
                 )
-                Box(modifier = Modifier.weight(0.003f))
+                Box(modifier = Modifier.weight(0.03f))
             }
 
 
@@ -409,7 +409,7 @@ fun guia3StudentScreen(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Presionando la imagen de perfil puedes ir a ver y modificar la información de tu perfil.",
+                        text = "Aqui estan el boton de preguntas frecuentes.",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -423,7 +423,7 @@ fun guia3StudentScreen(navController: NavController) {
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .clickable {
                             // Acción de navegación al presionar "Continuar"
-                            navController.navigate("guia4Student")
+                            navController.navigate("guia5Student")
                         }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center

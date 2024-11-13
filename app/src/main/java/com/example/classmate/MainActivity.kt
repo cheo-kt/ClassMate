@@ -77,6 +77,9 @@ import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
 import guia1StudentScreen
 import guia2StudentScreen
+import guia3StudentScreen
+import guia4StudentScreen
+import guia5StudentScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -178,7 +181,10 @@ fun App() {
         BroadcastDecisionScreen(navController,request,monitor) }
         //GUIA
         composable("guia1Student") { guia1StudentScreen(navController) }
-        composable("guia2Student") { guia2StudentScreen(navController) } //Registro estudiante
+        composable("guia2Student") { guia2StudentScreen(navController) }
+        composable("guia3Student") { guia3StudentScreen(navController) }
+        composable("guia4Student") { guia4StudentScreen(navController) }
+        composable("guia5Student") { guia5StudentScreen(navController) }//Registro estudiante
     }
 }
 

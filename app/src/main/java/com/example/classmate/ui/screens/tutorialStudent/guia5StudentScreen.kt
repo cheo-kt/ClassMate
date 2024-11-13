@@ -51,7 +51,7 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.MonitorSubject
 
 @Composable
-fun guia3StudentScreen(navController: NavController) {
+fun guia5StudentScreen(navController: NavController) {
     val monitorState =listOf(
         Monitor(
             id = "1",
@@ -385,22 +385,7 @@ fun guia3StudentScreen(navController: NavController) {
         )
 
         Column(modifier = Modifier.align(Alignment.Center)){
-
-            Box(modifier = Modifier.weight(0.01f))
-            Row(modifier = Modifier.align(Alignment.End)) {
-                Box(modifier = Modifier.weight(0.1f))
-
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(CircleShape)
-                        .border(2.dp, Color.Gray, CircleShape) // Borde opcional
-                        .background(Color.Transparent)
-                )
-                Box(modifier = Modifier.weight(0.003f))
-            }
-
-
+            Box(modifier = Modifier.weight(0.1f))
             Column {
 
                 Box(
@@ -409,7 +394,7 @@ fun guia3StudentScreen(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Presionando la imagen de perfil puedes ir a ver y modificar la información de tu perfil.",
+                        text = "Aqui esta la barra de navegación con las paginas: el calendario de citas agendadas, la pagina principal, notificaciones y chats",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -423,7 +408,7 @@ fun guia3StudentScreen(navController: NavController) {
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .clickable {
                             // Acción de navegación al presionar "Continuar"
-                            navController.navigate("guia4Student")
+                            navController.navigate("guia2Student")
                         }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
@@ -436,10 +421,17 @@ fun guia3StudentScreen(navController: NavController) {
                     )
                 }
             }
-            Box(modifier = Modifier.weight(0.1f))
+            Box(
+                modifier = Modifier
+                    .size(width = 300.dp, height = 150.dp) // Ajusta el ancho y alto para el óvalo
+                    .clip(RoundedCornerShape(50)) // Usamos un valor alto para las esquinas
+                    .border(2.dp, Color.Gray, RoundedCornerShape(50)) // Borde opcional
+                    .background(Color.Transparent)
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            Box(modifier = Modifier.weight(0.001f))
         }
 
     }
 }
-
-
