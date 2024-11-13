@@ -95,7 +95,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     val monitorState by homeStudentViewModel.monitorList.observeAsState()
     val scrollState = rememberScrollState()
     val student: Student? by homeStudentViewModel.student.observeAsState(initial = null)
-    var image = student?.photo
+    val image:String? by homeStudentViewModel.image.observeAsState()
     var filter by remember { mutableStateOf("") }
     val studentState by homeStudentViewModel.studentState.observeAsState()
     val scope = rememberCoroutineScope()
@@ -105,7 +105,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     var search by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val subjectsState by homeStudentViewModel.subjectList.observeAsState()
-
+    student?.let { homeStudentViewModel.getStudentImage(it.photo) }
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
         homeStudentViewModel.loadMoreMonitors()
@@ -178,15 +178,6 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 .width(50.dp)
                                 .aspectRatio(1f)
                         ) {
-                            student?.let {
-                                image = it.photo
-                                if (studentState == 2) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                                    }
-                                }
-                            }
                             Image(
                                 modifier = Modifier
                                     .fillMaxSize()

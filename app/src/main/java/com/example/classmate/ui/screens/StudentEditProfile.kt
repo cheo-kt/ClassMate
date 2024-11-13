@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -23,6 +24,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -30,6 +32,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,18 +49,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.classmate.R
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.viewModel.StudentEditProfileViewModel
+import com.google.gson.Gson
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.net.URLDecoder
 
 @Composable
-fun StudentEditScreen(navController: NavController,authViewModel: StudentEditProfileViewModel = viewModel()) {
-    authViewModel.showStudentInformation()
-    val student: Student? by authViewModel.student.observeAsState(initial = null)
+fun StudentEditScreen(navController: NavController,student:String?,image:String?,authViewModel: StudentEditProfileViewModel = viewModel()) {
+    val studentPhotoState = authViewModel.studentPhotoState.observeAsState()
+    val studentObj: Student = Gson().fromJson(student, Student::class.java)
     val scrollState = rememberScrollState()
-    var oldImage = student?.photo
+    var oldImage = image
     var newImage by remember { mutableStateOf<Uri>(Uri.EMPTY) }
     var name by remember { mutableStateOf("") }
     var lastname by remember { mutableStateOf("") }
@@ -69,15 +80,20 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
     val scope = rememberCoroutineScope()
     var isInitialized by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    LaunchedEffect(studentPhotoState.value) {
+        if (studentPhotoState.value == 3) {
+            navController.navigate("studentProfile")
+        }
+    }
     LaunchedEffect(!isInitialized) {
-        name = student?.name ?: ""
-        lastname = student?.lastname ?:""
-        phone = student?.phone ?:""
-        description = student?.description ?:""
-        email = student?.email ?:""
+        name = studentObj.name
+        lastname = studentObj.lastname
+        phone = studentObj.phone
+        description = studentObj.description
+        email = studentObj.email
+
         isInitialized = true
     }
-
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -90,7 +106,6 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
             }
         }
     }
-
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
 
         Column(
@@ -135,12 +150,9 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                 modifier = Modifier
                     .size(200.dp) // Tamaño de la Box (que será un círculo)
                     .clip(CircleShape)
-
             )
             {
-                student?.let {
-                    oldImage = it.photo
-                }
+
                 Image(
                     modifier = Modifier
                         .size(200.dp) // Tamaño de la imagen
@@ -149,7 +161,12 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                         .fillMaxSize()
                     ,
                     contentDescription = null,
-                    painter = rememberAsyncImagePainter(oldImage, error = painterResource(R.drawable.botonestudiante)),
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                        .data(oldImage)
+                        .crossfade(true) // Opcional para una transición suave
+                        .error(R.drawable.botonestudiante) // Imagen en caso de error
+                        .build()),
                     contentScale = ContentScale.Crop
                 )
 
@@ -158,31 +175,31 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
             TextField(
                 value = name,
                 onValueChange = { newName -> name = newName },
-                label = { Text("Nombre") },
+                placeholder = { Text("Nombre") },
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = lastname,
                 onValueChange = { newLastName -> lastname = newLastName },
-                label = { Text("Apellido") }
+                placeholder = { Text("Apellido") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = phone,
                 onValueChange = { newName -> phone = newName },
-                label = { Text("Telefono") }
+                placeholder = { Text("Telefono") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = description,
                 onValueChange = { newName -> description = newName },
-                label = { Text("Descripcion") }
+                placeholder = { Text("Descripcion") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = email,
                 onValueChange = { newName -> email = newName },
-                label = { Text("email") }
+                placeholder = { Text("Email") }
             )
             Button(onClick = {
                 if(name == "" || description == ""
@@ -196,31 +213,62 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                         snackbarHostState.currentSnackbarData?.dismiss()
                         snackbarHostState.showSnackbar("Correo electronico mal escrito")
                     }
-                }else{
-                    authViewModel.updateStudentProfile(phone,name,lastname,description,email)
+                }else {
+                    if (name != studentObj.name) {
+                        authViewModel.updateStudentProfile(studentObj.id, "name", name)
+                    }
+                    if (lastname != studentObj.lastname) {
+                        authViewModel.updateStudentProfile(studentObj.id, "lastname", lastname)
+                    }
+                    if (phone != studentObj.phone) {
+                        authViewModel.updateStudentProfile(studentObj.id, "phone", phone)
+                    }
+                    if (description != studentObj.description) {
+                        authViewModel.updateStudentProfile(
+                            studentObj.id,
+                            "description",
+                            description
+                        )
+                    }
+                    if (email != studentObj.email) {
+                        authViewModel.updateStudentProfile(studentObj.id, "email", email)
+                    }
 
                     if (newImage.toString().isNotBlank()) {
 
-                        authViewModel.updateStudentPhoto(newImage,context)
-                        if (authViewModel.studentPhotoState.value==2){
+
+                        authViewModel.updateStudentPhoto(
+                            newImage, context, studentObj.id,
+                            studentObj.photo
+                        )
+
+
+
+
+                        if (authViewModel.studentPhotoState.value == 2) {
                             scope.launch {
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar("Error durante la subida de la imagen")
 
                             }
+
                         }
-                    }else{
+                    } else {
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
                             snackbarHostState.showSnackbar("No se eligio ninguna imagen")
 
                         }
                     }
-                    navController.navigate("studentProfile")
+
+
+
                 }
+
             }) {
                 Text(text = "Guardar Cambios")
             }
+
 
             Button(onClick = {
 
@@ -229,6 +277,18 @@ fun StudentEditScreen(navController: NavController,authViewModel: StudentEditPro
                 Text(text = "Subir Foto")
             }
 
+        }
+        if (studentPhotoState.value == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
         }
     }
 }

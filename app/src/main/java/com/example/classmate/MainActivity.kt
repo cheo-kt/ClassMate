@@ -120,7 +120,13 @@ fun App() {
         composable("monitorProfile") { MonitorProfileScreen(navController) } //Perfil Monitor
         composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
-        composable("studentEdit"){ StudentEditScreen(navController)} // Perfil del montior
+        composable("studentEdit?student={student}&image={image}",arguments =
+        listOf(navArgument("student"){type=NavType.StringType},
+            navArgument("image"){type=NavType.StringType}
+        )){ entry ->
+            val student = entry.arguments?.getString("student")
+            val image = entry.arguments?.getString("image")
+            StudentEditScreen(navController,student,image)} // Perfil del montior
         composable("signupMonitor"){ MonitorSignUpScreen(navController) }
         composable("requestBroadcast") { RequestBroadcastStudentScreen(navController) }
         composable("previewMonitorProfile?monitor={monitor}&student={student}&materia={materia}", arguments = listOf(    //Invocación alternativa, de la manera con / daño la ruta
