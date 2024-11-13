@@ -1,6 +1,8 @@
 package com.example.classmate.ui.screens
 
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -45,18 +48,23 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.viewModel.StudentProfileViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
 fun StudentProfileScreen(navController: NavController, authViewModel: StudentProfileViewModel = viewModel()){
-    authViewModel.showStudentInformation()
+
     val studentState by authViewModel.studentState.observeAsState()
     val student: Student? by authViewModel.student.observeAsState(initial = null)
-    var image = student?.photo
+    val image by authViewModel.image.observeAsState()
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    
+    LaunchedEffect(true) {
+        authViewModel.showStudentInformation()
+        student?.let { authViewModel.getStudentImage(it.photo) }
+    }
+    image?.let { Log.e("ERROR", it) }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -73,7 +81,7 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             ) {
                 IconButton(
                     onClick = {
-                        navController.popBackStack()
+                        navController.navigate("HomeStudentScreen")
                     },
                     modifier = Modifier
                         .size(50.dp)
@@ -105,7 +113,6 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             )
             {
                 student?.let {
-                    image = it.photo
                     if (studentState==2){
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
@@ -182,7 +189,8 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button( onClick = {
-                navController.navigate("studentEdit")
+                navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${
+                    Uri.encode(image.toString())}\"")
             }) {
                 Text(text = "Editar perfil")
             }

@@ -15,11 +15,12 @@ interface StudentRepository {
 
     suspend fun  createStudent(student: Student)
     suspend fun  getCurrentStudent():Student?
-    suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context): String
-    suspend fun updateStudentInformation(id: String, field: String, value: Any)
+    suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context,oldImageID:String): String
+    suspend fun updateStudentInformation(id: String, field: String, value: String)
     suspend fun updateStudentImageUrl(id:String,url:String)
     suspend fun getAppointments():List<Appointment?>
     suspend fun getRequestBroadcast():List<RequestBroadcast?>
+    suspend fun getStudentImage(imageURL:String):String
 }
 
 
@@ -37,11 +38,11 @@ class StudentRepositoryImpl(
             return null
         }
     }
-    override suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context): String {
-        return studentServices.uploadProfileImage(id, imageUri,context)
+    override suspend fun updateStudentPhoto(id: String, imageUri: Uri,context: Context,oldImageID:String): String {
+        return studentServices.uploadProfileImage(id, imageUri,context,oldImageID)
     }
 
-    override suspend fun updateStudentInformation(id: String, field: String, value: Any) {
+    override suspend fun updateStudentInformation(id: String, field: String, value: String) {
         studentServices.updateStudentField(id,field, value)
     }
 
@@ -55,5 +56,9 @@ class StudentRepositoryImpl(
 
     override suspend fun getRequestBroadcast(): List<RequestBroadcast?> {
         return  studentServices.getRequestBroadcast(Firebase.auth.currentUser?.uid ?:"")
+    }
+
+    override suspend fun getStudentImage(imageURL: String): String {
+        return studentServices.getImageDownloadUrl(imageURL)
     }
 }
