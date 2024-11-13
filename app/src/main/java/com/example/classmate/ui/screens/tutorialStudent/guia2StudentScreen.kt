@@ -402,7 +402,7 @@ fun guia2StudentScreen(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Aquí encontrarás los monitores destacados y a los que busques",
+                        text = "Aqui puedes seleccionar filtros para ver monitores de materias en especificos.",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
