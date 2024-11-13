@@ -30,6 +30,8 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
     val monitorList: LiveData<List<Monitor?>> get() = _monitorList
     private val _subjectList = MutableLiveData(listOf<Subject>())
     val subjectList : LiveData<List<Subject>> get() = _subjectList
+    private val _image = MutableLiveData<String?>()
+    val image : LiveData<String?> get()  = _image
     fun getStudent0() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { studentState.value = 1 }
@@ -94,5 +96,19 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
 
             }
        }
+    }
+    fun getStudentImage(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            try {
+                withContext(Dispatchers.Main){
+                    _image.value = repo.getStudentImage(imageUrl)
+                }
+
+            }catch (e: Exception){
+                Log.e("ViewModel", "Error fetching student info: ${e.message}")
+            }
+        }
+
     }
 }

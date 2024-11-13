@@ -27,7 +27,6 @@ class StudentEditProfileViewModel( val repo: StudentRepository = StudentReposito
             } catch (e: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { studentPhotoState.value = 2 }
                 Log.e("UpdatePhoto", "Error al actualizar la foto del estudiante: ${e.message}")
-                withContext(Dispatchers.Main) { studentPhotoState.value = 0 }
             }
 
         }

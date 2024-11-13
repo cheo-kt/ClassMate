@@ -44,27 +44,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.viewModel.StudentProfileViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 
 @Composable
 fun StudentProfileScreen(navController: NavController, authViewModel: StudentProfileViewModel = viewModel()){
-
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
     val studentState by authViewModel.studentState.observeAsState()
     val student: Student? by authViewModel.student.observeAsState(initial = null)
-    val image by authViewModel.image.observeAsState()
+    val image:String? by authViewModel.image.observeAsState()
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    student?.let { authViewModel.getStudentImage(it.photo) }
     LaunchedEffect(true) {
+        authViewModel.showStudentInformation()
+    }
+    LaunchedEffect (navBackStackEntry){
         authViewModel.showStudentInformation()
         student?.let { authViewModel.getStudentImage(it.photo) }
     }
-    image?.let { Log.e("ERROR", it) }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -189,8 +194,7 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button( onClick = {
-                navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${
-                    Uri.encode(image.toString())}\"")
+                navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${URLEncoder.encode(image, "UTF-8")}")
             }) {
                 Text(text = "Editar perfil")
             }
