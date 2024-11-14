@@ -32,30 +32,6 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
     val subjectList : LiveData<List<Subject>> get() = _subjectList
     private val _image = MutableLiveData<String?>()
     val image : LiveData<String?> get()  = _image
-    fun getStudent0() {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { studentState.value = 1 }
-            try {
-                val currentUser = repo.getCurrentStudent()
-                withContext(Dispatchers.Main) {
-                    if (currentUser != null) {
-                        _student.value = currentUser
-                        withContext(Dispatchers.Main) { studentState.value = 3 }
-                    } else {
-                        _student.value = null
-                        withContext(Dispatchers.Main) { studentState.value = 2 }
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    _student.value = null
-                    studentState.value = 2
-                    Log.e("ViewModel", "Error fetching student info: ${e.message}")
-                }
-
-            }
-        }
-    }
 
     fun getStudent() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -87,15 +63,28 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
         }
     }
     fun getSubjects(){
-        viewModelScope.launch (Dispatchers.IO){
-            val temp = subjectsRepo.getAllSubjects()
-            if (temp.isNotEmpty()) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { studentState.value = 1 }
+            try {
+                val currentUser = repo.getCurrentStudent()
                 withContext(Dispatchers.Main) {
-                    _subjectList.value = temp
+                    if (currentUser != null) {
+                        _student.value = currentUser
+                        withContext(Dispatchers.Main) { studentState.value = 3 }
+                    } else {
+                        _student.value = null
+                        withContext(Dispatchers.Main) { studentState.value = 2 }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _student.value = null
+                    studentState.value = 2
+                    Log.e("ViewModel", "Error fetching student info: ${e.message}")
                 }
 
             }
-       }
+        }
     }
     fun getStudentImage(imageUrl:String){
         viewModelScope.launch(Dispatchers.IO) {

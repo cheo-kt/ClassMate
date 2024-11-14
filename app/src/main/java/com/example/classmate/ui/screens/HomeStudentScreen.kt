@@ -464,10 +464,11 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             AsyncImage(
                 model = monitor.photoUrl,
                 contentDescription = "",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Crop, error =painterResource(R.drawable.botonestudiante) ,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .size(50.dp)
