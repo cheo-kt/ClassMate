@@ -130,7 +130,7 @@ fun NotificationStudentScreen(navController: NavController,
                         modifier = Modifier
                             .size(70.dp)
                             .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
+                            .clickable(onClick = {navController.navigate("HelpStudent") })
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.live_help),

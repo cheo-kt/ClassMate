@@ -113,23 +113,17 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                             modifier = Modifier
                                 .width(50.dp)
                                 .aspectRatio(1f)
-                                .background(Color.Transparent)
+                                .background(color = Color(0xFFCCD0CF), shape = CircleShape)
                                 .clickable(onClick = { navController.navigate("HelpStudent") })
+                                , contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .width(50.dp)
-                                    .aspectRatio(1f)
-                                    .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                                contentAlignment = Alignment.Center
-                            ){
                                 Icon(
                                     painter = painterResource(id = R.drawable.live_help),
                                     contentDescription = "Ayuda",
                                     tint = Color.White,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.aspectRatio(0.8f)
                                 )
-                            }
+
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -261,16 +255,18 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                        IconButton(onClick = { navController.navigate("CalendarStudent") }){
-                            Icon(
-                                painter = painterResource(id = R.drawable.calendario),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color.White
-                            )
-                        }
+
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.calendario),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
+                    }
+
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
                         Icon(
