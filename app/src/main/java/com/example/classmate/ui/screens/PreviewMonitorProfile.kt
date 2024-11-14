@@ -419,7 +419,7 @@ fun PreviewMonitorProfile(
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
+                        IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
@@ -431,7 +431,7 @@ fun PreviewMonitorProfile(
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
+                    IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
