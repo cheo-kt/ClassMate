@@ -14,7 +14,7 @@ import com.google.firebase.ktx.Firebase
 interface  AppointmentRepository {
     suspend fun eliminateAppointment(appointmentId:String,studentId:String,monitorId:String)
     suspend fun createAppoinment(appointment: Appointment)
-    suspend fun verifyAppointment(date:Timestamp)
+    suspend fun verifyAppointment()
 }
 class AppointmentRepositoryImpl(
     val appointmentServices : AppointmentService = AppointmentServiceImpl()
@@ -38,8 +38,8 @@ class AppointmentRepositoryImpl(
         appointmentServices.createAppointmentForMonitor(appointmentWithId)
     }
 
-    override suspend fun verifyAppointment(date: Timestamp) {
+    override suspend fun verifyAppointment() {
         val user= Firebase.auth.currentUser!!.uid
-        appointmentServices.verifyAppointmentForStudent(date,user)
+        appointmentServices.verifyAppointmentForStudent(user)
     }
 }

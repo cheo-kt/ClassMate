@@ -117,7 +117,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                                .clickable(onClick = { navController.navigate("HelpStudent") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),

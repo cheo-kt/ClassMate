@@ -32,10 +32,10 @@ class AppointmentViewModel(
             }
         }
     }
-    fun verifyAppointments(date: Timestamp): Job = viewModelScope.launch(Dispatchers.IO) {
+    fun verifyAppointments(): Job = viewModelScope.launch(Dispatchers.IO) {
         withContext(Dispatchers.Main) { authState.value = 1 }
         try {
-            repo.verifyAppointment(date)
+            repo.verifyAppointment()
             withContext(Dispatchers.Main) { authState.value = 3 }
         } catch (ex: FirebaseAuthException) {
             withContext(Dispatchers.Main) { authState.value = 2 }

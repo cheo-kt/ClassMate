@@ -20,7 +20,7 @@ class PreviewMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImp
     private var lastopinion:OpinionsAndQualifications? = null
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState = MutableLiveData(0)
-    val limit = 2;
+    val limit = 2
     private val _opinionList = MutableLiveData(listOf<OpinionsAndQualifications?>())
     val opinionList: LiveData<List<OpinionsAndQualifications?>> get() = _opinionList
 
@@ -45,7 +45,6 @@ class PreviewMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImp
                 e.printStackTrace()
                 viewModelScope.launch(Dispatchers.Main) { monitorState.value = 2 }
             }
-            Log.e(">>>>", "Estoy en viewmodel")
         }
     }
 

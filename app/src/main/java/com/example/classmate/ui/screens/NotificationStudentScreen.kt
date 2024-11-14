@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -92,7 +93,7 @@ fun NotificationStudentScreen(navController: NavController,
     val scrollState = rememberScrollState()
 
     LaunchedEffect(true) {
-        val job = appointmentViewModel.verifyAppointments(Timestamp.now())
+        val job = appointmentViewModel.verifyAppointments()
         job.join()
         notificationStudentViewModel.loadMoreNotifications()
     }
@@ -130,7 +131,7 @@ fun NotificationStudentScreen(navController: NavController,
                         modifier = Modifier
                             .size(70.dp)
                             .background(Color.Transparent)
-                            .clickable(onClick = { /*TODO*/ })
+                            .clickable(onClick = {navController.navigate("HelpStudent") })
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.live_help),
@@ -222,20 +223,20 @@ fun NotificationStudentScreen(navController: NavController,
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .weight(1f),
+                    .weight(1f)
             ) {
-                Column(modifier = Modifier.verticalScroll(scrollState),
-                    ) {
                     notificationState?.let { notification ->
                             if (notification.isEmpty()) {
-                                Box(modifier = Modifier.height(80.dp))
                                 Column {
-                                    Row(verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center) {
+                                    Box(modifier = Modifier.height(100.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
                                         Image(
                                             painter = painterResource(id = R.drawable.notifications_off),
                                             contentDescription = "Sin notificaciones",
-                                            modifier = Modifier.size(200.dp).offset(x=30.dp)
+                                            modifier = Modifier.size(200.dp).offset(x = 30.dp)
                                         )
                                     }
                                     Text(
@@ -246,7 +247,9 @@ fun NotificationStudentScreen(navController: NavController,
                                     )
                                 }
                         }else{
+                            LazyColumn(state = listState) {
                         notification.forEachIndexed{ _, n ->
+                            item{
                             ElevatedCard(
                                 elevation = CardDefaults.cardElevation(
                                     defaultElevation = 5.dp,
@@ -306,7 +309,10 @@ fun NotificationStudentScreen(navController: NavController,
                                             IconButton(
                                                 onClick = {
                                                     scope.launch {
-                                                        val job = notificationStudentViewModel.deleteNotification(n)
+                                                        val job =
+                                                            notificationStudentViewModel.deleteNotification(
+                                                                n
+                                                            )
                                                         job.join()
                                                         navController.navigate("notificationStudentPrincipal")
                                                     }
@@ -328,6 +334,7 @@ fun NotificationStudentScreen(navController: NavController,
                                         }
                                     }
                                 }
+                            }
                             }
                             }
                         }
