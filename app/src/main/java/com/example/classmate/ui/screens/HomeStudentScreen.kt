@@ -105,7 +105,9 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     var search by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
     val subjectsState by homeStudentViewModel.subjectList.observeAsState()
-    student?.let { homeStudentViewModel.getStudentImage(it.photo) }
+    if(student?.photo?.isNotEmpty() == true){
+        student?.let { homeStudentViewModel.getStudentImage(it.photo) }
+    }
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
         homeStudentViewModel.loadMoreMonitors()
