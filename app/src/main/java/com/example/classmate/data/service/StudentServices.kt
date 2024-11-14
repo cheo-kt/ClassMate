@@ -51,7 +51,7 @@ class StudentServicesImpl: StudentServices {
     }
 
     override suspend fun uploadProfileImage(id: String,uri: Uri,context: Context,oldImageID:String): String  {
-        if(oldImageID.isNotEmpty()){
+        if(oldImageID.isNotEmpty() && oldImageID != "noImage"){
             Firebase.storage
                 .reference.child("images/students/$oldImageID.jpg")
                 .delete()
