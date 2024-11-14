@@ -307,7 +307,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     )
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
+                    LazyColumn(state = listState) {
                         monitorState?.let { monitors ->
                             var m:List<Monitor?> = if(filter.isNotEmpty()) {
                                 monitors.filter {
@@ -334,7 +334,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
 
 
                             m.forEach { monitor ->
-
+                                item{
                                 monitor?.subjects?.forEach { subject ->
                                     if(search.isNotEmpty()) {
                                         if(subject.name.lowercase().startsWith(search.lowercase())){
@@ -352,8 +352,8 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                             navController = navController,
                                             student = student
                                         )
+                                        }
                                     }
-
                                 }
                             }
                         }

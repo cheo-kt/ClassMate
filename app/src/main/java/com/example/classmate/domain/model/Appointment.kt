@@ -16,6 +16,7 @@ data class Appointment(
     var studentName: String = "",
     var monitorId: String = "",
     var monitorName: String = "",
+    var isNotificationGenerated: Boolean = false
 )
 
 

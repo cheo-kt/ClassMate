@@ -62,6 +62,7 @@ fun OpinionStudentScreen(navController: NavController, notification: String?, op
     var notiObj: Notification = Gson().fromJson(notification, Notification::class.java)
     var rating by remember { mutableStateOf(3) }
     val scope = rememberCoroutineScope()
+    val maxLength = 15
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -160,7 +161,13 @@ fun OpinionStudentScreen(navController: NavController, notification: String?, op
 
                 OutlinedTextField(
                     value = note,
-                    onValueChange = { newNote -> note = newNote },
+                    onValueChange = { if (it.length <= maxLength) {
+                        note = it
+                    }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Limite alcanzado")
+                        }
+                    }},
                     label = { androidx.compose.material3.Text("Escribe tu Opinion") },
                     modifier = Modifier
                         .fillMaxSize() // Asegura que ocupe todo el ancho disponible

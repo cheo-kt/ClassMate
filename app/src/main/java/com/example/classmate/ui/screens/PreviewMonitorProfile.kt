@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -152,8 +153,11 @@ fun PreviewMonitorProfile(
                 }
             }
 
-            Box(modifier = Modifier.weight(1f))
-
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .weight(1f)
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -291,9 +295,6 @@ fun PreviewMonitorProfile(
                     }
                 }
 
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -327,14 +328,10 @@ fun PreviewMonitorProfile(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
-
-                Box(modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    ){
-
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
+                LazyColumn(state = listState) {
                         opinionlist?.let { op ->
                             op.forEachIndexed{ _, n ->
+                                item {
                                 ElevatedCard(
                                     elevation = CardDefaults.cardElevation(
                                         defaultElevation = 5.dp,
@@ -354,6 +351,11 @@ fun PreviewMonitorProfile(
                                                 .size(50.dp)
                                                 .clip(CircleShape)
                                         )
+                                        androidx.compose.material3.Text(
+                                            text = n!!.opinion,
+                                            fontSize = 12.sp,
+                                            color = Color.Blue,
+                                        )
 
                                         Box(
                                             modifier = Modifier.fillMaxWidth()
@@ -361,22 +363,16 @@ fun PreviewMonitorProfile(
                                             Row(
                                                 modifier = Modifier
                                                     .align(Alignment.CenterEnd)
-                                                    .padding(horizontal = 5.dp),
+                                                    .padding(horizontal = 10.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 androidx.compose.material3.Text(
-                                                    text = n!!.opinion,
-                                                    fontSize = 12.sp,
-                                                    color = Color.Blue,
+                                                    text = "${n.calification}/5★"
                                                 )
-                                                Spacer(modifier = Modifier.width(20.dp))
-                                                androidx.compose.material3.Text(
-                                                    text ="${n.calification}/5★")
-
-
                                             }
                                         }
                                     }
+                                }
                                 }
                             }
                         }
@@ -389,14 +385,9 @@ fun PreviewMonitorProfile(
                                         .getOpinionMonitor(monitorObj.id)
                                 }
                             }
+                        }
                     }
-
                 }
-
-            }
-
-
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -411,9 +402,9 @@ fun PreviewMonitorProfile(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { TODO() }) {
+                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendar_today),
+                            painter = painterResource(id = R.drawable.calendario),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
@@ -421,14 +412,14 @@ fun PreviewMonitorProfile(
                             tint = Color.White
                         )
                     }
-
+                    Box(modifier = Modifier.weight(0.1f))
                     Box(
                         modifier = Modifier
                             .size(58.dp)
                             .background(color = Color(0xFFCCD0CF), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { TODO() }) {
+                        IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
@@ -440,7 +431,7 @@ fun PreviewMonitorProfile(
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.notifications),
                             contentDescription = "calendario",
@@ -451,7 +442,7 @@ fun PreviewMonitorProfile(
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { TODO() }) {
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
@@ -464,13 +455,7 @@ fun PreviewMonitorProfile(
                     Box(modifier = Modifier.weight(0.1f))
                 }
             }
-
-            Box(modifier = Modifier.weight(1f))
-
         }
-
-
-
     }
-    }
+}
 

@@ -22,19 +22,20 @@ interface AppointmentService {
     suspend fun createAppointmentInGeneral(appointment: Appointment)
     suspend fun createAppointmentForStudent(appointment: Appointment)
     suspend fun createAppointmentForMonitor(appointment: Appointment)
-    suspend fun verifyAppointmentForStudent(date: Timestamp, userId:String)
+    suspend fun verifyAppointmentForStudent(userId:String)
     suspend fun deleteAppointmentFromMainCollection(appointmentId: String)
     suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String)
     suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String)
 }
 class AppointmentServiceImpl: AppointmentService {
-    val notificationService : NotificationService = NotificationServiceImpl()
+    val notificationService: NotificationService = NotificationServiceImpl()
     override suspend fun createAppointmentInGeneral(appointment: Appointment) {
         Firebase.firestore.collection("appointment")
             .document(appointment.id)
             .set(appointment)
             .await()
     }
+
     override suspend fun deleteAppointmentFromMainCollection(appointmentId: String) {
         Firebase.firestore.collection("appointment")
             .document(appointmentId)
@@ -77,43 +78,34 @@ class AppointmentServiceImpl: AppointmentService {
             .set(appointment)
             .await()
     }
-    override suspend fun verifyAppointmentForStudent(date: Timestamp, userId:String) {
-        val result = Firebase.firestore.collection("student")
+
+    override suspend fun verifyAppointmentForStudent(userId: String) {
+        val db = Firebase.firestore
+        val result = db.collection("student")
             .document(userId)
             .collection("appointment")
-            .whereLessThan("dateFinal", date)
+            .whereLessThan("dateFinal", Timestamp.now())
             .get()
             .await()
-        val appointmentFinished = result.documents.mapNotNull { it.toObject(Appointment::class.java) }
-        appointmentFinished.forEach{ appointment ->
-            notificationService.createNotificationQualification(Notification(
-                UUID.randomUUID().toString(),appointment.dateFinal,
-                "¿Que tal tu monitoria?",appointment.subjectname,
-                appointment.studentId,appointment.studentName, appointment.monitorId,
-                appointment.monitorName
-            ))
-            deleteAppointment(appointment)
+
+        result.forEach { document ->
+            val isNotificationSent = document.getBoolean("isNotificationSent") ?: false
+            if (!isNotificationSent) {
+                val appointment = document.toObject(Appointment::class.java)
+                notificationService.createNotificationQualification(
+                    Notification(
+                        UUID.randomUUID().toString(),
+                        appointment.dateFinal,
+                        "¿Qué tal tu monitoria?",
+                        appointment.subjectname,
+                        appointment.studentId,
+                        appointment.studentName,
+                        appointment.monitorId,
+                        appointment.monitorName
+                    )
+                )
+                document.reference.update("isNotificationSent", true).await()
+            }
         }
-    }
-    private suspend fun deleteAppointment(appointment: Appointment){
-        //Monitor
-        Firebase.firestore.collection("Monitor")
-            .document(appointment.monitorId)
-            .collection("appointment")
-            .document(appointment.id)
-            .set(appointment)
-            .await()
-        //Student
-        Firebase.firestore.collection("student")
-            .document(appointment.studentId)
-            .collection("appointment")
-            .document(appointment.id)
-            .delete()
-            .await()
-        //General
-        Firebase.firestore.collection("appointment")
-            .document(appointment.id)
-            .delete()
-            .await()
     }
 }
