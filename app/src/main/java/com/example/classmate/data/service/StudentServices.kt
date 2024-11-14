@@ -16,17 +16,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.util.UUID
 
 
 interface StudentServices {
 
     suspend fun createStudent(student: Student)
     suspend fun  getStudentById(id:String):Student?
-    suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String
-    suspend fun updateStudentField(id: String, field: String, value: Any)
+    suspend fun uploadProfileImage(id: String,uri: Uri,context: Context,oldImageID:String): String
+    suspend fun updateStudentField(id: String, field: String, value: String)
     suspend fun updateStudentImageUrl(id:String,url: String)
     suspend fun getAppointments(idStudent:String):List<Appointment?>
     suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?>
+    suspend fun getImageDownloadUrl(imageUrl:String):String
 }
 
 class StudentServicesImpl: StudentServices {
@@ -48,8 +50,14 @@ class StudentServicesImpl: StudentServices {
         return userObject
     }
 
-    override suspend fun uploadProfileImage(id: String,uri: Uri,context: Context): String  {
-        val storageRef = Firebase.storage.reference.child("images/students/$id.jpg")
+    override suspend fun uploadProfileImage(id: String,uri: Uri,context: Context,oldImageID:String): String  {
+        if(oldImageID.isNotEmpty()){
+            Firebase.storage
+                .reference.child("images/students/$oldImageID.jpg")
+                .delete()
+        }
+        val uid = UUID.randomUUID()
+        val storageRef = Firebase.storage.reference.child("images/students/$uid.jpg")
         val bitmap = withContext(Dispatchers.IO) {
             val inputStream = context.contentResolver.openInputStream(uri)
             BitmapFactory.decodeStream(inputStream)
@@ -61,11 +69,10 @@ class StudentServicesImpl: StudentServices {
         val compressedData = compressedBitmapStream.toByteArray()
 
         storageRef.putBytes(compressedData).await()
-
-        return storageRef.downloadUrl.await().toString()
+        return uid.toString()
     }
 
-    override suspend fun updateStudentField(id: String, field: String, value: Any) {
+    override suspend fun updateStudentField(id: String, field: String, value: String) {
         Firebase.firestore
             .collection("student")
             .document(id)
@@ -112,6 +119,15 @@ class StudentServicesImpl: StudentServices {
                 document.toObject(RequestBroadcast::class.java)
             }
 
+    }
+
+    override suspend fun getImageDownloadUrl(imageUrl: String): String {
+        return  Firebase.storage.reference
+            .child("images")
+            .child("students")
+            .child("$imageUrl.jpg")
+            .downloadUrl
+            .await().toString()
     }
 
 }
