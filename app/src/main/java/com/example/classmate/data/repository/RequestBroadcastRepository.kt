@@ -24,16 +24,13 @@ class RequestBroadcastRepositoryImpl(
 
         val requestId = UUID.randomUUID().toString()
         val requestWithId = requestBroadcast.copy(id = requestId)
-        val overlappingRequest = requestBroadcastServices.checkForOverlappingRequest(requestBroadcast.subjectID, requestBroadcast)
 
-        if (overlappingRequest != null) {
-            throw Exception("El rango de horas del nuevo RequestBroadcast se solapa con otro existente.")
-        }else{
-
-            requestBroadcastServices.createRequestInMainCollection(requestWithId)
-            requestBroadcastServices.createRequestForStudent(Firebase.auth.currentUser?.uid ?: "", requestWithId)
-            requestBroadcastServices.createRequestForSubject(requestBroadcast.subjectID, requestId)
-        }
+         requestBroadcastServices.checkForOverlappingRequest(
+            Firebase.auth.currentUser?.uid ?: "",
+            requestBroadcast)
+        requestBroadcastServices.createRequestInMainCollection(requestWithId)
+        requestBroadcastServices.createRequestForStudent(Firebase.auth.currentUser?.uid ?: "", requestWithId)
+        requestBroadcastServices.createRequestForSubject(requestBroadcast.subjectID, requestId)
 
     }
 

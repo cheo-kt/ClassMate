@@ -651,7 +651,7 @@ fun RequestBroadcastStudentScreen(
         LaunchedEffect(Unit) {
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ha ocurrido un error")
+                snackbarHostState.showSnackbar("Ya existe una cita a esa hora ")
             }
         }
     } else if (authState == 3) {
