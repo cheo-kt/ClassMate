@@ -85,6 +85,8 @@ import java.util.Locale
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -122,7 +124,7 @@ fun UnicastMonitoringScreen(
     var finalTimeVisibility by remember { mutableStateOf(false) }
 
     var timestampGlobal by remember { mutableStateOf(Timestamp(Date())) }
-
+    val today = LocalDate.now()
 
 
     val currentTime = Calendar.getInstance()
@@ -358,7 +360,9 @@ fun UnicastMonitoringScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                initialTimeVisibility = true
+                                if(fecha.isNotEmpty()){
+                                    initialTimeVisibility = true
+                                }
                             },
                     )
 
@@ -366,14 +370,40 @@ fun UnicastMonitoringScreen(
                         visible = initialTimeVisibility,
                         timePickerState = timePickerState
                     ) {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                        cal.set(Calendar.MINUTE, timePickerState.minute)
-                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
-                        horaInicio = format
+                        val selectedHour = timePickerState.hour
+                        val selectedMinute = timePickerState.minute
+
+                        val selectedTime = LocalTime.of(selectedHour, selectedMinute)
+
+                        val fechaSeleccionada = fecha
+                        val today = LocalDate.now()
+
+                        val fechaParsed = try {
+                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            LocalDate.parse(fechaSeleccionada, formatter)
+                        } catch (e: Exception) {
+                            null
+                        }
+
+                        if (fechaParsed != null && fechaParsed.dayOfMonth == today.dayOfMonth && fechaParsed.year == today.year) {
+                            val currentTime = LocalTime.now()
+                            if (selectedTime.isAfter(currentTime.plusHours(1))) {
+                                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                                horaInicio = formattedTime
+                            } else {
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Selecciona una hora al menos una hora después de la actual.")
+                                }
+                            }
+                        } else {
+                            // Si la fecha no es hoy, simplemente asignamos la hora seleccionada
+                            val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                            horaInicio = formattedTime
+                        }
+
                         initialTimeVisibility = false
                     }
-
 
                     Spacer(modifier = Modifier.width(16.dp))
 
@@ -391,19 +421,46 @@ fun UnicastMonitoringScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                finalTimeVisibility = true
+                                if(fecha.isNotEmpty()){
+                                    finalTimeVisibility = true
+                                }
                             },
                     )
 
                     TimePickerDialog(
                         visible = finalTimeVisibility,
-                        timePickerState = timePickerState2
+                        timePickerState = timePickerState
                     ) {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState2.hour)
-                        cal.set(Calendar.MINUTE, timePickerState2.minute)
-                        val format = SimpleDateFormat("HH:mm", Locale.getDefault()).format(cal.time)
-                        horafin = format
+                        val selectedHour = timePickerState.hour
+                        val selectedMinute = timePickerState.minute
+
+                        val selectedTime = LocalTime.of(selectedHour, selectedMinute)
+
+                        val fechaSeleccionada = fecha
+                        val today = LocalDate.now()
+                        val fechaParsed = try {
+                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            LocalDate.parse(fechaSeleccionada, formatter)
+                        } catch (e: Exception) {
+                            null
+                        }
+
+                        if (fechaParsed != null && fechaParsed.dayOfMonth == today.dayOfMonth && fechaParsed.year == today.year) {
+                            val currentTime = LocalTime.now()
+                            if (selectedTime.isAfter(currentTime.plusHours(1))) {
+                                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                                horafin = formattedTime
+                            } else {
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Selecciona una hora al menos una hora después de la actual.")
+                                }
+                            }
+                        } else {
+                            val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                            horafin = formattedTime
+                        }
+
                         finalTimeVisibility = false
                     }
 
@@ -413,11 +470,21 @@ fun UnicastMonitoringScreen(
                         datePickerState = datePickerState
                     ) {
                         datePickerState.selectedDateMillis?.let {
-                            val zonedDateTime = Instant.ofEpochMilli(it+6*60*60*1000).atZone(ZoneId.systemDefault())
-                            val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
-                            fecha = formattedDate
+                            val zonedDateTime = Instant.ofEpochMilli(it + 6 * 60 * 60 * 1000).atZone(ZoneId.systemDefault())
+                            val selectedDate = LocalDate.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault())
+
+                            if (selectedDate.isBefore(today)) {
+                                datePickerVisibility = false
+                                scope.launch {
+                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                    snackbarHostState.showSnackbar("Debe ser una fecha de hoy o después")
+                                }
+                            } else {
+                                val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                                fecha = formattedDate
+                                datePickerVisibility = false
+                            }
                         }
-                        datePickerVisibility = false
 
                     }
 
@@ -545,7 +612,7 @@ fun UnicastMonitoringScreen(
         LaunchedEffect(Unit) {
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ha ocurrido un error")
+                snackbarHostState.showSnackbar("Ya existe una cita a esa hora")
             }
         }
     } else if (authState == 3) {

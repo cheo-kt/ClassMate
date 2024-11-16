@@ -132,7 +132,6 @@ fun RequestBroadcastStudentScreen(
     var datePickerVisibility by remember { mutableStateOf(false) }
     var finalTimeVisibility by remember { mutableStateOf(false) }
     val currentDateTime = LocalDateTime.now()
-    val minimumDateTime = currentDateTime.plusHours(1)
 
 
 
@@ -243,6 +242,7 @@ fun RequestBroadcastStudentScreen(
                             }
                         }
                     }
+                    Text(selectedSubject.value?.name?: "", style = MaterialTheme.typography.titleLarge,fontWeight = FontWeight.Bold)
                 }
                 // Opciones de modalidad
                 Column {
