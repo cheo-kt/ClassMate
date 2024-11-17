@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -23,6 +24,8 @@ class CalendarStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
     val appointmentlist: LiveData<List<Appointment?>> get() = _appointmentlist
     private val _requestBroadcastlist = MutableLiveData(listOf<RequestBroadcast?>())
     val requestBroadcastlist: LiveData<List<RequestBroadcast?>> get() = _requestBroadcastlist
+    private val _image = MutableLiveData<String?>()
+    val image : LiveData<String?> get()  = _image
 
     fun getAppointments() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -48,6 +51,21 @@ class CalendarStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
                 _student.value = me
             }
         }
+    }
+
+    fun getStudentImage(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+
+            try {
+                withContext(Dispatchers.Main){
+                    _image.value = repo.getStudentImage(imageUrl)
+                }
+
+            }catch (e: Exception){
+                Log.e("ViewModel", "Error fetching student info: ${e.message}")
+            }
+        }
+
     }
 
 }

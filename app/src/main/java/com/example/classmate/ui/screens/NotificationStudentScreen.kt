@@ -87,10 +87,18 @@ fun NotificationStudentScreen(navController: NavController,
     val notificationState by notificationStudentViewModel.notificationList.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
-    var image = student?.photo
+    val image:String? by notificationStudentViewModel.image.observeAsState()
     var notification = remember { mutableStateListOf<Notification>() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    if(student?.photo?.isNotEmpty() == true){
+        student?.let { notificationStudentViewModel.getStudentImage(it.photo) }
+    }
+
+    LaunchedEffect(true) {
+        notificationStudentViewModel.getStudent()
+    }
+
 
     LaunchedEffect(true) {
         val job = appointmentViewModel.verifyAppointments()
@@ -154,15 +162,6 @@ fun NotificationStudentScreen(navController: NavController,
                                 .clip(CircleShape)
                                 .size(70.dp)
                         ) {
-                            student?.let {
-                                image = it.photo
-                                if (studentState == 2) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                                    }
-                                }
-                            }
                             Image(
                                 modifier = Modifier
                                     .fillMaxSize()
