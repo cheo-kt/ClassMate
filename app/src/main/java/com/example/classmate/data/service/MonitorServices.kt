@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.util.Log
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.RequestBroadcast
@@ -33,6 +34,8 @@ interface MonitorServices {
     suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
     suspend fun getOpinionMonitor(monitorId:String, limit: Int)
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
+    suspend fun getAppointments(idStudent:String):List<Appointment?>
+    suspend fun getImageDownloadUrl(imageUrl:String):String
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -177,5 +180,32 @@ class MonitorServicesImpl: MonitorServices {
             }
         }
         return calificationsList
+    }
+
+
+    override suspend fun getAppointments(idStudent:String):List<Appointment?> {
+        return try {
+            val appointmentList = Firebase.firestore
+                .collection("Monitor")
+                .document(idStudent)
+                .collection("appointment")
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun getImageDownloadUrl(imageUrl: String): String {
+        return  Firebase.storage.reference
+            .child("images")
+            .child("monitors")
+            .child("$imageUrl.jpg")
+            .downloadUrl
+            .await().toString()
     }
 }

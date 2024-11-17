@@ -116,7 +116,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
@@ -124,36 +125,25 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(100.dp)
-                        .background(Color(0xFF209619)),
-                    contentAlignment = Alignment.Center
+                        .weight(1f)
                 ) {
-                    Row(Modifier.align(Alignment.TopStart)) {
-                        IconButton(
-                            onClick = {
-                                navController.navigate("monitorProfile")
-                            },
-                            modifier = Modifier
-                                .size(50.dp)
-                                .offset(y = (25.dp))
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back Icon",
-                                modifier = Modifier.size(50.dp),
-                                tint = Color.White
-                            )
-                        }
-                        Image(
-                            painter = painterResource(id = R.drawable.classmatelogo),
-                            contentDescription = "classMateLogo",
-                            modifier = Modifier
-                                .padding(start = 2.dp, bottom = 0.dp)
-                                .width(150.dp)
-                                .aspectRatio(1f),
-                            contentScale = ContentScale.Fit
-                        )
-                    }
+
+                    Image(
+                        painter = painterResource(id = R.drawable.encabezado),
+                        contentDescription = "Encabezado",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.classmatelogo),
+                        contentDescription = "classMateLogo",
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(start = 2.dp, top = 0.dp)
+                            .width(200.dp)
+                            .aspectRatio(1f),
+                        contentScale = ContentScale.Fit
+                    )
 
                     Row(
                         modifier = Modifier
@@ -161,32 +151,13 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             .padding(end = 24.dp, top = 24.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         Box(
                             modifier = Modifier
-                                .width(40.dp)
+                                .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
-                        ) {
-                            IconButton(
-                                onClick = { },
-                                modifier = Modifier
-                                    .width(50.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.notifications),
-                                    contentDescription = "Ayuda",
-                                    tint = Color.White,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier
-                                .width(50.dp)
-                                .offset(y = 5.dp)
+                                .clickable(onClick = {})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -195,7 +166,25 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 modifier = Modifier.fillMaxSize()
                             )
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = {})
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "notificaciones",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Botón de foto de perfil
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
@@ -203,39 +192,38 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 .width(50.dp)
                                 .aspectRatio(1f)
                         ) {
-                            Column {
-                                Image(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(CircleShape),
-                                    painter = rememberAsyncImagePainter(
-                                        image,
-                                        error = painterResource(R.drawable.botonestudiante)
-                                    ),
-                                    contentDescription = "Foto de perfil",
-                                    contentScale = ContentScale.Crop
-                                )
+                            Image(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
+                                painter = rememberAsyncImagePainter(
+                                    image,
+                                    error = painterResource(R.drawable.botonestudiante)
+                                ),
+                                contentDescription = "Foto de perfil",
+                                contentScale = ContentScale.Crop
+                            )
+                        }
 
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    modifier = Modifier
-                                        .background(Color(0xFFCCD0CF))
-                                        .border(1.dp, Color.Black)
-                                        .padding(2.dp)
-                                ) {
-                                    DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                        navController.navigate("studentProfile")
-                                    }, onDismiss = { expanded = false })
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier
+                                .background(Color(0xFFCCD0CF))
+                                .border(1.dp, Color.Black)
+                                .padding(4.dp)
+                        ) {
+                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
+                                navController.navigate("monitorProfile")
+                            }, onDismiss = { expanded = false })
 
-                                    DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                                    }, onDismiss = { expanded = false })
-                                }
-                            }
+                            DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                            }, onDismiss = { expanded = false })
                         }
                     }
                 }
             }
+
             Box(
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
@@ -433,9 +421,9 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendar_today),
+                            painter = painterResource(id = R.drawable.calendario),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(100.dp)

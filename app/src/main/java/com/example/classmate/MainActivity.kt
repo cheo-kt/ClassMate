@@ -66,7 +66,10 @@ import com.example.classmate.ui.screens.StudentMonitorSigninScreen
 import com.example.classmate.ui.screens.StudentProfileScreen
 import com.example.classmate.ui.components.deserializeListAppointment
 import com.example.classmate.ui.components.deserializeListRequestBroadcast
+import com.example.classmate.ui.screens.AppoimentMonitorViewScreen
 import com.example.classmate.ui.screens.AppoimentStudentScreen
+import com.example.classmate.ui.screens.CalendarMonitorScreen
+import com.example.classmate.ui.screens.DayOfCalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
 import com.example.classmate.ui.screens.HelpStudentScreen
 import com.example.classmate.ui.screens.PreviewMonitorProfile
@@ -149,7 +152,7 @@ fun App() {
             OpinionStudentScreen(navController, notification)
         }
         composable("CalendarStudent"){ CalendarStudentScreen(navController) }
-        composable("DayOfCalendar?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
+        composable("DayOfCalendarStudent?requestsForDay={requestsForDay}&appointmentsForDay={appointmentsForDay}", arguments = listOf(
             navArgument("requestsForDay") { type = NavType.StringType },
             navArgument("appointmentsForDay") { type = NavType.StringType }
         )) { entry ->
@@ -198,6 +201,30 @@ fun App() {
         composable("guia6Student") { guia6StudentScreen(navController) }
         composable("guia7Student") { guia7StudentScreen(navController) }
         composable("HelpStudent") { HelpStudentScreen(navController) }
+
+        composable("CalendarMonitor"){ CalendarMonitorScreen(navController) }
+
+        composable("DayOfCalendarMonitor?appointmentsForDay={appointmentsForDay}", arguments = listOf(
+            navArgument("appointmentsForDay") { type = NavType.StringType }
+        )) { entry ->
+            val appointmentsForDayJson = entry.arguments?.getString("appointmentsForDay")
+
+            // Deserializar los datos en listas específicas
+            val appointmentsForDay = deserializeListAppointment(appointmentsForDayJson)
+
+            // Navegar a la pantalla con los datos deserializados
+            DayOfCalendarMonitorScreen(
+                navController,
+                appointmentsForDay
+            )
+        }
+
+        composable("AppointmentMonitorView?appointment={appointment}", arguments = listOf(
+            navArgument("appointment"){type= NavType.StringType}
+        )) {entry->
+            val jsonRequestBroadcast =entry.arguments?.getString("appointment")
+            AppoimentMonitorViewScreen(navController,jsonRequestBroadcast)
+        }
     }
 }
 

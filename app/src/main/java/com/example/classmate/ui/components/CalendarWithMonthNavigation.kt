@@ -50,7 +50,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 @Composable
-fun CalendarWithMonthNavigation(listRequest: List<RequestBroadcast>, listAppointment: List<Appointment>, navController: NavController) {
+fun CalendarWithMonthNavigation(listRequest: List<RequestBroadcast>, listAppointment: List<Appointment>,type: Int, navController: NavController) {
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     val daysInMonth = currentMonth.lengthOfMonth()
 
@@ -125,7 +125,12 @@ fun CalendarWithMonthNavigation(listRequest: List<RequestBroadcast>, listAppoint
                         // Serializar solo los IDs
                         val requestJson = serializeList(requestIdsForDay)
                         val appointmentJson = serializeList(appointmentIdsForDay)
-                        navController.navigate("DayOfCalendar?requestsForDay=$requestJson&appointmentsForDay=$appointmentJson")
+                        if(type==1){
+                            navController.navigate("DayOfCalendarStudent?requestsForDay=$requestJson&appointmentsForDay=$appointmentJson")
+                        }else{
+                            navController.navigate("DayOfCalendarMonitor?appointmentsForDay=$appointmentJson")
+                        }
+
                     })
                 }
             }

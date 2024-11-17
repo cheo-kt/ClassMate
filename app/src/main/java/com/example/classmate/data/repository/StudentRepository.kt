@@ -6,6 +6,7 @@ import com.example.classmate.domain.model.Student
 import com.example.classmate.data.service.StudentServices
 import com.example.classmate.data.service.StudentServicesImpl
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +22,7 @@ interface StudentRepository {
     suspend fun getAppointments():List<Appointment?>
     suspend fun getRequestBroadcast():List<RequestBroadcast?>
     suspend fun getStudentImage(imageURL:String):String
+    suspend fun getStudentById(id: String): Student?
 }
 
 
@@ -60,5 +62,9 @@ class StudentRepositoryImpl(
 
     override suspend fun getStudentImage(imageURL: String): String {
         return studentServices.getImageDownloadUrl(imageURL)
+    }
+
+    override suspend fun getStudentById(id: String): Student? {
+        return studentServices.getStudentById(id)
     }
 }

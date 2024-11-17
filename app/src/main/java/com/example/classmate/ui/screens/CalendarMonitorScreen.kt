@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,36 +42,32 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CalendarWithMonthNavigation
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
-import com.example.classmate.ui.viewModel.CalendarStudentViewModel
-import com.google.gson.Gson
-import kotlinx.coroutines.launch
+import com.example.classmate.ui.viewModel.CalendarMonitorViewModel
 
 @Composable
-fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel: CalendarStudentViewModel = viewModel()) {
-    val studentObj: Student? by calendarStudentViewModel.student.observeAsState(initial = null)
+fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel: CalendarMonitorViewModel = viewModel()) {
+    val monitorObj: Monitor? by calendarMonitorViewModel.monitor.observeAsState(initial = null)
     var expanded by remember { mutableStateOf(false) }
-    val studentState by calendarStudentViewModel.studentState.observeAsState()
+    val monitorState by calendarMonitorViewModel.monitorState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val image:String? by calendarStudentViewModel.image.observeAsState()
+    val image:String? by calendarMonitorViewModel.image.observeAsState()
     val scope = rememberCoroutineScope()
-    val requestBroadcastState by calendarStudentViewModel.requestBroadcastlist.observeAsState()
-    val appointmentsState by calendarStudentViewModel.appointmentlist.observeAsState()
+    val appointmentsState by calendarMonitorViewModel.appointmentlist.observeAsState()
 
-    if(studentObj?.photo?.isNotEmpty() == true){
-        studentObj?.let { calendarStudentViewModel.getStudentImage(it.photo) }
+    if(monitorObj?.photoUrl?.isNotEmpty() == true){
+        monitorObj?.let { calendarMonitorViewModel.getMonitorImage(it.photoUrl) }
     }
 
     LaunchedEffect(true) {
-        calendarStudentViewModel.getStudent()
+        calendarMonitorViewModel.getMonitor()
     }
 
     LaunchedEffect(true) {
-        calendarStudentViewModel.getAppointments()
-        calendarStudentViewModel.getRequestBroadcast()
+        calendarMonitorViewModel.getAppointments()
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -93,7 +90,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        painter = painterResource(id = R.drawable.encabezado),
                         contentDescription = "Encabezado",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -121,11 +118,27 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { navController.navigate("HelpStudent") })
+                                .clickable(onClick = {})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
                                 contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = {})
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "notificaciones",
                                 tint = Color.White,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -162,11 +175,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                                 .padding(4.dp)
                         ) {
                             DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("studentProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast")
+                                navController.navigate("monitorProfile")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -178,8 +187,8 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
 
             Box(modifier = Modifier.weight(0.1f))
 
-            CalendarWithMonthNavigation(requestBroadcastState as List<RequestBroadcast>? ?: emptyList(),
-                appointmentsState as List<Appointment>? ?: emptyList(),1,navController)
+            CalendarWithMonthNavigation( emptyList(),
+                appointmentsState as List<Appointment>? ?: emptyList(),2,navController)
 
             Box(modifier = Modifier.weight(0.1f))
 
@@ -187,7 +196,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -197,27 +206,9 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { navController.navigate("CalendarStudent") }){
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color(0xFF3F21DB)
-                        )
-                    }
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
+                            painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
@@ -225,19 +216,38 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                             tint = Color.White
                         )
                     }
-
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+
+                        IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.notifications),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
                                 tint = Color.White
                             )
                         }
 
+                    Box(modifier = Modifier.weight(0.1f))
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                    }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
@@ -245,7 +255,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
                     }
@@ -254,4 +264,6 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
             }
         }
     }
+
+
 }
