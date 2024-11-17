@@ -72,6 +72,7 @@ import com.example.classmate.ui.screens.CalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
 import com.example.classmate.ui.screens.HelpStudentScreen
+import com.example.classmate.ui.screens.MonitorRequestScreen
 import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
@@ -203,6 +204,7 @@ fun App() {
         composable("HelpStudent") { HelpStudentScreen(navController) }
 
         composable("CalendarMonitor"){ CalendarMonitorScreen(navController) }
+        composable("MonitorRequest"){MonitorRequestScreen(navController)}
 
         composable("DayOfCalendarMonitor?appointmentsForDay={appointmentsForDay}", arguments = listOf(
             navArgument("appointmentsForDay") { type = NavType.StringType }
@@ -227,7 +229,6 @@ fun App() {
         }
     }
 }
-
 
 
 

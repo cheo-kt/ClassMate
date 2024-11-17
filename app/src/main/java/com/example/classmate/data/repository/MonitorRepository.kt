@@ -10,6 +10,7 @@ import android.content.Context
 import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import java.util.UUID
 
@@ -30,6 +31,8 @@ interface MonitorRepository {
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
     suspend fun getAppointments():List<Appointment?>
     suspend fun getMonitorImage(imageURL:String):String
+    suspend fun getRequest(limit: Int, request: Request?):List<Request?>
+
 
 
 }
@@ -99,6 +102,11 @@ class MonitorRepositoryImpl(
 
     override suspend fun getMonitorImage(imageURL: String): String {
         return monitorServices.getImageDownloadUrl(imageURL)
+    }
+
+    override suspend fun getRequest(limit: Int, request: Request?): List<Request?> {
+        return monitorServices.getRequest(limit, request)
+
     }
 
 }

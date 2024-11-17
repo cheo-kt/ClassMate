@@ -9,6 +9,7 @@ import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -36,6 +37,7 @@ interface MonitorServices {
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
     suspend fun getAppointments(idStudent:String):List<Appointment?>
     suspend fun getImageDownloadUrl(imageUrl:String):String
+    suspend fun getRequest(limit: Int, request: Request?): List<Request>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -207,5 +209,20 @@ class MonitorServicesImpl: MonitorServices {
             .child("$imageUrl.jpg")
             .downloadUrl
             .await().toString()
+    }
+
+    override suspend fun getRequest(limit: Int, request: Request?): List<Request> {
+        return try {
+            val querySnapshot = Firebase.firestore.collection("request")
+                .orderBy("id")
+                .startAfter(request?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.toObject(Request::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+
     }
 }
