@@ -95,6 +95,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    
 }
 @Composable
 fun App() {
