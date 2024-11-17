@@ -86,6 +86,7 @@ dependencies {
     implementation(libs.firebase.storage.ktx)
     implementation(libs.androidx.paging.common.android)
     implementation(libs.places)
+    implementation(libs.androidx.benchmark.macro)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,12 +1,15 @@
 
 package com.example.classmate.ui.screens
 
+import androidx.benchmark.perfetto.Row
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,12 +20,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -85,7 +92,7 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(230.dp),
+                    .height(150.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Image(
@@ -94,21 +101,38 @@ fun StudentSignupScreen(navController: NavController, studentSignupViewModel: St
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
-                Text(
-
-                    text = "Registro",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontSize = 50.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = Color.White,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = (-25).dp),
-                    textAlign = TextAlign.Center
-                )
-
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    IconButton(
+                        onClick = {
+                            navController.navigate("selectMonitorStudent")
+                        },
+                        modifier = Modifier
+                            .size(50.dp)
+                            .offset(y = (-25).dp, x = (-45).dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back Icon",
+                            modifier = Modifier.size(50.dp),
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        text = "Registro",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 40.sp,
+                        modifier = Modifier
+                            .offset(y = (-25).dp)
+                    )
+                }
             }
+
+
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
