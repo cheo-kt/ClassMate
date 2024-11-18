@@ -18,6 +18,7 @@ class UnicastMonitoringViewModel (
     val repo: RequestRepository = RequestRRepositoryImpl()
 ):ViewModel(){
     val authState = MutableLiveData(0)
+    val authState2 = MutableLiveData(0)
     //0. Idle
     //1. Loading
     //2. Error
@@ -34,6 +35,21 @@ class UnicastMonitoringViewModel (
             }
         }
     }
+
+    fun deleteRequest(StudentID:String, MonitorID:String,requestID:String ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState2.value = 1 }
+            try {
+                repo.deleteRequest(StudentID,MonitorID,requestID)
+                withContext(Dispatchers.Main) { authState2.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState2.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+
+
 
 
 

@@ -69,6 +69,8 @@ import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.AppointmentViewModel
+import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
+import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -79,9 +81,13 @@ fun BroadcastDecisionScreen(
     navController: NavController,
     request: String?,
     monitor: String?,
-    appointmentViewModel: AppointmentViewModel = viewModel()
+    appointmentViewModel: AppointmentViewModel = viewModel(),
+    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
+    requestBroadcastStudentViewmodel: RequestBroadcastStudentViewModel = viewModel()
     ) {
     val authState by appointmentViewModel.authState.observeAsState()
+
+
     val scope = rememberCoroutineScope()
     val requestObj: RequestBroadcast = Gson().fromJson(request, RequestBroadcast::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
@@ -365,6 +371,8 @@ fun BroadcastDecisionScreen(
                                 monitorObj.name
                             )
                         )
+
+                        requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -387,6 +395,7 @@ fun BroadcastDecisionScreen(
 
                 Button(
                     onClick = {
+                        requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
                             snackbarHostState.showSnackbar("Monitoria Rechazada.")
@@ -517,7 +526,8 @@ fun BroadcastDecisionScreen(
             }
         }
         navController.navigate("HomeMonitorScreen")
+        }
 
     }
-}
+
 

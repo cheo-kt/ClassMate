@@ -182,6 +182,7 @@ fun DayOfCalendarMonitorScreen(navController: NavController, listAppointment: Li
                                         dayOfCalendarViewModel.deleteRequestBroadcast(
                                             requestBroadcast.id.toString(),
                                             requestBroadcast.subjectID.toString(),
+                                            requestBroadcast.studentId.toString(),
                                             onSuccess = {
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Solicitud eliminada")

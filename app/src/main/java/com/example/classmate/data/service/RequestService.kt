@@ -14,6 +14,9 @@ interface RequestService {
     suspend fun createRequestForStudent(studentID:String,request:Request)
     suspend fun  createRequestForMonitor(monitorID:String,request:Request)
     suspend fun checkForOverlappingRequest(userId: String, request: Request): Request?
+    suspend fun deleteRequestFromMainCollection(requestId: String)
+    suspend fun deleteRequestForMonitor(studentId: String, requestId: String)
+    suspend fun deleteRequestForStudent(monitorId: String, requestId: String)
 }
 
 
@@ -66,6 +69,31 @@ class RequestServicesImpl: RequestService {
             }
         }
         return null
+    }
+
+    override suspend fun deleteRequestFromMainCollection(requestId: String) {
+        Firebase.firestore.collection("request")
+            .document(requestId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteRequestForMonitor(studentId: String, requestId: String) {
+        Firebase.firestore.collection("student")
+            .document(studentId)
+            .collection("request")
+            .document(requestId)
+            .delete()
+            .await()
+    }
+
+    override suspend fun deleteRequestForStudent(monitorId: String, requestId: String) {
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
+            .collection("request")
+            .document(requestId)
+            .delete()
+            .await()
     }
 
 

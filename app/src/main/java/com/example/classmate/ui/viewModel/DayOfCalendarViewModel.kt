@@ -25,10 +25,10 @@ class DayOfCalendarViewModel( val repoAppointment: AppointmentRepository = Appoi
 
 
 
-    fun deleteRequestBroadcast(requestBroadcastId: String, subjectID: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+    fun deleteRequestBroadcast(requestBroadcastId: String, subjectID: String,studentId: String, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
         viewModelScope.launch {
             try {
-                repoRequestBroadcast.eliminateRequestBroadcast(requestBroadcastId,subjectID)
+                repoRequestBroadcast.eliminateRequestBroadcast(requestBroadcastId,subjectID,studentId)
                 _requests.value = _requests.value?.filterNot { it.id == requestBroadcastId }
                 onSuccess()
             } catch (e: Exception) {

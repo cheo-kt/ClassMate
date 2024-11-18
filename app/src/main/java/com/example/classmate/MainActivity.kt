@@ -76,6 +76,7 @@ import com.example.classmate.ui.screens.MonitorRequestScreen
 import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.StudentSignupScreen
+import com.example.classmate.ui.screens.UnicastDecisionScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
@@ -193,6 +194,15 @@ fun App() {
         val request =entry.arguments?.getString("request")
         val monitor =entry.arguments?.getString("monitor")
         BroadcastDecisionScreen(navController,request,monitor) }
+
+        composable("DecisionMonitorUnicast?request={request}&monitor={monitor}",
+            arguments = listOf(
+                navArgument("request"){type= NavType.StringType},
+                navArgument("monitor"){type= NavType.StringType}
+            )) {entry->
+            val request =entry.arguments?.getString("request")
+            val monitor =entry.arguments?.getString("monitor")
+            UnicastDecisionScreen(navController,request,monitor) }
         //GUIA
         composable("guia1Student") { guia1StudentScreen(navController) }
         composable("guia2Student") { guia2StudentScreen(navController) }

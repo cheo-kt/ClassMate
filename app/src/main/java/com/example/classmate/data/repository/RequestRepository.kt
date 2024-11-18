@@ -13,6 +13,8 @@ import java.util.UUID
 
 interface RequestRepository {
     suspend fun  createRequest(studentID:String, monitorID:String,request: Request)
+    suspend fun  deleteRequest(studentID:String, monitorID:String,requestId: String)
+
 }
 
 
@@ -34,6 +36,12 @@ class RequestRRepositoryImpl(
         requestServices.createRequest(request)
         requestServices.createRequestForStudent(studentID,request)
         requestServices.createRequestForMonitor(monitorID,request)
+    }
+
+    override suspend fun deleteRequest(studentID: String, monitorID: String, requestId: String) {
+        requestServices.deleteRequestFromMainCollection(requestId)
+        requestServices.deleteRequestForMonitor(monitorID,requestId)
+        requestServices.deleteRequestForStudent(studentID,requestId)
     }
 
 

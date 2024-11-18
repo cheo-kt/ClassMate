@@ -1,5 +1,6 @@
 package com.example.classmate.data.repository
 
+import android.util.Log
 import com.example.classmate.data.service.AppointmentService
 import com.example.classmate.data.service.AppointmentServiceImpl
 import com.example.classmate.domain.model.Appointment
@@ -18,6 +19,7 @@ interface  AppointmentRepository {
 }
 class AppointmentRepositoryImpl(
     val appointmentServices : AppointmentService = AppointmentServiceImpl()
+
 ): AppointmentRepository {
 
     override suspend fun eliminateAppointment(
@@ -31,16 +33,23 @@ class AppointmentRepositoryImpl(
     }
 
     override suspend fun createAppoinment(appointment: Appointment) {
-        val appointmentId = UUID.randomUUID().toString()
-        val appointmentWithId = appointment.copy(id = appointmentId)
+        try {
+            val appointmentId = UUID.randomUUID().toString()
+            val appointmentWithId = appointment.copy(id = appointmentId)
 
-        appointmentServices.checkForOverlappingRequest(
-            Firebase.auth.currentUser?.uid ?: "",
-            appointment)
+            appointmentServices.checkForOverlappingRequest(
+                Firebase.auth.currentUser?.uid ?: "",
+                appointment
+            )
 
-        appointmentServices.createAppointmentInGeneral(appointmentWithId)
-        appointmentServices.createAppointmentForStudent(appointmentWithId)
-        appointmentServices.createAppointmentForMonitor(appointmentWithId)
+            appointmentServices.createAppointmentInGeneral(appointmentWithId)
+            appointmentServices.createAppointmentForStudent(appointmentWithId)
+            appointmentServices.createAppointmentForMonitor(appointmentWithId)
+            //TODO Llamar a requestRepo.delete -> Eliminar las 3 referencias al request
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            Log.e(">>>", ex.localizedMessage)
+        }
     }
 
     override suspend fun verifyAppointment() {

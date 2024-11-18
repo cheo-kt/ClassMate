@@ -308,7 +308,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                             ) {
                                                 IconButton(onClick = {
                                                     navController.navigate(
-                                                        "DecisionMonitor?request=${
+                                                        "DecisionMonitorUnicast?request=${
                                                             Gson().toJson(
                                                                 request
                                                             ) ?: "No"

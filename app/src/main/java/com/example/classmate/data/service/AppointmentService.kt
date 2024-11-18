@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
@@ -71,7 +72,7 @@ class AppointmentServiceImpl: AppointmentService {
 
         val startTime = appointment.dateInitial
         val endTime = appointment.dateFinal
-        val subcollections = listOf("requestBroadcast", "appointment", "request")
+        val subcollections = listOf("appointment")
 
         for (subcollection in subcollections) {
             val querySnapshot = Firebase.firestore.collection("Monitor")
@@ -81,9 +82,12 @@ class AppointmentServiceImpl: AppointmentService {
                 .whereLessThan("dateInitial", endTime)
                 .get()
                 .await()
-
+            Log.e(">>>", ">>>"+querySnapshot.documents.size)
+            for(doc in querySnapshot.documents){
+                Log.e(">>>", ">>>"+doc.toString())
+            }
             if (!querySnapshot.isEmpty) {
-                return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", " ")
+                return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", "ERROR_USER_NOT_FOUND"+subcollection)
             }
         }
         return null

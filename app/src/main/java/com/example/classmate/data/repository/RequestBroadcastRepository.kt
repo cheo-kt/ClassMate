@@ -11,7 +11,7 @@ import java.util.UUID
 
 interface RequestBroadcastRepository {
     suspend fun  createRequestBroadcast(requestBroadcast: RequestBroadcast)
-    suspend fun eliminateRequestBroadcast(requestId: String, subjectID: String)
+    suspend fun eliminateRequestBroadcast(requestId: String, subjectID: String, studentId: String)
 }
 
 
@@ -34,15 +34,16 @@ class RequestBroadcastRepositoryImpl(
 
     }
 
-    override suspend fun eliminateRequestBroadcast(requestId: String, subjectID: String) {
-        val currentUserID = Firebase.auth.currentUser?.uid ?: return
+    override suspend fun eliminateRequestBroadcast(requestId: String, subjectID: String, studentId: String) {
 
         requestBroadcastServices.deleteRequestFromMainCollection(requestId)
 
-        requestBroadcastServices.deleteRequestForStudent(currentUserID, requestId)
+        requestBroadcastServices.deleteRequestForStudent(studentId, requestId)
 
         requestBroadcastServices.deleteRequestForSubject(subjectID, requestId)
     }
+
+
 
 
 
