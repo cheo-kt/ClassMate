@@ -33,6 +33,11 @@ class AppointmentRepositoryImpl(
     override suspend fun createAppoinment(appointment: Appointment) {
         val appointmentId = UUID.randomUUID().toString()
         val appointmentWithId = appointment.copy(id = appointmentId)
+
+        appointmentServices.checkForOverlappingRequest(
+            Firebase.auth.currentUser?.uid ?: "",
+            appointment)
+
         appointmentServices.createAppointmentInGeneral(appointmentWithId)
         appointmentServices.createAppointmentForStudent(appointmentWithId)
         appointmentServices.createAppointmentForMonitor(appointmentWithId)

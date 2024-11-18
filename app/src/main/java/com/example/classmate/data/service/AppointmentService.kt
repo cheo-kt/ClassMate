@@ -7,8 +7,10 @@ import android.net.Uri
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -26,6 +28,7 @@ interface AppointmentService {
     suspend fun deleteAppointmentFromMainCollection(appointmentId: String)
     suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String)
     suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String)
+    suspend fun checkForOverlappingRequest(userId: String, appointment: Appointment): Appointment?
 }
 class AppointmentServiceImpl: AppointmentService {
     val notificationService: NotificationService = NotificationServiceImpl()
@@ -59,6 +62,31 @@ class AppointmentServiceImpl: AppointmentService {
             .document(appointmentId)
             .delete()
             .await()
+    }
+
+    override suspend fun checkForOverlappingRequest(
+        userId: String,
+        appointment: Appointment
+    ): Appointment? {
+
+        val startTime = appointment.dateInitial
+        val endTime = appointment.dateFinal
+        val subcollections = listOf("requestBroadcast", "appointment", "request")
+
+        for (subcollection in subcollections) {
+            val querySnapshot = Firebase.firestore.collection("Monitor")
+                .document(userId)
+                .collection(subcollection)
+                .whereGreaterThan("dateFinal", startTime)
+                .whereLessThan("dateInitial", endTime)
+                .get()
+                .await()
+
+            if (!querySnapshot.isEmpty) {
+                return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", " ")
+            }
+        }
+        return null
     }
 
     override suspend fun createAppointmentForStudent(appointment: Appointment) {
