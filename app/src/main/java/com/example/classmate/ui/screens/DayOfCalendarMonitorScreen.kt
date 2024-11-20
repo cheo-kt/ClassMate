@@ -42,7 +42,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
-import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.ui.viewModel.DayOfCalendarViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -60,11 +59,11 @@ fun DayOfCalendarMonitorScreen(navController: NavController, listAppointment: Li
 
     // Observar los datos de appointments y requests usando LiveData
     val appointments by dayOfCalendarViewModel.appointments.observeAsState(emptyList())
-    val requests by dayOfCalendarViewModel.requests.observeAsState(emptyList())
+    val requests by dayOfCalendarViewModel.requestsBroadcast.observeAsState(emptyList())
 
 
     LaunchedEffect(true) {
-        dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, emptyList())
+        dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, emptyList(), emptyList())
     }
 
 

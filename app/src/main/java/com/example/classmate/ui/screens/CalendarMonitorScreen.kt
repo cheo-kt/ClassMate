@@ -188,7 +188,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
             Box(modifier = Modifier.weight(0.1f))
 
             CalendarWithMonthNavigation( emptyList(),
-                appointmentsState as List<Appointment>? ?: emptyList(),2,navController)
+                appointmentsState as List<Appointment>? ?: emptyList(), emptyList(),2,navController)
 
             Box(modifier = Modifier.weight(0.1f))
 

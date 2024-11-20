@@ -392,7 +392,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 }
             }
         } else if (authState == 3) {
-            navController.navigate("HomeMonitorScreen")
+            navController.navigate("introductionMonitor")
         }
     }
 }

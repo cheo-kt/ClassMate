@@ -584,21 +584,28 @@ fun RequestBroadcastStudentScreen(
                                 val timestampInitial = Timestamp(datetimeInitial)
                                 val timestampFinal = Timestamp(datetimeFinal)
 
-
-                                requestBroadcastStudentViewmodel.createRequest(
-                                    RequestBroadcast("", modalidadSeleccionada.toString(),
-                                        tipoMonitoria.toString(),
-                                        timestampInitial,
-                                        timestampFinal,
-                                        notas.toString(),
-                                        direccion.toString(),
-                                        selectedSubject.value?.id.toString(),
-                                        selectedSubject.value?.name.toString(),
-                                        studentObj?.id ?: " ",
-                                        studentObj?.name?:" "
+                                if(timestampFinal<timestampInitial){
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("no puedes crear una solicitud con una hora final antes de la hora de inicio")
+                                    }
+                                }else{
+                                    requestBroadcastStudentViewmodel.createRequest(
+                                        RequestBroadcast("", modalidadSeleccionada.toString(),
+                                            tipoMonitoria.toString(),
+                                            timestampInitial,
+                                            timestampFinal,
+                                            notas.toString(),
+                                            direccion.toString(),
+                                            selectedSubject.value?.id.toString(),
+                                            selectedSubject.value?.name.toString(),
+                                            studentObj?.id ?: " ",
+                                            studentObj?.name?:" "
                                         )
 
-                                )
+                                    )
+                                }
+
                             }
                         },
                         modifier = Modifier

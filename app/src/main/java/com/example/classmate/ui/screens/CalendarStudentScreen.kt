@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CalendarWithMonthNavigation
@@ -59,6 +60,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
     val scope = rememberCoroutineScope()
     val requestBroadcastState by calendarStudentViewModel.requestBroadcastlist.observeAsState()
     val appointmentsState by calendarStudentViewModel.appointmentlist.observeAsState()
+    val requestState by calendarStudentViewModel.requestlist.observeAsState()
 
     if(studentObj?.photo?.isNotEmpty() == true){
         studentObj?.let { calendarStudentViewModel.getStudentImage(it.photo) }
@@ -69,6 +71,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
     }
 
     LaunchedEffect(true) {
+        calendarStudentViewModel.getRequest()
         calendarStudentViewModel.getAppointments()
         calendarStudentViewModel.getRequestBroadcast()
     }
@@ -179,7 +182,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
             Box(modifier = Modifier.weight(0.1f))
 
             CalendarWithMonthNavigation(requestBroadcastState as List<RequestBroadcast>? ?: emptyList(),
-                appointmentsState as List<Appointment>? ?: emptyList(),1,navController)
+                appointmentsState as List<Appointment>? ?: emptyList(),requestState as List<Request>? ?: emptyList(),1,navController)
 
             Box(modifier = Modifier.weight(0.1f))
 

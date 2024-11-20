@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -92,6 +93,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 
+@SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnicastMonitoringScreen(
@@ -545,20 +547,28 @@ fun UnicastMonitoringScreen(
                                 val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
                                 val timestampInitial = Timestamp(datetimeInitial)
                                 val timestampFinal = Timestamp(datetimeFinal)
+                                if(timestampFinal<timestampInitial){
+                                    scope.launch {
+                                        snackbarHostState.currentSnackbarData?.dismiss()
+                                        snackbarHostState.showSnackbar("no puedes crear una solicitud con una hora final antes de la hora de inicio")
+                                    }
+                                }else{
+                                    unicastMonitoringViewModel.createRequest(
+                                        studentObj.id,
+                                        monitorObj.id,
+
+                                        Request("",
+                                            modalidadSeleccionada,
+                                            tipoMonitoria,timestampInitial,timestampFinal,
+                                            notas,
+                                            direccion,
+                                            subjectObj.subjectId,subjectObj.name,
+                                            studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
+                                    )
+                                }
 
 
-                                unicastMonitoringViewModel.createRequest(
-                                    studentObj.id,
-                                    monitorObj.id,
 
-                                    Request("",
-                                        modalidadSeleccionada,
-                                        tipoMonitoria,timestampInitial,timestampFinal,
-                                        notas,
-                                        direccion,
-                                        subjectObj.subjectId,subjectObj.name,
-                                        studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
-                                )
 
                             }
                         },

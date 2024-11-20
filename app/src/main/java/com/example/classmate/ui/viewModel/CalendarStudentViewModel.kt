@@ -9,6 +9,7 @@ import com.example.classmate.data.repository.StudentRepository
 import com.example.classmate.data.repository.StudentRepositoryImpl
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,8 @@ class CalendarStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
     val appointmentlist: LiveData<List<Appointment?>> get() = _appointmentlist
     private val _requestBroadcastlist = MutableLiveData(listOf<RequestBroadcast?>())
     val requestBroadcastlist: LiveData<List<RequestBroadcast?>> get() = _requestBroadcastlist
+    private val _requestlist = MutableLiveData(listOf<Request?>())
+    val requestlist: LiveData<List<Request?>> get() = _requestlist
     private val _image = MutableLiveData<String?>()
     val image : LiveData<String?> get()  = _image
 
@@ -41,6 +44,15 @@ class CalendarStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
                 withContext(Dispatchers.Main) {
                     _requestBroadcastlist.value = requestsBroadcast
                 }
+        }
+    }
+
+    fun getRequest() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val requests = repo.getRequest()
+            withContext(Dispatchers.Main) {
+                _requestlist.value = requests
+            }
         }
     }
 
