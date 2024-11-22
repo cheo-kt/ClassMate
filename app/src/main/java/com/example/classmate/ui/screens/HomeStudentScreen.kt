@@ -416,7 +416,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = {navController.navigate("chatScreenStudent")  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",

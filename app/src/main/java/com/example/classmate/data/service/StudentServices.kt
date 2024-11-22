@@ -10,6 +10,7 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -31,6 +32,7 @@ interface StudentServices {
     suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?>
     suspend fun getRequest(idStudent:String):List<Request?>
     suspend fun getImageDownloadUrl(imageUrl:String):String
+    suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?>
 }
 
 class StudentServicesImpl: StudentServices {
@@ -143,6 +145,27 @@ class StudentServicesImpl: StudentServices {
             .child("$imageUrl.jpg")
             .downloadUrl
             .await().toString()
+    }
+
+
+    override suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?> {
+        return try {
+            val now = Timestamp.now()
+
+            val appointmentList = Firebase.firestore
+                .collection("student")
+                .document(idStudent)
+                .collection("appointment")
+                .whereGreaterThanOrEqualTo("dateFinal", now)
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
 }

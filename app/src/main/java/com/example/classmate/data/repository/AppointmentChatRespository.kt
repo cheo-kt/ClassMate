@@ -1,74 +1,55 @@
 package com.example.classmate.data.repository
 
 import android.net.Uri
+import com.example.classmate.data.service.AppointmentChatService
+import com.example.classmate.data.service.AppointmentChatServiceImpl
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Message
 import com.google.firebase.ktx.Firebase
 
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.toObject
-import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 interface AppointmentChatRepository {
-    suspend fun sendMessage(appointmentId: String, message: Message, uri: Uri?)
+    suspend fun sendMessage(message: Message, uri: Uri?, appointmentId: String)
     suspend fun getMessages(appointmentId: String): List<Message?>
     suspend fun getLiveMessages(appointmentId: String, callback: suspend (Message) -> Unit)
+    suspend fun getAppointmentById(appointmentId: String): Appointment
 }
-class AppointmentChatRepositoryImpl : AppointmentChatRepository {
+class AppointmentChatRepositoryImpl(val chatService: AppointmentChatService = AppointmentChatServiceImpl()) : AppointmentChatRepository {
 
-    override suspend fun sendMessage(appointmentId: String, message: Message, uri: Uri?) {
+    override suspend fun sendMessage(message: Message, uri: Uri?, appointmentId: String) {
         uri?.let {
             val imageID = UUID.randomUUID().toString()
             message.imageID = imageID
-            uploadImage(it, imageID)
+            chatService.uploadImage(it, imageID)
         }
         message.authorID = Firebase.auth.currentUser?.uid ?: ""
-        Firebase.firestore.collection("appointments")
-            .document(appointmentId)
-            .collection("messages")
-            .document(message.id)
-            .set(message)
-            .await()
+        chatService.sendMessage(message, appointmentId)
     }
 
+
     override suspend fun getMessages(appointmentId: String): List<Message?> {
-        val result = Firebase.firestore.collection("appointments")
-            .document(appointmentId)
-            .collection("messages")
-            .orderBy("date", Query.Direction.ASCENDING)
-            .get()
-            .await()
-        return result.documents.map { it.toObject(Message::class.java) }
+        return chatService.getMessages(appointmentId)
     }
 
     override suspend fun getLiveMessages(appointmentId: String, callback: suspend (Message) -> Unit) {
-        Firebase.firestore.collection("appointments")
-            .document(appointmentId)
-            .collection("messages")
-            .orderBy("date", Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, _ ->
-                snapshot?.documentChanges?.forEach { change ->
-                    if (change.type == DocumentChange.Type.ADDED) {
-                        val message = change.document.toObject(Message::class.java)
-                        message.isMine = message.authorID == Firebase.auth.currentUser?.uid
-                        CoroutineScope(Dispatchers.IO).launch { callback(message) }
-                    }
+        chatService.getLiveMessages(appointmentId) { documentSnapshot ->
+            val message = documentSnapshot.toObject(Message::class.java)
+            message?.let {
+                GlobalScope.launch {
+                    it.imageURL = it.imageID?.let { id -> chatService.getImageURLByID(id) }
+                    it.isMine = it.authorID == Firebase.auth.currentUser?.uid
+                    callback(it)
                 }
             }
+        }
     }
 
-    private suspend fun uploadImage(uri: Uri, imageID: String) {
-        Firebase.storage.reference.child("appointmentChatImages/$imageID").putFile(uri).await()
-    }
 
-    suspend fun getImageURL(imageID: String): String {
-        return Firebase.storage.reference.child("appointmentChatImages/$imageID").downloadUrl.await().toString()
+    override suspend fun getAppointmentById(appointmentId: String): Appointment {
+        return chatService.getAppointmentById(appointmentId)
     }
 }

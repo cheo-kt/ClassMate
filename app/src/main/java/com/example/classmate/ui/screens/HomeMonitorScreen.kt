@@ -88,8 +88,6 @@ import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.HomeMonitorViewModel
-import com.example.classmate.ui.viewModel.HomeStudentViewModel
-import com.example.classmate.ui.viewModel.IntroductionStudentViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt

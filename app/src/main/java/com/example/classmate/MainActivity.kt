@@ -69,7 +69,9 @@ import com.example.classmate.ui.components.deserializeListRequest
 import com.example.classmate.ui.components.deserializeListRequestBroadcast
 import com.example.classmate.ui.screens.AppoimentMonitorViewScreen
 import com.example.classmate.ui.screens.AppoimentStudentScreen
+import com.example.classmate.ui.screens.AppointmentChatScreen
 import com.example.classmate.ui.screens.CalendarMonitorScreen
+import com.example.classmate.ui.screens.ChatScreenMenuStudent
 import com.example.classmate.ui.screens.DayOfCalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
 import com.example.classmate.ui.screens.HelpStudentScreen
@@ -249,6 +251,16 @@ fun App() {
             val jsonRequestBroadcast =entry.arguments?.getString("appointment")
             AppoimentMonitorViewScreen(navController,jsonRequestBroadcast)
         }
+
+        composable(
+            route = "AppointmentChat/{appointmentId}",
+            arguments = listOf(navArgument("appointmentId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val appointmentId = backStackEntry.arguments?.getString("appointmentId")
+            AppointmentChatScreen(navController,appointmentId = appointmentId.toString())
+        }
+
+        composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
     }
 }
 

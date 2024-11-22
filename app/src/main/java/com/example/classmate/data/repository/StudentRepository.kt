@@ -25,6 +25,7 @@ interface StudentRepository {
     suspend fun getStudentImage(imageURL:String):String
     suspend fun getStudentById(id: String): Student?
     suspend fun getRequest():List<Request?>
+    suspend fun getAppointmentsUpdate():List<Appointment?>
 }
 
 
@@ -64,6 +65,10 @@ class StudentRepositoryImpl(
 
     override suspend fun getRequest(): List<Request?> {
         return  studentServices.getRequest(Firebase.auth.currentUser?.uid ?:"")
+    }
+
+    override suspend fun getAppointmentsUpdate(): List<Appointment?> {
+        return  studentServices.getAppointmentsUpdate(Firebase.auth.currentUser?.uid ?:"")
     }
 
     override suspend fun getStudentImage(imageURL: String): String {
