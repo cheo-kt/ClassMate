@@ -9,6 +9,9 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
@@ -16,9 +19,9 @@ interface AppointmentChatService {
     suspend fun getAppointmentById(appointmentId: String): Appointment
     suspend fun sendMessage(message: Message, appointmentId: String)
     suspend fun getMessages(appointmentId: String): List<Message?>
-    fun getLiveMessages(appointmentId: String, callback: (QueryDocumentSnapshot) -> Unit)
+    fun getLiveMessages(appointmentId: String, callback: suspend (QueryDocumentSnapshot) -> Unit)
     suspend fun uploadImage(uri: Uri, id: String)
-    suspend fun getImageURLByID(id: String): String
+    suspend fun  getImageURLByID(id: String): String
 }
 
 class AppointmentChatServiceImpl : AppointmentChatService {
@@ -48,16 +51,18 @@ class AppointmentChatServiceImpl : AppointmentChatService {
             .await()
         return result.documents.map { it.toObject(Message::class.java) }
     }
-    override fun getLiveMessages(appointmentId: String, callback: (QueryDocumentSnapshot) -> Unit) {
+    override  fun getLiveMessages(appointmentId: String, callback:  suspend (QueryDocumentSnapshot) -> Unit) {
         Firebase.firestore.collection("appointment")
             .document(appointmentId)
             .collection("messages")
             .orderBy("date", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) return@addSnapshotListener
-                snapshot?.documentChanges?.forEach { change ->
-                    if (change.type == DocumentChange.Type.ADDED) {
-                        callback(change.document)
+                CoroutineScope(Dispatchers.IO).launch {
+                    snapshot?.documentChanges?.forEach { change ->
+                        if (change.type == DocumentChange.Type.ADDED) {
+                            callback(change.document)
+                        }
                     }
                 }
             }

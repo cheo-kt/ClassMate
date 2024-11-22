@@ -11,6 +11,7 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -38,6 +39,7 @@ interface MonitorServices {
     suspend fun getAppointments(idStudent:String):List<Appointment?>
     suspend fun getImageDownloadUrl(imageUrl:String):String
     suspend fun getRequest(limit: Int, request: Request?): List<Request>
+    suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -224,5 +226,25 @@ class MonitorServicesImpl: MonitorServices {
             emptyList()
         }
 
+    }
+
+    override suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?> {
+        return try {
+            val now = Timestamp.now()
+
+            val appointmentList = Firebase.firestore
+                .collection("Monitor")
+                .document(idStudent)
+                .collection("appointment")
+                .whereGreaterThanOrEqualTo("dateFinal", now)
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }

@@ -8,6 +8,8 @@ import com.example.classmate.domain.model.Message
 import com.google.firebase.ktx.Firebase
 
 import com.google.firebase.auth.ktx.auth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -36,15 +38,15 @@ class AppointmentChatRepositoryImpl(val chatService: AppointmentChatService = Ap
     }
 
     override suspend fun getLiveMessages(appointmentId: String, callback: suspend (Message) -> Unit) {
-        chatService.getLiveMessages(appointmentId) { documentSnapshot ->
-            val message = documentSnapshot.toObject(Message::class.java)
-            message?.let {
-                GlobalScope.launch {
-                    it.imageURL = it.imageID?.let { id -> chatService.getImageURLByID(id) }
-                    it.isMine = it.authorID == Firebase.auth.currentUser?.uid
-                    callback(it)
+        chatService.getLiveMessages(appointmentId) { doc ->
+                val message = doc.toObject(Message::class.java)
+                message?.imageID?.let {
+                    val url = chatService.getImageURLByID(it)
+                    message.imageURL = url
                 }
-            }
+                message.isMine = message.authorID == Firebase.auth.currentUser?.uid
+                callback(message)
+
         }
     }
 

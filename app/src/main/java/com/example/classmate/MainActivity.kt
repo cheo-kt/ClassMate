@@ -71,6 +71,7 @@ import com.example.classmate.ui.screens.AppoimentMonitorViewScreen
 import com.example.classmate.ui.screens.AppoimentStudentScreen
 import com.example.classmate.ui.screens.AppointmentChatScreen
 import com.example.classmate.ui.screens.CalendarMonitorScreen
+import com.example.classmate.ui.screens.ChatScreenMenuMonitor
 import com.example.classmate.ui.screens.ChatScreenMenuStudent
 import com.example.classmate.ui.screens.DayOfCalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
@@ -253,14 +254,23 @@ fun App() {
         }
 
         composable(
-            route = "AppointmentChat/{appointmentId}",
-            arguments = listOf(navArgument("appointmentId") { type = NavType.StringType })
+            route = "AppointmentChat/{appointmentId}/{type}",
+            arguments = listOf(
+                navArgument("appointmentId") { type = NavType.StringType },
+                navArgument("type") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val appointmentId = backStackEntry.arguments?.getString("appointmentId")
-            AppointmentChatScreen(navController,appointmentId = appointmentId.toString())
+            val typeString = backStackEntry.arguments?.getString("type")
+            val type = typeString?.toBoolean() ?: false
+            AppointmentChatScreen(navController, appointmentId = appointmentId.toString(), type)
         }
 
+
+
         composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
+
+        composable("chatScreenMonitor"){ ChatScreenMenuMonitor(navController) }
     }
 }
 
