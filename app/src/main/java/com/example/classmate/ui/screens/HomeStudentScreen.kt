@@ -32,13 +32,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.sharp.Star
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -93,7 +97,7 @@ import kotlin.math.sqrt
 @Composable
 fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeStudentViewModel = viewModel()) {
     val monitorState by homeStudentViewModel.monitorList.observeAsState()
-    val scrollState = rememberScrollState()
+    val monitorStateFiltered by homeStudentViewModel.monitorListFiltered.observeAsState()
     val student: Student? by homeStudentViewModel.student.observeAsState(initial = null)
     val image:String? by homeStudentViewModel.image.observeAsState()
     var filter by remember { mutableStateOf("") }
@@ -101,10 +105,11 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
+    var expandedFilter by remember { mutableStateOf(false) }
     val maxLength = 20
-    var search by remember { mutableStateOf("") }
+    var filteringType by remember { mutableStateOf("Nombre") }
+    var isSearch= false
     val listState = rememberLazyListState()
-    val subjectsState by homeStudentViewModel.subjectList.observeAsState()
     student?.let { homeStudentViewModel.getStudentImage(it.photo) }
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
@@ -159,7 +164,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("HelpStudent") })
+                                .clickable(onClick = { navController.navigate("HelpStudent") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -190,7 +195,6 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 contentScale = ContentScale.Crop
                             )
                         }
-
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -199,11 +203,11 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 .border(1.dp, Color.Black)
                                 .padding(4.dp)
                         ) {
-                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
+                            DropdownMenuItemWithSeparator("Nombre", onClick = {
                                 navController.navigate("studentProfile")
                             }, onDismiss = { expanded = false })
 
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
+                            DropdownMenuItemWithSeparator("Materia", onClick = {
                                 navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
                             }, onDismiss = { expanded = false })
 
@@ -229,65 +233,95 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     Spacer(modifier = Modifier.height(10.dp))
                     Box(
                         Modifier
-                            .width(250.dp)
-                            .align(Alignment.Start)
+                            .fillMaxWidth()
                     ) {
-                        Column {
-                            BasicTextField(
-                                value = filter,
-                                onValueChange = {
-                                    if (it.length <= maxLength) {
-                                        filter = it
-                                    }
-                                },
-                                textStyle = TextStyle(
-                                    fontSize = 16.sp,
-                                    color = Color.Black
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(40.dp)
-                                            .background(
-                                                Color.LightGray,
-                                                shape = RoundedCornerShape(50)
-                                            )
-                                            .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                            .padding(horizontal = 15.dp),
-                                        contentAlignment = Alignment.CenterStart
-                                    ) {
-                                        if (filter.isEmpty()) {
-                                            Text(
-                                                text = "Filtrar",
-                                                color = Color.Gray,
-                                            )
+                            Row(Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween) {
+                                BasicTextField(
+                                    value = filter,
+                                    onValueChange = {
+                                        if (it.length <= maxLength) {
+                                            filter = it
                                         }
-                                        innerTextField()
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.data_loss_prevention),
-                                            contentDescription = "Search Icon",
-                                            tint = Color.Black,
+                                    },
+                                    textStyle = TextStyle(
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    ),
+                                    decorationBox = { innerTextField ->
+                                        Box(
                                             modifier = Modifier
-                                                .size(20.dp)
-                                                .align(Alignment.CenterEnd)
-                                        )
-                                    }
-                                },
-                                singleLine = true,
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                            subjectsState?.let {
-                                PredictiveTextField(
-                                    value = search,
-                                    onValueChange = { newSearch -> search = newSearch },
-                                    label = "Filtrar por materia",
-                                    modifier = Modifier.fillMaxWidth(),
-                                    subjects = it
+                                                .width(150.dp)
+                                                .height(40.dp)
+                                                .background(
+                                                    Color.LightGray,
+                                                    shape = RoundedCornerShape(50)
+                                                )
+                                                .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                                .padding(horizontal = 20.dp),
+                                            contentAlignment = Alignment.CenterStart
+                                        ) {
+                                            if (filter.isEmpty()) {
+                                                Text(
+                                                    text = "Filtrar",
+                                                    color = Color.Gray,
+                                                )
+                                            }
+                                            innerTextField()
+                                        }
+                                    },
+                                    singleLine = true,
                                 )
+                                Box {
+                                    Button(onClick = { expandedFilter = true },
+                                        colors = ButtonDefaults.buttonColors(Color(0xFF3F21DB), Color.White)
+                                        ) {
+                                        Row {
+                                            Text(filteringType)
+                                            Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "")
+                                        }
+                                    }
+                                    DropdownMenu(
+                                        expanded = expandedFilter,
+                                        onDismissRequest = { expandedFilter = false },
+                                        modifier = Modifier
+                                            .background(Color(0xFFCCD0CF))
+                                            .border(1.dp, Color.Black)
+                                            .width(100.dp)
+                                    ) {
+                                        DropdownMenuItemWithSeparator("Nombre", onClick = {
+                                            filteringType = "Nombre"
+                                            expandedFilter = false
+                                        }, onDismiss = { expandedFilter = false })
+                                        DropdownMenuItemWithSeparator("Materia", onClick = {
+                                            filteringType = "Materia"
+                                            expandedFilter = false
+                                        }, onDismiss = { expandedFilter = false })
+                                    }
+                                }
+                                IconButton(onClick = {
+                                    isSearch=true
+                                    if (filteringType=="Nombre") {
+                                        homeStudentViewModel.monitorsFilteredByName(filter)
+                                    }
+                                    else{
+                                        ///Filtrar por materia
+                                    }
+                                    }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.data_loss_prevention),
+                                        contentDescription = "Search Icon",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF3F21DB))
+                                            .padding(10.dp)
+                                    )
+                                }
                             }
-                        }
-
+                            Spacer(modifier = Modifier.height(10.dp))
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -298,37 +332,37 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                     )
                     Spacer(modifier = Modifier.height(5.dp))
 
-                    LazyColumn(state = listState) {
-                        monitorState?.let { monitors ->
-                            var m:List<Monitor?> = if(filter.isNotEmpty()) {
-                                monitors.filter {
-                                    it?.name!!.startsWith(
-                                        filter,
-                                        ignoreCase = true
-                                    )
-                                }
-                            } else{
-                                monitors
+                    if (isSearch && monitorStateFiltered!!.isEmpty()) {
+                        Column {
+                            Box(modifier = Modifier.height(50.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.search_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier.size(200.dp).offset(x=70.dp)
+                                )
                             }
-                            subjectsState?.let {
-                                m = if(search.isNotEmpty()) {
-                                    m.filter { it2 ->
-                                        it.any { it3 ->
-                                            it3.monitorsID.contains(it2?.id)
-                                        }
-
-                                    }
-                                } else{
-                                    m
-                                }
+                            Text(
+                                text = "Uy al parecer no se encontró",
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }
+                    else {
+                        LazyColumn(state = listState) {
+                            if (filter.isEmpty()) {
+                                isSearch = false
                             }
-
-
-                            m.forEach { monitor ->
-                                item{
-                                monitor?.subjects?.forEach { subject ->
-                                    if(search.isNotEmpty()) {
-                                        if(subject.name.lowercase().startsWith(search.lowercase())){
+                            if (filter.isEmpty() || (!isSearch && monitorStateFiltered!!.isEmpty())) {
+                                homeStudentViewModel.refresh() //Muestro todo en caso de que este vacio
+                                monitorState?.forEach { monitor ->
+                                    monitor?.subjects?.forEach { subject ->
+                                        item {
                                             CreateMonitorCard(
                                                 monitor = monitor,
                                                 subject = subject,
@@ -336,13 +370,21 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                                 student = student
                                             )
                                         }
-                                    }else{
-                                        CreateMonitorCard(
-                                            monitor = monitor,
-                                            subject = subject,
-                                            navController = navController,
-                                            student = student
-                                        )
+                                    }
+                                }
+                            }
+                            if (isSearch && monitorStateFiltered!!.isNotEmpty()) {
+                                if (filteringType == "Nombre") { //Filtrado por materias
+                                    monitorStateFiltered?.forEach { monitor ->
+                                        monitor?.subjects?.forEach { subject ->
+                                            item {
+                                                CreateMonitorCard(
+                                                    monitor = monitor,
+                                                    subject = subject,
+                                                    navController = navController,
+                                                    student = student
+                                                )
+                                            }
                                         }
                                     }
                                 }

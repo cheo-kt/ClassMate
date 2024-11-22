@@ -14,6 +14,7 @@ import com.example.classmate.data.repository.SubjectRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,10 +29,12 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
     private var monitor: Monitor? = null
     private val _monitorList = MutableLiveData(listOf<Monitor?>())
     val monitorList: LiveData<List<Monitor?>> get() = _monitorList
+    private val _monitorListFiltered = MutableLiveData(listOf<Monitor?>())
+    val monitorListFiltered: LiveData<List<Monitor?>> get() = _monitorListFiltered
     private val _subjectList = MutableLiveData(listOf<Subject>())
-    val subjectList : LiveData<List<Subject>> get() = _subjectList
+    val subjectList: LiveData<List<Subject>> get() = _subjectList
     private val _image = MutableLiveData<String?>()
-    val image : LiveData<String?> get()  = _image
+    val image: LiveData<String?> get() = _image
     fun getStudent0() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { studentState.value = 1 }
@@ -65,6 +68,7 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
             }
         }
     }
+
     fun loadMoreMonitors() {
         viewModelScope.launch(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.Main) { studentState.value = 1 }
@@ -75,8 +79,7 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
                         _monitorList.value = _monitorList.value.orEmpty() + newMonitors
                         monitor = _monitorList.value?.lastOrNull()
                         viewModelScope.launch(Dispatchers.Main) { studentState.value = 3 }
-                    }
-                    else{
+                    } else {
                         viewModelScope.launch(Dispatchers.Main) { studentState.value = 0 }
                     }
                 }
@@ -86,8 +89,9 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
             }
         }
     }
-    fun getSubjects(){
-        viewModelScope.launch (Dispatchers.IO){
+
+    fun getSubjects() {
+        viewModelScope.launch(Dispatchers.IO) {
             val temp = subjectsRepo.getAllSubjects()
             if (temp.isNotEmpty()) {
                 withContext(Dispatchers.Main) {
@@ -95,20 +99,38 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
                 }
 
             }
-       }
+        }
     }
-    fun getStudentImage(imageUrl:String){
+
+    fun getStudentImage(imageUrl: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     _image.value = repo.getStudentImage(imageUrl)
                 }
 
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e("ViewModel", "Error fetching student info: ${e.message}")
             }
         }
+    }
 
+    fun monitorsFilteredByName(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { studentState.value = 1 }
+            try {
+                withContext(Dispatchers.Main) {
+                    _monitorListFiltered.value = repoMonitor.searchMonitor(name)
+                    studentState.value = 3
+                }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { studentState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+    fun refresh(){
+        _monitorListFiltered.value = emptyList()
     }
 }

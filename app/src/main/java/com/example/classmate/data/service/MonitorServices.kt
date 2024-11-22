@@ -6,7 +6,9 @@ import android.graphics.BitmapFactory
 import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.text.toLowerCase
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.firestore.DocumentSnapshot
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -31,8 +34,8 @@ interface MonitorServices {
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
     suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
-    suspend fun getOpinionMonitor(monitorId:String, limit: Int)
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
+    suspend fun searchMonitorByName(name:String):List<Monitor?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -86,7 +89,18 @@ class MonitorServicesImpl: MonitorServices {
             .update("photoUrl", url)
             .await()
     }
+    override suspend fun searchMonitorByName(name:String):List<Monitor?>{
+        val result = Firebase.firestore
+            .collection("Monitor")
+            .whereGreaterThanOrEqualTo("name", name)
+            .whereLessThanOrEqualTo("name", name + "\uf8ff")
+            .get()
+            .await()
 
+        return result.documents.map { document ->
+            document.toObject(Monitor::class.java)
+        }
+    }
     override suspend fun getMonitors(limit: Int, monitor: Monitor?): List<Monitor> {
         return try {
             val querySnapshot = Firebase.firestore.collection("Monitor")
@@ -140,10 +154,6 @@ class MonitorServicesImpl: MonitorServices {
 
     }
 
-    override suspend fun getOpinionMonitor(monitorId: String, limit: Int) {
-
-
-    }
 
     override suspend fun loadMoreOpinions(
         limit: Int,

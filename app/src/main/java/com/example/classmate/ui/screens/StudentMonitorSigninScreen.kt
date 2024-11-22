@@ -52,7 +52,8 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun StudentMonitorSigninScreen (navController: NavController, authViewModel: StudentSigninViewModel = viewModel(),
+fun StudentMonitorSigninScreen (navController: NavController,
+                                authViewModel: StudentSigninViewModel = viewModel(),
                                 monitorAuthViewModel: MonitorSigninViewModel = viewModel()) {
 
 

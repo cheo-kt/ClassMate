@@ -21,11 +21,11 @@ interface MonitorRepository {
     suspend fun updateMonitorPhoto(id: String, imageUri: Uri, context: Context): String
     suspend fun updateMonitorInformation(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url:String)
+    suspend fun searchMonitor(name:String):List<Monitor?>
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
     suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
     suspend fun getMonitorById(id: String): Monitor? // Nuevo método
-    suspend fun getOpinionMonitor(monitorId: String, limit: Int)
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
 
 
@@ -56,6 +56,9 @@ class MonitorRepositoryImpl(
     override suspend fun updateMonitorImageUrl(id:String,url: String) {
         monitorServices.updateMonitorImageUrl(id,url)
     }
+    override suspend fun searchMonitor(name:String):List<Monitor?>{
+        return monitorServices.searchMonitorByName(name)
+    }
 
     override suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?> {
         return monitorServices.getMonitors(limit,monitor)
@@ -75,10 +78,6 @@ class MonitorRepositoryImpl(
 
     override suspend fun getMonitorById(id: String): Monitor? {
         return monitorServices.getMonitorById(id)
-    }
-
-    override suspend fun getOpinionMonitor(monitorId: String, limit: Int) {
-        monitorServices.getOpinionMonitor(monitorId, limit)
     }
 
     override suspend fun loadMoreOpinions(
