@@ -42,8 +42,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
-import com.example.classmate.domain.model.Request
-import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.ui.viewModel.DayOfCalendarViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -53,8 +51,7 @@ import java.time.ZoneId
 import java.util.Date
 
 @Composable
-fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcast: List<RequestBroadcast>, listRequest: List<Request>, listAppointment: List<Appointment>, dayOfCalendarViewModel: DayOfCalendarViewModel= viewModel()) {
-
+fun DayOfCalendarMonitorScreen(navController: NavController, listAppointment: List<Appointment>, dayOfCalendarViewModel: DayOfCalendarViewModel = viewModel()) {
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -62,12 +59,11 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
 
     // Observar los datos de appointments y requests usando LiveData
     val appointments by dayOfCalendarViewModel.appointments.observeAsState(emptyList())
-    val requestsBroadcast by dayOfCalendarViewModel.requestsBroadcast.observeAsState(emptyList())
-    val requests by dayOfCalendarViewModel.requests.observeAsState(emptyList())
-    
+    val requests by dayOfCalendarViewModel.requestsBroadcast.observeAsState(emptyList())
+
 
     LaunchedEffect(true) {
-        dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, listRequestBroadcast,listRequest)
+        dayOfCalendarViewModel.loadAppointmentsAndRequests(listAppointment, emptyList(), emptyList())
     }
 
 
@@ -92,7 +88,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                         .weight(1f)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        painter = painterResource(id = R.drawable.encabezado),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -128,7 +124,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
             }
 
             Column(modifier = Modifier.verticalScroll(scrollState)) {
-                requests.forEach { request ->
+                requests.forEach { requestBroadcast ->
                     ElevatedCard(
                         elevation = CardDefaults.cardElevation(
                             defaultElevation = 5.dp,
@@ -150,11 +146,11 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                                     modifier = Modifier.padding(top = 10.dp)
                                 )
                                 androidx.compose.material3.Text(
-                                    text = ("Materia: ${request.subjectname}"),
+                                    text = ("Materia: ${requestBroadcast.subjectname}"),
                                     fontSize = 12.sp,
                                 )
-                                val date1 = Date(request.dateInitial.toDate().time)
-                                val date2 = Date(request.dateFinal.toDate().time)
+                                val date1 = Date(requestBroadcast.dateInitial.toDate().time)
+                                val date2 = Date(requestBroadcast.dateFinal.toDate().time)
                                 val timeFormat = SimpleDateFormat("HH:mm") // Formato de 24 horas
                                 val formattedTimeInitial = timeFormat.format(date1)
                                 val formattedTimeFinal = timeFormat.format(date2)
@@ -182,10 +178,10 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                                         .padding(horizontal = 5.dp)
                                 ) {
                                     IconButton(onClick = {
-                                        dayOfCalendarViewModel.deleteRequest(
-                                            request.id.toString(),
-                                            request.studentId.toString(),
-                                            request.monitorId.toString(),
+                                        dayOfCalendarViewModel.deleteRequestBroadcast(
+                                            requestBroadcast.id.toString(),
+                                            requestBroadcast.subjectID.toString(),
+                                            requestBroadcast.studentId.toString(),
                                             onSuccess = {
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Solicitud eliminada")
@@ -208,8 +204,8 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                                     }
 
                                     IconButton(onClick = {
-                                        val jsonRequest = Gson().toJson(request)
-                                        navController.navigate("RequestViewScreen?request=${jsonRequest}")
+                                        val jsonRequestBroadcast = Gson().toJson(requestBroadcast)
+                                        navController.navigate("")
                                     }){
                                         Icon(
                                             imageVector = Icons.Outlined.PlayArrow,
@@ -222,100 +218,6 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                         }
                     }
                 }
-                requestsBroadcast.forEach { requestBroadcast ->
-                            ElevatedCard(
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 5.dp,
-                                ), modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        modifier = Modifier.align(Alignment.CenterVertically),
-                                        verticalArrangement = Arrangement.spacedBy((-5).dp)
-                                    ) {
-                                        androidx.compose.material3.Text(
-                                            text = "Solicitud",
-                                            color = Color.Blue,
-                                            fontSize = 16.sp,
-                                            modifier = Modifier.padding(top = 10.dp)
-                                        )
-                                        androidx.compose.material3.Text(
-                                            text = ("Materia: ${requestBroadcast.subjectname}"),
-                                            fontSize = 12.sp,
-                                        )
-                                        val date1 = Date(requestBroadcast.dateInitial.toDate().time)
-                                        val date2 = Date(requestBroadcast.dateFinal.toDate().time)
-                                        val timeFormat = SimpleDateFormat("HH:mm") // Formato de 24 horas
-                                        val formattedTimeInitial = timeFormat.format(date1)
-                                        val formattedTimeFinal = timeFormat.format(date2)
-
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            androidx.compose.material3.Text(
-                                                text = (formattedTimeInitial),
-                                                fontSize = 12.sp,
-                                            )
-                                            Text(text = "-")
-                                            androidx.compose.material3.Text(
-                                                text = (formattedTimeFinal),
-                                                fontSize = 12.sp,
-                                            )
-                                        }
-
-
-                                    }
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .align(Alignment.CenterEnd)
-                                                .padding(horizontal = 5.dp)
-                                        ) {
-                                            IconButton(onClick = {
-                                                dayOfCalendarViewModel.deleteRequestBroadcast(
-                                                    requestBroadcast.id.toString(),
-                                                    requestBroadcast.subjectID.toString(),
-                                                    requestBroadcast.studentId.toString(),
-                                                    onSuccess = {
-                                                        scope.launch {
-                                                            snackbarHostState.showSnackbar("Solicitud eliminada")
-                                                        }
-                                                    },
-                                                    onError = { e ->
-                                                        scope.launch {
-                                                            snackbarHostState.showSnackbar("Error al eliminar la solicitud: ${e.message}")
-                                                        }
-
-                                                    }
-                                                )
-                                            }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = "Delete",
-                                                    modifier = Modifier.size(30.dp),
-                                                    tint = Color.Red
-                                                )
-                                            }
-
-                                            IconButton(onClick = {
-                                                val jsonRequestBroadcast = Gson().toJson(requestBroadcast)
-                                                navController.navigate("requestBroadcastView?requestBroadcast=${jsonRequestBroadcast}")
-                                            }){
-                                                Icon(
-                                                    imageVector = Icons.Outlined.PlayArrow,
-                                                    contentDescription = "Arrow",
-                                                    modifier = Modifier.size(50.dp),
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                 }
                 appointments.forEach { appointment ->
                     ElevatedCard(
                         elevation = CardDefaults.cardElevation(
@@ -411,7 +313,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
 
                                     IconButton(onClick = {
                                         val jsonAppointment = Gson().toJson(appointment)
-                                        navController.navigate("AppointmentStudentView?appointment=${jsonAppointment}")
+                                        navController.navigate("AppointmentMonitorView?appointment=${jsonAppointment}")
                                     }) {
                                         Icon(
                                             imageVector = Icons.Outlined.PlayArrow,

@@ -94,43 +94,66 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
         viewModelScope.launch(Dispatchers.IO) {
             val temp = subjectsRepo.getAllSubjects()
             if (temp.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    _subjectList.value = temp
-                }
+                fun getSubjects() {
+                    viewModelScope.launch(Dispatchers.IO) {
+                        withContext(Dispatchers.Main) { studentState.value = 1 }
+                        try {
+                            val currentUser = repo.getCurrentStudent()
+                            withContext(Dispatchers.Main) {
+                                if (currentUser != null) {
+                                    _student.value = currentUser
+                                    withContext(Dispatchers.Main) { studentState.value = 3 }
+                                } else {
+                                    _student.value = null
+                                    withContext(Dispatchers.Main) { studentState.value = 2 }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                _student.value = null
+                                studentState.value = 2
+                                Log.e("ViewModel", "Error fetching student info: ${e.message}")
+                            }
 
+                        }
+                    }
+                }
             }
         }
     }
 
-    fun getStudentImage(imageUrl: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        fun getStudentImage(imageUrl: String) {
+            viewModelScope.launch(Dispatchers.IO) {
 
-            try {
-                withContext(Dispatchers.Main) {
-                    _image.value = repo.getStudentImage(imageUrl)
+                try {
+                    withContext(Dispatchers.Main) {
+                        _image.value = repo.getStudentImage(imageUrl)
+                    }
+
+                } catch (e: Exception) {
+                    Log.e("ViewModel", "Error fetching student info: ${e.message}")
                 }
-
-            } catch (e: Exception) {
-                Log.e("ViewModel", "Error fetching student info: ${e.message}")
             }
         }
-    }
 
-    fun monitorsFilteredByName(name: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { studentState.value = 1 }
-            try {
-                withContext(Dispatchers.Main) {
-                    _monitorListFiltered.value = repoMonitor.searchMonitor(name)
-                    studentState.value = 3
+        fun monitorsFilteredByName(name: String) {
+            viewModelScope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.Main) { studentState.value = 1 }
+                try {
+                    withContext(Dispatchers.Main) {
+                        _monitorListFiltered.value = repoMonitor.searchMonitor(name)
+                        studentState.value = 3
+                    }
+                } catch (ex: FirebaseAuthException) {
+                    withContext(Dispatchers.Main) { studentState.value = 2 }
+                    ex.printStackTrace()
                 }
-            } catch (ex: FirebaseAuthException) {
-                withContext(Dispatchers.Main) { studentState.value = 2 }
-                ex.printStackTrace()
             }
         }
-    }
-    fun refresh(){
-        _monitorListFiltered.value = emptyList()
-    }
+
+        fun refresh() {
+            _monitorListFiltered.value = emptyList()
+        }
+
 }
+

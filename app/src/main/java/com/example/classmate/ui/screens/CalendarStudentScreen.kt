@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CalendarWithMonthNavigation
@@ -55,16 +56,22 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
     var expanded by remember { mutableStateOf(false) }
     val studentState by calendarStudentViewModel.studentState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var image = studentObj?.photo
+    val image:String? by calendarStudentViewModel.image.observeAsState()
     val scope = rememberCoroutineScope()
     val requestBroadcastState by calendarStudentViewModel.requestBroadcastlist.observeAsState()
     val appointmentsState by calendarStudentViewModel.appointmentlist.observeAsState()
+    val requestState by calendarStudentViewModel.requestlist.observeAsState()
+
+    if(studentObj?.photo?.isNotEmpty() == true){
+        studentObj?.let { calendarStudentViewModel.getStudentImage(it.photo) }
+    }
 
     LaunchedEffect(true) {
         calendarStudentViewModel.getStudent()
     }
 
     LaunchedEffect(true) {
+        calendarStudentViewModel.getRequest()
         calendarStudentViewModel.getAppointments()
         calendarStudentViewModel.getRequestBroadcast()
     }
@@ -136,15 +143,6 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                                 .width(50.dp)
                                 .aspectRatio(1f)
                         ) {
-                            studentObj?.let {
-                                image = it.photo
-                                if (studentState == 2) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                                    }
-                                }
-                            }
                             Image(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -184,7 +182,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
             Box(modifier = Modifier.weight(0.1f))
 
             CalendarWithMonthNavigation(requestBroadcastState as List<RequestBroadcast>? ?: emptyList(),
-                appointmentsState as List<Appointment>? ?: emptyList(),navController)
+                appointmentsState as List<Appointment>? ?: emptyList(),requestState as List<Request>? ?: emptyList(),1,navController)
 
             Box(modifier = Modifier.weight(0.1f))
 
@@ -244,7 +242,7 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                         }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("chatScreenStudent") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",

@@ -46,8 +46,8 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.viewModel.AppoimentMonitorViewModel
 import com.example.classmate.ui.viewModel.AppoimentStudentViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -55,21 +55,20 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
-fun AppoimentStudentScreen(navController: NavController,appointment: String?, appointmentStudentViewModel: AppoimentStudentViewModel=viewModel()) {
+fun AppoimentMonitorViewScreen(navController: NavController, appointment: String?, appointmentMonitorViewModel: AppoimentMonitorViewModel = viewModel()) {
+
     val appointmentObj: Appointment = Gson().fromJson(appointment, Appointment::class.java)
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val monitorState by appointmentStudentViewModel.monitorState.observeAsState()
-    val monitor: Monitor? by appointmentStudentViewModel.monitor.observeAsState(initial = null)
-    var monitorID = appointmentObj?.monitorId.toString()
-    var image = monitor?.photoUrl
+    val studentState by appointmentMonitorViewModel.studentState.observeAsState()
+    val student: Student? by appointmentMonitorViewModel.student.observeAsState(initial = null)
+    var studentID = appointmentObj?.studentId.toString()
+    var image = student?.photo
 
     LaunchedEffect(true) {
-        appointmentStudentViewModel.showMonitorInformation(monitorID)
+        appointmentMonitorViewModel.showStudentInformation(studentID)
     }
-
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -90,7 +89,7 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                         .weight(1f)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        painter = painterResource(id = R.drawable.encabezado),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -137,9 +136,9 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                         .clip(CircleShape)
                         .background(Color(0xFFCCD0CF))
                 ){
-                    monitor?.let {
-                        image = it.photoUrl
-                        if (monitorState==2){
+                    student?.let {
+                        image = it.photo
+                        if (studentState==2){
                             scope.launch {
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
@@ -159,7 +158,7 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                     )
                 }
 
-                monitor?.let {
+                student?.let {
                     Text(text = it.name + " " + it.lastname
                         ,fontSize = 30.sp,
                         fontWeight = FontWeight.Bold)
@@ -216,7 +215,7 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -226,55 +225,56 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.calendar_today),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
-                            )
-                        }
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.people),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
                     }
                     Box(modifier = Modifier.weight(0.1f))
+
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp)
+                                .offset(y = -(2.dp)),
                             tint = Color.White
                         )
                     }
 
+                    Box(modifier = Modifier.weight(0.1f))
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                    }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notifications),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenStudent") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
                     }
@@ -283,4 +283,9 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
             }
         }
     }
+
+
+
+
+
 }

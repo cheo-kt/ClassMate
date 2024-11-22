@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -66,7 +67,7 @@ import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
-import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Request
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
@@ -77,19 +78,17 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun BroadcastDecisionScreen(
+fun UnicastDecisionScreen(
     navController: NavController,
     request: String?,
     monitor: String?,
     appointmentViewModel: AppointmentViewModel = viewModel(),
     unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
-    requestBroadcastStudentViewmodel: RequestBroadcastStudentViewModel = viewModel()
-    ) {
+) {
     val authState by appointmentViewModel.authState.observeAsState()
 
-
     val scope = rememberCoroutineScope()
-    val requestObj: RequestBroadcast = Gson().fromJson(request, RequestBroadcast::class.java)
+    val requestObj: Request = Gson().fromJson(request, Request::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
     var image = monitor
     val snackbarHostState = remember { SnackbarHostState() }
@@ -274,7 +273,10 @@ fun BroadcastDecisionScreen(
 
                     Column {
                         val spanishLocale = Locale("es", "ES")
-                        val dateFormatter = SimpleDateFormat("EEEE dd 'de' MMMM 'de' yyyy 'a las' HH:mm", spanishLocale)
+                        val dateFormatter = SimpleDateFormat(
+                            "EEEE dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                            spanishLocale
+                        )
 
                         Text(
                             text = dateFormatter.format(requestObj.dateInitial.toDate()),
@@ -301,10 +303,10 @@ fun BroadcastDecisionScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
 
-                        if(requestObj.mode_class == "Virtual"){
+                        if (requestObj.mode_class == "Virtual") {
                             Text(requestObj.mode_class)
 
-                        }else{
+                        } else {
                             Text("${requestObj.mode_class}, en : ${requestObj.mode_class}")
 
                         }
@@ -363,7 +365,7 @@ fun BroadcastDecisionScreen(
                                 requestObj.dateFinal,
                                 requestObj.description,
                                 requestObj.place,
-                                requestObj.subjectID,
+                                requestObj.subjectId,
                                 requestObj.subjectname,
                                 requestObj.studentId,
                                 requestObj.studentName,
@@ -372,7 +374,11 @@ fun BroadcastDecisionScreen(
                             )
                         )
 
-                        requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
+                        unicastMonitoringViewModel.deleteRequest(
+                            requestObj.studentId,
+                            monitorObj.id,
+                            requestObj.id
+                        )
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -393,9 +399,14 @@ fun BroadcastDecisionScreen(
                     )
                 }
 
+
                 Button(
                     onClick = {
-                        requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
+                        unicastMonitoringViewModel.deleteRequest(
+                            requestObj.studentId,
+                            monitorObj.id,
+                            requestObj.id
+                        )
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
                             snackbarHostState.showSnackbar("Monitoria Rechazada.")
@@ -443,8 +454,8 @@ fun BroadcastDecisionScreen(
                             .size(58.dp)
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { navController.navigate("MonitorRequest")}) {
+                    ) {
+                        IconButton(onClick = { navController.navigate("MonitorRequest") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.people),
                                 contentDescription = "calendario",
@@ -459,7 +470,7 @@ fun BroadcastDecisionScreen(
 
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = {navController.navigate("HomeMonitorScreen")  }) {
+                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -525,9 +536,7 @@ fun BroadcastDecisionScreen(
                 snackbarHostState.showSnackbar("Monitoria Aceptada")
             }
         }
+
         navController.navigate("HomeMonitorScreen")
-        }
-
     }
-
-
+}

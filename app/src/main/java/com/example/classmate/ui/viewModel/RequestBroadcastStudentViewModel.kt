@@ -26,6 +26,7 @@ class RequestBroadcastStudentViewModel(
     val repoStudent: StudentRepository = StudentRepositoryImpl()
 ): ViewModel(){
     val authState = MutableLiveData(0)
+    val authState2 = MutableLiveData(0)
     //0. Idle
     //1. Loading
     //2. Error
@@ -62,6 +63,19 @@ class RequestBroadcastStudentViewModel(
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
                 withContext(Dispatchers.Main) { authState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteRequest(StudentID:String, subjectID:String,requestID:String ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState2.value = 1 }
+            try {
+                repo.eliminateRequestBroadcast(requestID,subjectID,StudentID)
+                withContext(Dispatchers.Main) { authState2.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState2.value = 2 }
                 ex.printStackTrace()
             }
         }

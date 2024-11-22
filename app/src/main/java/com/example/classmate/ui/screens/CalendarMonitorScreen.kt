@@ -12,17 +12,16 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,33 +36,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CalendarWithMonthNavigation
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
-import com.example.classmate.ui.viewModel.HelpStudentViewModel
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
+import com.example.classmate.ui.viewModel.CalendarMonitorViewModel
 
 @Composable
-fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpStudentViewModel= viewModel()) {
-    val studentObj: Student? by helpStudentViewModel.student.observeAsState(initial = null)
+fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel: CalendarMonitorViewModel = viewModel()) {
+    val monitorObj: Monitor? by calendarMonitorViewModel.monitor.observeAsState(initial = null)
     var expanded by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
+    val monitorState by calendarMonitorViewModel.monitorState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var image = studentObj?.photo
-    val studentState by helpStudentViewModel.studentState.observeAsState()
+    val image:String? by calendarMonitorViewModel.image.observeAsState()
+    val scope = rememberCoroutineScope()
+    val appointmentsState by calendarMonitorViewModel.appointmentlist.observeAsState()
+
+    if(monitorObj?.photoUrl?.isNotEmpty() == true){
+        monitorObj?.let { calendarMonitorViewModel.getMonitorImage(it.photoUrl) }
+    }
+
     LaunchedEffect(true) {
-        helpStudentViewModel.getStudent()
+        calendarMonitorViewModel.getMonitor()
+    }
+
+    LaunchedEffect(true) {
+        calendarMonitorViewModel.getAppointments()
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -86,7 +90,7 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        painter = painterResource(id = R.drawable.encabezado),
                         contentDescription = "Encabezado",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -113,17 +117,31 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                             modifier = Modifier
                                 .width(50.dp)
                                 .aspectRatio(1f)
-                                .background(color = Color(0xFFCCD0CF), shape = CircleShape)
-                                .clickable(onClick = { navController.navigate("HelpStudent") })
-                                , contentAlignment = Alignment.Center
+                                .background(Color.Transparent)
+                                .clickable(onClick = {})
                         ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.live_help),
-                                    contentDescription = "Ayuda",
-                                    tint = Color.White,
-                                    modifier = Modifier.aspectRatio(0.8f)
-                                )
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = {})
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "notificaciones",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
@@ -135,15 +153,6 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                                 .width(50.dp)
                                 .aspectRatio(1f)
                         ) {
-                            studentObj?.let {
-                                image = it.photo
-                                if (studentState == 2) {
-                                    scope.launch {
-                                        snackbarHostState.currentSnackbarData?.dismiss()
-                                        snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                                    }
-                                }
-                            }
                             Image(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -166,11 +175,7 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                                 .padding(4.dp)
                         ) {
                             DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("studentProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast")
+                                navController.navigate("monitorProfile")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
@@ -182,62 +187,8 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
 
             Box(modifier = Modifier.weight(0.1f))
 
-            Text(
-                text = "Preguntas frecuentes:",
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xffCCD0CF))
-                    .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Text(text="¿Como puedo modificar las monitorias?",)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xffCCD0CF))
-                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
-                            .padding(16.dp)
-                    ){
-                        Text(text="Puedes hacerlo yendo a la agenda, seleccionando la monitoria agendada y presionando en boton de editar.",)
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(text="¿Si no puedo asistir a la monitoria, como le informo al monitor?",)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xffCCD0CF))
-                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
-                            .padding(16.dp)
-                    ){
-                        Text(text="Debes hablar con el monitor usando el chat que se encuentra en la parte inferior derecha.",)
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(text="¿Como puedo modificar mi foto de perfil?",)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Color(0xffCCD0CF))
-                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
-                            .padding(16.dp)
-                    ){
-                        Text(text="Yendo a tu perfil, si seleccionas tu foto actual podrás cambiarla por una nueva.",)
-                    }
-                }
-            }
+            CalendarWithMonthNavigation( emptyList(),
+                appointmentsState as List<Appointment>? ?: emptyList(), emptyList(),2,navController)
 
             Box(modifier = Modifier.weight(0.1f))
 
@@ -245,7 +196,7 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -255,10 +206,9 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-
-                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendario),
+                            painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
@@ -266,39 +216,46 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
                             tint = Color.White
                         )
                     }
+                    Box(modifier = Modifier.weight(0.1f))
+
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.add_home),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
+                                tint = Color.White
+                            )
+                        }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
-
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notifications),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenStudent") }) {
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
                     }
@@ -307,4 +264,6 @@ fun HelpStudentScreen(navController: NavController, helpStudentViewModel: HelpSt
             }
         }
     }
+
+
 }

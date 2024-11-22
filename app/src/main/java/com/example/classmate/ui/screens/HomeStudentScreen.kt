@@ -110,7 +110,10 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     var filteringType by remember { mutableStateOf("Nombre") }
     var isSearch= false
     val listState = rememberLazyListState()
-    student?.let { homeStudentViewModel.getStudentImage(it.photo) }
+    val subjectsState by homeStudentViewModel.subjectList.observeAsState()
+    if(student?.photo?.isNotEmpty() == true){
+        student?.let { homeStudentViewModel.getStudentImage(it.photo) }
+    }
     LaunchedEffect(true) {
         homeStudentViewModel.getStudent()
         homeStudentViewModel.loadMoreMonitors()
@@ -195,6 +198,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 contentScale = ContentScale.Crop
                             )
                         }
+
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -203,11 +207,11 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                                 .border(1.dp, Color.Black)
                                 .padding(4.dp)
                         ) {
-                            DropdownMenuItemWithSeparator("Nombre", onClick = {
+                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
                                 navController.navigate("studentProfile")
                             }, onDismiss = { expanded = false })
 
-                            DropdownMenuItemWithSeparator("Materia", onClick = {
+                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
                                 navController.navigate("requestBroadcast?student=${Gson().toJson(student) ?: "No"}")
                             }, onDismiss = { expanded = false })
 
@@ -235,93 +239,93 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         Modifier
                             .fillMaxWidth()
                     ) {
-                            Row(Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween) {
-                                BasicTextField(
-                                    value = filter,
-                                    onValueChange = {
-                                        if (it.length <= maxLength) {
-                                            filter = it
-                                        }
-                                    },
-                                    textStyle = TextStyle(
-                                        fontSize = 16.sp,
-                                        color = Color.Black
-                                    ),
-                                    decorationBox = { innerTextField ->
-                                        Box(
-                                            modifier = Modifier
-                                                .width(150.dp)
-                                                .height(40.dp)
-                                                .background(
-                                                    Color.LightGray,
-                                                    shape = RoundedCornerShape(50)
-                                                )
-                                                .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                                .padding(horizontal = 20.dp),
-                                            contentAlignment = Alignment.CenterStart
-                                        ) {
-                                            if (filter.isEmpty()) {
-                                                Text(
-                                                    text = "Filtrar",
-                                                    color = Color.Gray,
-                                                )
-                                            }
-                                            innerTextField()
-                                        }
-                                    },
-                                    singleLine = true,
-                                )
-                                Box {
-                                    Button(onClick = { expandedFilter = true },
-                                        colors = ButtonDefaults.buttonColors(Color(0xFF3F21DB), Color.White)
-                                        ) {
-                                        Row {
-                                            Text(filteringType)
-                                            Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "")
-                                        }
+                        Row(Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween) {
+                            BasicTextField(
+                                value = filter,
+                                onValueChange = {
+                                    if (it.length <= maxLength) {
+                                        filter = it
                                     }
-                                    DropdownMenu(
-                                        expanded = expandedFilter,
-                                        onDismissRequest = { expandedFilter = false },
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 16.sp,
+                                    color = Color.Black
+                                ),
+                                decorationBox = { innerTextField ->
+                                    Box(
                                         modifier = Modifier
-                                            .background(Color(0xFFCCD0CF))
-                                            .border(1.dp, Color.Black)
-                                            .width(100.dp)
+                                            .width(150.dp)
+                                            .height(40.dp)
+                                            .background(
+                                                Color.LightGray,
+                                                shape = RoundedCornerShape(50)
+                                            )
+                                            .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                            .padding(horizontal = 20.dp),
+                                        contentAlignment = Alignment.CenterStart
                                     ) {
-                                        DropdownMenuItemWithSeparator("Nombre", onClick = {
-                                            filteringType = "Nombre"
-                                            expandedFilter = false
-                                        }, onDismiss = { expandedFilter = false })
-                                        DropdownMenuItemWithSeparator("Materia", onClick = {
-                                            filteringType = "Materia"
-                                            expandedFilter = false
-                                        }, onDismiss = { expandedFilter = false })
+                                        if (filter.isEmpty()) {
+                                            Text(
+                                                text = "Filtrar",
+                                                color = Color.Gray,
+                                            )
+                                        }
+                                        innerTextField()
+                                    }
+                                },
+                                singleLine = true,
+                            )
+                            Box {
+                                Button(onClick = { expandedFilter = true },
+                                    colors = ButtonDefaults.buttonColors(Color(0xFF3F21DB), Color.White)
+                                ) {
+                                    Row {
+                                        Text(filteringType)
+                                        Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "")
                                     }
                                 }
-                                IconButton(onClick = {
-                                    isSearch=true
-                                    if (filteringType=="Nombre") {
-                                        homeStudentViewModel.monitorsFilteredByName(filter)
-                                    }
-                                    else{
-                                        ///Filtrar por materia
-                                    }
-                                    }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.data_loss_prevention),
-                                        contentDescription = "Search Icon",
-                                        tint = Color.White,
-                                        modifier = Modifier
-                                            .size(50.dp)
-                                            .clip(CircleShape)
-                                            .background(Color(0xFF3F21DB))
-                                            .padding(10.dp)
-                                    )
+                                DropdownMenu(
+                                    expanded = expandedFilter,
+                                    onDismissRequest = { expandedFilter = false },
+                                    modifier = Modifier
+                                        .background(Color(0xFFCCD0CF))
+                                        .border(1.dp, Color.Black)
+                                        .width(100.dp)
+                                ) {
+                                    DropdownMenuItemWithSeparator("Nombre", onClick = {
+                                        filteringType = "Nombre"
+                                        expandedFilter = false
+                                    }, onDismiss = { expandedFilter = false })
+                                    DropdownMenuItemWithSeparator("Materia", onClick = {
+                                        filteringType = "Materia"
+                                        expandedFilter = false
+                                    }, onDismiss = { expandedFilter = false })
                                 }
                             }
-                            Spacer(modifier = Modifier.height(10.dp))
+                            IconButton(onClick = {
+                                isSearch=true
+                                if (filteringType=="Nombre") {
+                                    homeStudentViewModel.monitorsFilteredByName(filter)
+                                }
+                                else{
+                                    ///Filtrar por materia
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.data_loss_prevention),
+                                    contentDescription = "Search Icon",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF3F21DB))
+                                        .padding(10.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
@@ -402,94 +406,94 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = {navController.navigate("HomeStudentScreen")}) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.add_home),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
-                            )
-                        }
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notifications),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {  }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                }
-            }
-        }
-        if (studentState == 1) {
-            Box(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .background(Color(0xFF3F21DB)),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
-            }
-        } else if (studentState == 2) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                Box(modifier = Modifier.weight(0.1f))
+                IconButton(onClick = { navController.navigate("CalendarStudent") }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.calendario),
+                        contentDescription = "calendario",
+                        modifier = Modifier
+                            .size(52.dp)
+                            .padding(4.dp),
+                        tint = Color.White
+                    )
                 }
+                Box(modifier = Modifier.weight(0.1f))
+                Box(
+                    modifier = Modifier
+                        .size(58.dp)
+                        .background(color = Color(0xFFCCD0CF), shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    IconButton(onClick = {navController.navigate("HomeStudentScreen")}) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.add_home),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color(0xFF3F21DB)
+                        )
+                    }
+                }
+                Box(modifier = Modifier.weight(0.1f))
+                IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.notifications),
+                        contentDescription = "calendario",
+                        modifier = Modifier
+                            .size(52.dp)
+                            .padding(4.dp),
+                        tint = Color.White
+                    )
+                }
+                Box(modifier = Modifier.weight(0.1f))
+                IconButton(onClick = {navController.navigate("chatScreenStudent")  }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.message),
+                        contentDescription = "calendario",
+                        modifier = Modifier
+                            .size(52.dp)
+                            .padding(4.dp),
+                        tint = Color.White
+                    )
+                }
+                Box(modifier = Modifier.weight(0.1f))
             }
         }
     }
+    if (studentState == 1) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
+        }
+    } else if (studentState == 2) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("Ha ocurrido un error")
+            }
+        }
+    }
+}
 }
 
 @Composable
@@ -504,10 +508,11 @@ fun CreateMonitorCard(monitor:Monitor, subject: MonitorSubject,navController: Na
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             AsyncImage(
                 model = monitor.photoUrl,
                 contentDescription = "",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Crop, error =painterResource(R.drawable.botonestudiante) ,
                 modifier = Modifier
                     .padding(horizontal = 10.dp)
                     .size(50.dp)

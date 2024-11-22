@@ -62,13 +62,17 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    student?.let { authViewModel.getStudentImage(it.photo) }
+    if(student?.photo?.isNotEmpty() == true){
+        student?.let { authViewModel.getStudentImage(it.photo) }
+    }
     LaunchedEffect(true) {
         authViewModel.showStudentInformation()
     }
     LaunchedEffect (navBackStackEntry){
         authViewModel.showStudentInformation()
-        student?.let { authViewModel.getStudentImage(it.photo) }
+        if(student?.photo?.isEmpty()== false){
+            student?.let { authViewModel.getStudentImage(it.photo) }
+        }
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
@@ -194,7 +198,12 @@ fun StudentProfileScreen(navController: NavController, authViewModel: StudentPro
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button( onClick = {
-                navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${URLEncoder.encode(image, "UTF-8")}")
+                if(!image.isNullOrEmpty()){
+                    navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${URLEncoder.encode(image, "UTF-8")}")
+                }else{
+                    val noImage = "noImage"
+                    navController.navigate("studentEdit?student=${Gson().toJson(student)?:"No"}&image=${noImage}")
+                }
             }) {
                 Text(text = "Editar perfil")
             }

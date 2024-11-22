@@ -46,27 +46,28 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
-import com.example.classmate.ui.viewModel.AppoimentStudentViewModel
+import com.example.classmate.domain.model.Request
+import com.example.classmate.ui.viewModel.RequestStudentViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 
+
+
 @Composable
-fun AppoimentStudentScreen(navController: NavController,appointment: String?, appointmentStudentViewModel: AppoimentStudentViewModel=viewModel()) {
-    val appointmentObj: Appointment = Gson().fromJson(appointment, Appointment::class.java)
+fun RequestViewScreen(navController: NavController, request: String?, requestStudentViewModel: RequestStudentViewModel = viewModel()) {
+    val requestObj: Request = Gson().fromJson(request, Request::class.java)
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    val monitorState by appointmentStudentViewModel.monitorState.observeAsState()
-    val monitor: Monitor? by appointmentStudentViewModel.monitor.observeAsState(initial = null)
-    var monitorID = appointmentObj?.monitorId.toString()
+    val monitorState by requestStudentViewModel.monitorState.observeAsState()
+    val monitor: Monitor? by requestStudentViewModel.monitor.observeAsState(initial = null)
+    var monitorID = requestObj?.monitorId.toString()
     var image = monitor?.photoUrl
 
     LaunchedEffect(true) {
-        appointmentStudentViewModel.showMonitorInformation(monitorID)
+        requestStudentViewModel.showMonitorInformation(monitorID)
     }
 
 
@@ -181,12 +182,12 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                 ) {
                     Column {
                         Text("Acerca de la solicitud:")
-                        Text("- ${appointmentObj.subjectname}")
-                        Text("- ${appointmentObj.mode_class}")
-                        Text("- ${appointmentObj.type}")
+                        Text("- ${requestObj.subjectname}")
+                        Text("- ${requestObj.mode_class}")
+                        Text("- ${requestObj.type}")
 
-                        val date1 = Date(appointmentObj.dateInitial.toDate().time)
-                        val date2 = Date(appointmentObj.dateFinal.toDate().time)
+                        val date1 = Date(requestObj.dateInitial.toDate().time)
+                        val date2 = Date(requestObj.dateFinal.toDate().time)
                         val timeFormat2 = SimpleDateFormat("dd/MM/yyyy")
                         val timeFormat1 = SimpleDateFormat("HH:mm")
                         val date = timeFormat2.format(date1)
@@ -206,7 +207,7 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                         .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
                         .padding(16.dp)
                 ) {
-                    Text("- ${appointmentObj.description}")
+                    Text("- ${requestObj.description}")
                 }
             }
 
@@ -268,7 +269,7 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenStudent") }) {
+                    IconButton(onClick = { /*TODO*/ }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",

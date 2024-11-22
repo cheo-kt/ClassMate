@@ -1,6 +1,7 @@
 package com.example.classmate.ui.components
 
 import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -20,6 +21,12 @@ fun deserializeListRequestBroadcast(json: String?): List<RequestBroadcast> {
 fun deserializeListAppointment(json: String?): List<Appointment> {
     val gson = Gson()
     val listType = object : TypeToken<List<Appointment>>() {}.type
+    return gson.fromJson(json, listType)
+}
+
+fun deserializeListRequest(json: String?): List<Request> {
+    val gson = Gson()
+    val listType = object : TypeToken<List<Request>>() {}.type
     return gson.fromJson(json, listType)
 }
 

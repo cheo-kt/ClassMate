@@ -85,7 +85,6 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     var SubjectWithPrice = remember { mutableStateListOf<MonitorSubject>() }
     var subj  by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
-    var selectedSubject:Subject? = null
     val snackbarHostState = remember { SnackbarHostState() } //Mensaje emergente
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
     val emailRegex =
@@ -95,6 +94,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
     LaunchedEffect(true) {
         monitorSignupViewModel.getSubject()
     }
+    var selectedSubject = remember { mutableStateOf<Subject?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -174,39 +174,51 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                       selectedSubject = PredictiveTextField(
-                            value = subj,
-                            onValueChange = {subj = it},
-                            label = "Materias a monitorear",
-                            modifier = Modifier.fillMaxWidth(),
-                            subjects = subjects
-                        )
-                        Spacer(modifier = Modifier.width(20.dp))
-                        IconButton(
-                            onClick = {
-                                selectedSubject?.let { selected ->
-                                        if (!SubjectWithPrice.any { it.name == selected.name }) {
-                                        SubjectWithPrice.add(
-                                            MonitorSubject(
-                                                selected.id,
-                                                selected.name,
-                                                ""
-                                            )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Button(onClick = { expanded = !expanded },colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF209619)
+                            )) {
+                                Text("Escoge una o mas materias!!")
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                subjects.forEach { subject ->
+                                    DropdownMenuItem(onClick = {
+                                        selectedSubject.value = subject
+                                        expanded = false // Cierra el menú al seleccionar una opción
+
+                                        SubjectWithPrice.let { list ->
+                                            val exists = list.any { it.subjectId == subject.id }
+                                            if (exists) {
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("Ya escogiste esa materia antes :(")
+                                                }
+                                            } else {
+                                                list.add(
+                                                    MonitorSubject(
+                                                        subject.id.toString(),
+                                                        subject.name,
+                                                        ""
+                                                    )
+                                                )
+                                            }
+                                        }
+
+                                        selectedSubject.value = null // Reinicia la materia seleccionada
+                                    }) {
+                                        Text(
+                                            text = subject.name,
+                                            style = MaterialTheme.typography.headlineMedium
                                         )
-                                        selectedSubject = null
-                                        subj = ""
                                     }
                                 }
-                            }, modifier = Modifier
-                                .align(Alignment.CenterVertically)
-                                .size(50.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.AddCircle,
-                                contentDescription = "Add Icon",
-                                modifier = Modifier.size(50.dp)
-                            )
+                            }
+
                         }
+                        Spacer(modifier = Modifier.width(20.dp))
                     }
                     SubjectWithPrice.forEachIndexed { index, subject ->
                         var price by remember { mutableStateOf("") }
@@ -380,7 +392,7 @@ fun MonitorSignUpScreen(navController: NavController, monitorSignupViewModel: Mo
                 }
             }
         } else if (authState == 3) {
-            navController.navigate("HomeMonitorScreen")
+            navController.navigate("introductionMonitor")
         }
     }
 }

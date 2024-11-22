@@ -8,7 +8,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.content.Context
 import android.util.Log
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import java.util.UUID
 
@@ -27,6 +29,11 @@ interface MonitorRepository {
     suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
     suspend fun getMonitorById(id: String): Monitor? // Nuevo método
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
+    suspend fun getAppointments():List<Appointment?>
+    suspend fun getMonitorImage(imageURL:String):String
+    suspend fun getRequest(limit: Int, request: Request?):List<Request?>
+    suspend fun getAppointmentsUpdate():List<Appointment?>
+
 
 
 }
@@ -88,6 +95,22 @@ class MonitorRepositoryImpl(
         Log.e(">>>>", "Estoy en repo")
         return monitorServices.loadMoreOpinions(limit, lastOpinion, monitorId)
 
+    }
+    override suspend fun getAppointments(): List<Appointment?> {
+        return  monitorServices.getAppointments(Firebase.auth.currentUser?.uid ?:"")
+    }
+
+    override suspend fun getMonitorImage(imageURL: String): String {
+        return monitorServices.getImageDownloadUrl(imageURL)
+    }
+
+    override suspend fun getRequest(limit: Int, request: Request?): List<Request?> {
+        return monitorServices.getRequest(limit, request)
+
+    }
+
+    override suspend fun getAppointmentsUpdate(): List<Appointment?> {
+        return  monitorServices.getAppointmentsUpdate(Firebase.auth.currentUser?.uid ?:"")
     }
 
 }

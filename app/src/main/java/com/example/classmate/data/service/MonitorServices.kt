@@ -6,11 +6,12 @@ import android.graphics.BitmapFactory
 import android.icu.text.DecimalFormat
 import android.net.Uri
 import android.util.Log
-import androidx.compose.ui.text.toLowerCase
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.OpinionsAndQualifications
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -20,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
-import java.util.Locale
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -32,10 +32,15 @@ interface MonitorServices {
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
+    suspend fun searchMonitorByName(name:String):List<Monitor?>
     suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
     suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
+    suspend fun getOpinionMonitor(monitorId:String, limit: Int)
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
-    suspend fun searchMonitorByName(name:String):List<Monitor?>
+    suspend fun getAppointments(idStudent:String):List<Appointment?>
+    suspend fun getRequest(limit: Int, request: Request?): List<Request>
+    suspend fun getImageDownloadUrl(imageUrl:String):String
+    suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -89,18 +94,8 @@ class MonitorServicesImpl: MonitorServices {
             .update("photoUrl", url)
             .await()
     }
-    override suspend fun searchMonitorByName(name:String):List<Monitor?>{
-        val result = Firebase.firestore
-            .collection("Monitor")
-            .whereGreaterThanOrEqualTo("name", name)
-            .whereLessThanOrEqualTo("name", name + "\uf8ff")
-            .get()
-            .await()
 
-        return result.documents.map { document ->
-            document.toObject(Monitor::class.java)
-        }
-    }
+
     override suspend fun getMonitors(limit: Int, monitor: Monitor?): List<Monitor> {
         return try {
             val querySnapshot = Firebase.firestore.collection("Monitor")
@@ -115,6 +110,22 @@ class MonitorServicesImpl: MonitorServices {
             emptyList()
         }
     }
+
+    override suspend fun searchMonitorByName(name: String): List<Monitor?> {
+        val queryInput = name.trim().lowercase()
+
+        val result = Firebase.firestore
+            .collection("Monitor")
+            .whereGreaterThanOrEqualTo("name", queryInput)
+            .whereLessThanOrEqualTo("name", queryInput + "\uf8ff")
+            .get()
+            .await()
+
+        return result.documents.map { document ->
+            document.toObject(Monitor::class.java)
+        }
+    }
+
     override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast> {
         return try {
             val querySnapshot = Firebase.firestore.collection("requestBroadcast")
@@ -154,6 +165,10 @@ class MonitorServicesImpl: MonitorServices {
 
     }
 
+    override suspend fun getOpinionMonitor(monitorId: String, limit: Int) {
+
+
+    }
 
     override suspend fun loadMoreOpinions(
         limit: Int,
@@ -172,7 +187,7 @@ class MonitorServicesImpl: MonitorServices {
            return querySnapshot.documents.mapNotNull { it.toObject(OpinionsAndQualifications::class.java) }
     }
 
-    suspend fun getCalifications(monitorId: String): List<Int> {
+    private suspend fun getCalifications(monitorId: String): List<Int> {
         val calificationsList = mutableListOf<Int>()
         val querySnapshot = Firebase.firestore.collection("Monitor")
             .document(monitorId)
@@ -187,5 +202,65 @@ class MonitorServicesImpl: MonitorServices {
             }
         }
         return calificationsList
+    }
+    override suspend fun getAppointments(idStudent:String):List<Appointment?> {
+        return try {
+            val appointmentList = Firebase.firestore
+                .collection("Monitor")
+                .document(idStudent)
+                .collection("appointment")
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    override suspend fun getImageDownloadUrl(imageUrl: String): String {
+        return  Firebase.storage.reference
+            .child("images")
+            .child("monitors")
+            .child("$imageUrl.jpg")
+            .downloadUrl
+            .await().toString()
+    }
+
+    override suspend fun getRequest(limit: Int, request: Request?): List<Request> {
+        return try {
+            val querySnapshot = Firebase.firestore.collection("request")
+                .orderBy("id")
+                .startAfter(request?.id)
+                .limit(limit.toLong())
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.toObject(Request::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    }
+
+    override suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?> {
+        return try {
+            val now = Timestamp.now()
+
+            val appointmentList = Firebase.firestore
+                .collection("Monitor")
+                .document(idStudent)
+                .collection("appointment")
+                .whereGreaterThanOrEqualTo("dateFinal", now)
+                .get()
+                .await()
+
+            appointmentList.documents.map { document ->
+                document.toObject(Appointment::class.java)
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }
