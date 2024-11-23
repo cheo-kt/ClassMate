@@ -60,6 +60,6 @@ class AppointmentRepositoryImpl(
     }
     override suspend fun establishRecordatoryForMonitor(){
         val user= Firebase.auth.currentUser!!.uid
-        appointmentServices.establishRecordatory(user)
+        appointmentServices.establishRecordatoryForMonitor(user)
     }
 }

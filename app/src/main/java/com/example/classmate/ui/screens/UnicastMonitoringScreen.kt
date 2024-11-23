@@ -75,6 +75,7 @@ import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
+import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.CustomTextField
 import com.example.classmate.ui.components.DatePickerDialog
 import com.example.classmate.ui.components.TimePickerDialog
@@ -91,6 +92,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.UUID
 
 
 @SuppressLint("NewApi")
@@ -548,16 +550,32 @@ fun UnicastMonitoringScreen(
                                         snackbarHostState.showSnackbar("no puedes crear una solicitud con una hora final antes de la hora de inicio")
                                     }
                                 }else{
+                                    val idNotification = UUID.randomUUID().toString()
                                     unicastMonitoringViewModel.createRequest(
                                         studentObj.id,
                                         monitorObj.id,
                                         Request("",
+                                            idNotification,
                                             modalidadSeleccionada,
                                             tipoMonitoria,timestampInitial,timestampFinal,
                                             notas,
                                             direccion,
                                             subjectObj.subjectId,subjectObj.name,
                                             studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
+                                    )
+                                    unicastMonitoringViewModel.createNotificationForMonitor(
+                                        Notification(
+                                            idNotification,
+                                            Timestamp.now(),
+                                            timestampInitial,
+                                            "¡Te ha enviado una solicitud!",
+                                            subjectObj.name,
+                                            studentObj.id,
+                                            studentObj.name,
+                                            monitorObj.id,
+                                            monitorObj.name,
+                                            Type_Notification.SOLICITUD
+                                        )
                                     )
                                     navController.navigate("HomeStudentScreen")
                                 }

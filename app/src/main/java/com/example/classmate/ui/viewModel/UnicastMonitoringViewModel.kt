@@ -26,7 +26,6 @@ class UnicastMonitoringViewModel (
     val repo3: AppointmentRepository = AppointmentRepositoryImpl()
 ):ViewModel(){
     val authState = MutableLiveData(0)
-    val authState2 = MutableLiveData(0)
     //0. Idle
     //1. Loading
     //2. Error
@@ -46,12 +45,25 @@ class UnicastMonitoringViewModel (
 
     fun deleteRequest(StudentID:String, MonitorID:String,requestID:String ) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { authState2.value = 1 }
+            withContext(Dispatchers.Main) { authState.value = 1 }
             try {
                 repo.deleteRequest(StudentID,MonitorID,requestID)
-                withContext(Dispatchers.Main) { authState2.value = 3 }
+                withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
-                withContext(Dispatchers.Main) { authState2.value = 2 }
+                withContext(Dispatchers.Main) { authState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+
+    fun deleteNotificationById(idNotification: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState.value = 1 }
+            try {
+                repo2.deleteNotificationById(idNotification)
+                withContext(Dispatchers.Main) { authState.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState.value = 2 }
                 ex.printStackTrace()
             }
         }
@@ -59,24 +71,38 @@ class UnicastMonitoringViewModel (
 
     fun createNotification(notification: Notification) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { authState2.value = 1 }
+            withContext(Dispatchers.Main) { authState.value = 1 }
             try {
                 repo2.createNotification(notification)
-                withContext(Dispatchers.Main) { authState2.value = 3 }
+                withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
-                withContext(Dispatchers.Main) { authState2.value = 2 }
+                withContext(Dispatchers.Main) { authState.value = 2 }
                 ex.printStackTrace()
             }
         }
     }
+
+    fun createNotificationForMonitor(notification: Notification) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState.value = 1 }
+            try {
+                repo2.createNotificationForMonitor(notification)
+                withContext(Dispatchers.Main) { authState.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+
     fun createAppointment(appointment: Appointment) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { authState2.value = 1 }
+            withContext(Dispatchers.Main) { authState.value = 1 }
             try {
                 repo3.createAppoinment(appointment)
-                withContext(Dispatchers.Main) { authState2.value = 3 }
+                withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {
-                withContext(Dispatchers.Main) { authState2.value = 2 }
+                withContext(Dispatchers.Main) { authState.value = 2 }
                 ex.printStackTrace()
             }
         }

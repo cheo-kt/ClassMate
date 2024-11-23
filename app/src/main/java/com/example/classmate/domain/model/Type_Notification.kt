@@ -6,5 +6,6 @@ enum class Type_Notification(val description: String) {
     CALIFICACION("CalificacionS"),
     RECORDATORIO("RecordatorioSM"),
     INTERES("InteresM"),
+    SOLICITUD("SolicitudM"),
     DEFAULT("Default")
 }

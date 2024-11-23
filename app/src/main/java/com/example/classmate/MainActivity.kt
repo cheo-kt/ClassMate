@@ -77,6 +77,7 @@ import com.example.classmate.ui.screens.DayOfCalendarMonitorScreen
 import com.example.classmate.ui.screens.DayOfCalendarStudentScreen
 import com.example.classmate.ui.screens.HelpStudentScreen
 import com.example.classmate.ui.screens.MonitorRequestScreen
+import com.example.classmate.ui.screens.NotificationMonitorScreen
 import com.example.classmate.ui.screens.PreviewMonitorProfile
 import com.example.classmate.ui.screens.RequestBroadcastStudentView
 import com.example.classmate.ui.screens.RequestViewScreen
@@ -265,7 +266,7 @@ fun App() {
             val type = typeString?.toBoolean() ?: false
             AppointmentChatScreen(navController, appointmentId = appointmentId.toString(), type)
         }
-        composable("notificationMonitorScreen"){ NotificationStudentScreen(navController)}
+        composable("notificationMonitorScreen"){ NotificationMonitorScreen(navController) }
 
         composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
 

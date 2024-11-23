@@ -380,6 +380,9 @@ fun UnicastDecisionScreen(
                             monitorObj.id,
                             requestObj.id
                         )
+                        unicastMonitoringViewModel.deleteNotificationById(
+                            requestObj.idNotification
+                        )
                         unicastMonitoringViewModel.createNotification(
                         Notification(
                             UUID.randomUUID().toString(),
@@ -420,6 +423,9 @@ fun UnicastDecisionScreen(
                             requestObj.studentId,
                             monitorObj.id,
                             requestObj.id
+                        )
+                        unicastMonitoringViewModel.deleteNotificationById(
+                            requestObj.idNotification
                         )
                         unicastMonitoringViewModel.createNotification(
                             Notification(

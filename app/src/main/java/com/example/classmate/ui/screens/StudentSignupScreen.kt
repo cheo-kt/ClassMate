@@ -1,7 +1,6 @@
 
 package com.example.classmate.ui.screens
 
-import androidx.benchmark.perfetto.Row
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

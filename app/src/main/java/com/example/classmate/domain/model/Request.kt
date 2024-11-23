@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp
 
 data class Request(
     var id: String = "",
+    var idNotification: String = "",
     var mode_class: String = "",
     var type: String = "",
     var dateInitial: Timestamp = Timestamp.now(),

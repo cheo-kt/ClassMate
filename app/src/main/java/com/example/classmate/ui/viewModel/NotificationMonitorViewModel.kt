@@ -44,7 +44,7 @@ class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorReposit
         viewModelScope.launch(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.Main) { monitorState.value = 1 }
             try {
-                val newNotification = repo.loadMoreNotifications(limit, lastNotification)
+                val newNotification = repo.loadMoreNotificationsForMonitor(limit, lastNotification)
                 withContext(Dispatchers.Main) {
                     if (newNotification.isNotEmpty()) {
                         _notificationsList.value = _notificationsList.value.orEmpty() + newNotification
@@ -72,6 +72,18 @@ class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorReposit
             ex.printStackTrace()
         }
     }
+
+    fun deleteNotificationById(idNotification: String): Job = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) { monitorState.value = 1 }
+        try {
+            repo.deleteNotificationById(idNotification)
+            withContext(Dispatchers.Main) { monitorState.value = 3 }
+        } catch (ex: FirebaseAuthException) {
+            withContext(Dispatchers.Main) { monitorState.value = 2 }
+            ex.printStackTrace()
+        }
+    }
+
     fun getMonitorImage(imageUrl:String){
         viewModelScope.launch(Dispatchers.IO) {
             try {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -62,6 +64,7 @@ import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.components.FormatterDate
+import com.example.classmate.ui.components.FormatterHour
 import com.example.classmate.ui.viewModel.NotificationMonitorViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -78,9 +81,7 @@ fun NotificationMonitorScreen(navController: NavController,
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
     val image:String? by notificationMonitorViewModel.image.observeAsState()
-    var notification = remember { mutableStateListOf<Notification>() }
     val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { notificationMonitorViewModel.getMonitorImage(it.photoUrl) }
     }
@@ -88,7 +89,6 @@ fun NotificationMonitorScreen(navController: NavController,
     LaunchedEffect(true) {
         notificationMonitorViewModel.getMonitor()
     }
-
 
     LaunchedEffect(true) {
         val job = notificationMonitorViewModel.verifyAppointments()
@@ -104,53 +104,85 @@ fun NotificationMonitorScreen(navController: NavController,
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(125.dp)
+                    .height(105.dp)
                     .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Center)
+                        .offset((-5).dp)
                 ) {
+
+                    IconButton(
+                        onClick = {
+                            navController.navigate("")
+                        },
+                        modifier = Modifier
+                            .size(45.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back Icon",
+                            modifier = Modifier.size(45.dp),
+                            tint = Color.White
+                        )
+                    }
                     Image(
                         painter = painterResource(id = R.drawable.classmatelogo),
                         contentDescription = "classMateLogo",
-                        modifier = Modifier.size(200.dp)
+                        modifier = Modifier.size(150.dp)
+                            .padding(horizontal = 10.dp)
+                            .aspectRatio(1.1f),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.weight(1f))
-                    Box(
-                        modifier = Modifier
-                            .size(70.dp)
-                            .background(Color.Transparent)
-                            .clickable(onClick = {navController.navigate("HelpStudent") })
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.live_help),
-                            contentDescription = "Ayuda",
-                            tint = Color.White,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = {})
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.live_help),
+                                contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize().offset(y=5.dp)
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.weight(0.1f))
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(45.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "notificaciones",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
-
-                    Column(
-                        horizontalAlignment = Alignment.End,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    ) {
+                        Spacer(modifier = Modifier.width(16.dp))
+                        // Botón de foto de perfil
                         IconButton(
                             onClick = { expanded = true },
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(70.dp)
+                                .width(45.dp)
+                                .aspectRatio(1f)
                         ) {
                             Image(
                                 modifier = Modifier
@@ -160,10 +192,11 @@ fun NotificationMonitorScreen(navController: NavController,
                                     image,
                                     error = painterResource(R.drawable.botonestudiante)
                                 ),
-                                contentDescription = "foto de perfil",
+                                contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
+
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
@@ -173,12 +206,12 @@ fun NotificationMonitorScreen(navController: NavController,
                                 .padding(4.dp)
                         ) {
                             DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("studentProfile")
+                                navController.navigate("monitorProfile")
                             }, onDismiss = { expanded = false })
+
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
                             }, onDismiss = { expanded = false })
                         }
-                    }
                 }
             }
             Row(
@@ -234,17 +267,6 @@ fun NotificationMonitorScreen(navController: NavController,
                                         ), modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(vertical = 10.dp)
-                                            .let { baseModifier ->
-                                                if (n!!.type == Type_Notification.CALIFICACION) {
-                                                    baseModifier.clickable {
-                                                        navController.navigate(
-                                                            "OpinionStudent?notification=${Gson().toJson(n) ?: "No"}"
-                                                        )
-                                                    }
-                                                } else {
-                                                    baseModifier
-                                                }
-                                            }
                                     ) {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
@@ -265,10 +287,10 @@ fun NotificationMonitorScreen(navController: NavController,
                                                 androidx.compose.material3.Text(
                                                     text = n!!.content,
                                                     fontSize = 12.sp,
-                                                    color = Color.Blue,
+                                                    color = Color(0xFF026900),
                                                 )
                                                 androidx.compose.material3.Text(
-                                                    text = n.monitorName,
+                                                    text = n.studentName,
                                                     fontSize = 15.sp,
                                                 )
                                                 androidx.compose.material3.Text(
@@ -286,7 +308,11 @@ fun NotificationMonitorScreen(navController: NavController,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
                                                     Text(
-                                                        text = FormatterDate(timestamp = n!!.aceptationDate),
+                                                        text = if (n!!.type == Type_Notification.RECORDATORIO) {
+                                                            FormatterHour(timestamp = n.dateMonitoring)
+                                                        } else {
+                                                            FormatterDate(timestamp = n.aceptationDate)
+                                                        },
                                                         fontSize = 16.sp,
                                                     )
                                                     Spacer(modifier = Modifier.width(20.dp))
@@ -294,11 +320,11 @@ fun NotificationMonitorScreen(navController: NavController,
                                                         onClick = {
                                                             scope.launch {
                                                                 val job =
-                                                                    notificationMonitorViewModel.deleteNotification(
-                                                                        n
+                                                                    notificationMonitorViewModel.deleteNotificationById(
+                                                                        n.id
                                                                     )
                                                                 job.join()
-                                                                navController.navigate("notificationStudentPrincipal")
+                                                                navController.navigate("notificationMonitorScreen")
                                                             }
                                                         },
                                                         modifier = Modifier
@@ -332,13 +358,12 @@ fun NotificationMonitorScreen(navController: NavController,
                             }
                     }
                 }
-
             }
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -348,20 +373,9 @@ fun NotificationMonitorScreen(navController: NavController,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarStudent") }) {
+                    IconButton(onClick = { navController.navigate("MonitorRequest") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
+                            painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
@@ -373,28 +387,40 @@ fun NotificationMonitorScreen(navController: NavController,
                     Box(
                         modifier = Modifier
                             .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
+                            .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { navController.navigate("notificationStudentPrincipal") }) {
+                    ){
+                        IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.notifications),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
+                                tint = Color.White
                             )
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenStudent")}) {
+                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.calendario),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
+                    }
+                    Box(modifier = Modifier.weight(0.1f))
+                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
                     }

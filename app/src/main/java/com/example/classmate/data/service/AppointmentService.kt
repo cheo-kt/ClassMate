@@ -141,7 +141,7 @@ class AppointmentServiceImpl: AppointmentService {
             val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
             if (!isNotificationSent) {
                 val appointment = document.toObject(Appointment::class.java)
-                notificationService.createNotification(
+                notificationService.createNotificationForMonitor(
                     Notification(
                         UUID.randomUUID().toString(),
                         Timestamp.now(),
