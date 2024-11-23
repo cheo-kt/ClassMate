@@ -32,7 +32,7 @@ interface MonitorRepository {
     suspend fun getAppointments():List<Appointment?>
     suspend fun getMonitorImage(imageURL:String):String
     suspend fun getRequest(limit: Int, request: Request?):List<Request?>
-    suspend fun getAppointmentsUpdate():List<Appointment?>
+    suspend fun getAppointmentsUpdate(): List<Pair<Appointment, Boolean>>
 
 
 
@@ -110,7 +110,7 @@ class MonitorRepositoryImpl(
 
     }
 
-    override suspend fun getAppointmentsUpdate(): List<Appointment?> {
+    override suspend fun getAppointmentsUpdate(): List<Pair<Appointment, Boolean>>{
         return  monitorServices.getAppointmentsUpdate(Firebase.auth.currentUser?.uid ?:"")
     }
 

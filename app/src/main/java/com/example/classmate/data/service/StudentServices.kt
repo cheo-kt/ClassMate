@@ -32,7 +32,7 @@ interface StudentServices {
     suspend fun getRequestBroadcast(idStudent:String):List<RequestBroadcast?>
     suspend fun getRequest(idStudent:String):List<Request?>
     suspend fun getImageDownloadUrl(imageUrl:String):String
-    suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?>
+    suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>>
 }
 
 class StudentServicesImpl: StudentServices {
@@ -148,7 +148,7 @@ class StudentServicesImpl: StudentServices {
     }
 
 
-    override suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?> {
+    override suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>> {
         return try {
             val now = Timestamp.now()
 
@@ -160,12 +160,38 @@ class StudentServicesImpl: StudentServices {
                 .get()
                 .await()
 
-            appointmentList.documents.map { document ->
-                document.toObject(Appointment::class.java)
+            appointmentList.documents.mapNotNull { document ->
+                val appointment = document.toObject(Appointment::class.java)
+
+                if (appointment == null) return@mapNotNull null
+                val unreadMessagesExist = hasUnreadMessages(document.id, idStudent)
+
+                appointment to unreadMessagesExist
             }
         } catch (e: Exception) {
             emptyList()
         }
     }
+
+    private suspend fun hasUnreadMessages(appointmentId: String, idStudent: String): Boolean {
+        return try {
+            // Verifica si hay mensajes no leídos
+            val unreadMessages = Firebase.firestore
+                .collection("appointment")
+                .document(appointmentId)
+                .collection("messages")
+                .whereEqualTo("read", false)
+                .whereNotEqualTo("authorID", idStudent)
+                .get()
+                .await()
+
+            // Si la colección tiene documentos, significa que hay mensajes no leídos
+            unreadMessages.isEmpty.not()
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
 
 }

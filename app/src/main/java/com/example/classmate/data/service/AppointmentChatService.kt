@@ -1,9 +1,11 @@
 package com.example.classmate.data.service
 
 import android.net.Uri
+import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Message
 import com.google.firebase.Firebase
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QueryDocumentSnapshot
@@ -22,6 +24,7 @@ interface AppointmentChatService {
     fun getLiveMessages(appointmentId: String, callback: suspend (QueryDocumentSnapshot) -> Unit)
     suspend fun uploadImage(uri: Uri, id: String)
     suspend fun  getImageURLByID(id: String): String
+    suspend fun markMessageAsRead(appointmentId: String, messageId: String, currentUserId: String)
 }
 
 class AppointmentChatServiceImpl : AppointmentChatService {
@@ -75,6 +78,23 @@ class AppointmentChatServiceImpl : AppointmentChatService {
 
     override suspend fun getImageURLByID(id: String): String {
         return Firebase.storage.reference.child("images").child("chatImages").child(id).downloadUrl.await().toString()
+    }
+
+    override suspend fun markMessageAsRead(appointmentId: String, messageId: String, currentUserId: String) {
+        try {
+            // Obtiene el mensaje específico que debe ser marcado como leído
+            val messageRef = Firebase.firestore
+                .collection("appointment")
+                .document(appointmentId)
+                .collection("messages")
+                .document(messageId)
+            val message = messageRef.get().await().toObject(Message::class.java)
+            if (message != null && message.authorID != currentUserId && !message.isRead) {
+                messageRef.update("read", true).await()
+            }
+        } catch (e: Exception) {
+            Log.e("MarkMessageAsRead", "Error al marcar el mensaje como leído", e)
+        }
     }
 
 

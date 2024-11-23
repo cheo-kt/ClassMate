@@ -193,11 +193,13 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
             }
 
             Column(modifier = Modifier.verticalScroll(scrollState)) {
-                appointmentsState.forEach { appointment ->
+                appointmentsState.forEach { pair ->
+                    val appointment = pair.first
+                    val hasUnreadMessages = pair.second
+
                     ElevatedCard(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 5.dp,
-                        ), modifier = Modifier
+                        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(10.dp)
                     ) {
@@ -209,13 +211,13 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 verticalArrangement = Arrangement.spacedBy((-5).dp)
                             ) {
                                 androidx.compose.material3.Text(
-                                    text = "${appointment?.studentName}",
-                                    color = Color.Blue,
+                                    text = "${appointment.studentName}",
+                                    color = Color.Green,
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(top = 10.dp)
                                 )
                                 androidx.compose.material3.Text(
-                                    text = ("Materia: ${appointment?.subjectname}"),
+                                    text = "Materia: ${appointment.subjectname}",
                                     fontSize = 12.sp,
                                 )
                             }
@@ -227,8 +229,16 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                         .align(Alignment.CenterEnd)
                                         .padding(horizontal = 5.dp)
                                 ) {
+                                    if (hasUnreadMessages) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(10.dp)
+                                                .background(Color.Green, shape = CircleShape)
+                                                .align(Alignment.CenterVertically)
+                                        )
+                                    }
                                     IconButton(onClick = {
-                                        val appointmentId = appointment?.id
+                                        val appointmentId = appointment.id
                                         val type = false
                                         navController.navigate("AppointmentChat/$appointmentId/${type.toString()}")
                                     }) {
