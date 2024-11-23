@@ -8,44 +8,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.DropdownMenu
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,76 +36,76 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
-import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Notification
-import com.example.classmate.domain.model.Student
-import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.FormatterDate
-import com.example.classmate.ui.viewModel.AppointmentViewModel
-import com.example.classmate.ui.viewModel.NotificationStudentViewModel
 import com.google.firebase.Timestamp
-import com.google.gson.Gson
-import kotlinx.coroutines.launch
 
 @Composable
 fun guia7StudentScreen(navController: NavController) {
     val notificationState = listOf(
         Notification(
             id = "1",
-            date = Timestamp.now(),
+            aceptationDate = Timestamp.now(),
+            dateMonitoring = Timestamp.now(),
             content = "Nueva tarea disponible",
             subject = "Matemáticas",
             studentId = "s123",
             studentName = "Alicia Pérez",
             monitorId = "m001",
-            monitorName = "Juan Gómez"
+            monitorName = "Juan Gómez",
+            Type_Notification.RECORDATORIO
         ),
         Notification(
             id = "2",
-            date = Timestamp.now(),
+            aceptationDate = Timestamp.now(),
+            dateMonitoring = Timestamp.now(),
             content = "Prueba próxima el viernes",
             subject = "Historia",
             studentId = "s124",
             studentName = "Roberto Martínez",
             monitorId = "m002",
-            monitorName = "Emma Torres"
+            monitorName = "Emma Torres",
+            Type_Notification.RECORDATORIO
         ),
         Notification(
             id = "3",
-            date = Timestamp.now(),
+            aceptationDate = Timestamp.now(),
+            dateMonitoring = Timestamp.now(),
             content = "Tarea para mañana",
             subject = "Ciencias",
             studentId = "s125",
             studentName = "Carmen Ramírez",
             monitorId = "m003",
-            monitorName = "Liam Díaz"
+            monitorName = "Liam Díaz",
+            Type_Notification.RECORDATORIO
         ),
         Notification(
             id = "4",
-            date = Timestamp.now(),
+            aceptationDate = Timestamp.now(),
+            dateMonitoring = Timestamp.now(),
             content = "Presentación de proyecto la próxima semana",
             subject = "Inglés",
             studentId = "s126",
             studentName = "David López",
             monitorId = "m004",
-            monitorName = "Olivia Hernández"
+            monitorName = "Olivia Hernández",
+            Type_Notification.RECORDATORIO
         ),
         Notification(
             id = "5",
-            date = Timestamp.now(),
+            aceptationDate = Timestamp.now(),
+            dateMonitoring = Timestamp.now(),
             content = "Clase extra programada para el miércoles",
             subject = "Física",
             studentId = "s127",
             studentName = "Eva Sánchez",
             monitorId = "m005",
-            monitorName = "José Martínez"
+            monitorName = "José Martínez",
+            Type_Notification.RECORDATORIO
         )
     )
 
@@ -273,7 +253,7 @@ fun guia7StudentScreen(navController: NavController) {
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = FormatterDate(timestamp = n!!.date),
+                                                    text = FormatterDate(timestamp = n!!.aceptationDate),
                                                     fontSize = 16.sp,
                                                 )
                                                 Spacer(modifier = Modifier.width(20.dp))

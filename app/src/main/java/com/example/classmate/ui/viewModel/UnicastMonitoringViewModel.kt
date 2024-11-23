@@ -3,11 +3,17 @@ package com.example.classmate.ui.viewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.AppointmentRepository
+import com.example.classmate.data.repository.AppointmentRepositoryImpl
 import com.example.classmate.data.repository.AuthRepositoryImpl
+import com.example.classmate.data.repository.NotificationRepository
+import com.example.classmate.data.repository.NotificationRepositoryImpl
 import com.example.classmate.data.repository.RequestRRepositoryImpl
 import com.example.classmate.data.repository.RequestRepository
 import com.example.classmate.data.repository.StudentAuthRepository
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class UnicastMonitoringViewModel (
-    val repo: RequestRepository = RequestRRepositoryImpl()
+    val repo: RequestRepository = RequestRRepositoryImpl(),
+    val repo2:NotificationRepository = NotificationRepositoryImpl(),
+    val repo3: AppointmentRepository = AppointmentRepositoryImpl()
 ):ViewModel(){
     val authState = MutableLiveData(0)
     val authState2 = MutableLiveData(0)
@@ -49,10 +57,30 @@ class UnicastMonitoringViewModel (
         }
     }
 
-
-
-
-
+    fun createNotification(notification: Notification) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState2.value = 1 }
+            try {
+                repo2.createNotification(notification)
+                withContext(Dispatchers.Main) { authState2.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState2.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+    fun createAppointment(appointment: Appointment) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState2.value = 1 }
+            try {
+                repo3.createAppoinment(appointment)
+                withContext(Dispatchers.Main) { authState2.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState2.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
 }
 
 

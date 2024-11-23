@@ -371,7 +371,6 @@ fun BroadcastDecisionScreen(
                                 monitorObj.name
                             )
                         )
-
                         requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
                     },
                     modifier = Modifier

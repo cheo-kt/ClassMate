@@ -16,6 +16,7 @@ interface  AppointmentRepository {
     suspend fun eliminateAppointment(appointmentId:String,studentId:String,monitorId:String)
     suspend fun createAppoinment(appointment: Appointment)
     suspend fun verifyAppointment()
+    suspend fun establishRecordatoryForMonitor()
 }
 class AppointmentRepositoryImpl(
     val appointmentServices : AppointmentService = AppointmentServiceImpl()
@@ -55,5 +56,10 @@ class AppointmentRepositoryImpl(
     override suspend fun verifyAppointment() {
         val user= Firebase.auth.currentUser!!.uid
         appointmentServices.verifyAppointmentForStudent(user)
+        appointmentServices.establishRecordatory(user)
+    }
+    override suspend fun establishRecordatoryForMonitor(){
+        val user= Firebase.auth.currentUser!!.uid
+        appointmentServices.establishRecordatory(user)
     }
 }

@@ -1,24 +1,19 @@
 package com.example.classmate.data.service
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
-import com.example.classmate.domain.model.Request
-import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Type_Notification
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.util.Date
 import java.util.UUID
 
 interface AppointmentService {
@@ -30,6 +25,8 @@ interface AppointmentService {
     suspend fun deleteAppointmentForStudent(studentId: String, appointmentId: String)
     suspend fun deleteAppointmentForMonitor(monitorId: String, appointmentId: String)
     suspend fun checkForOverlappingRequest(userId: String, appointment: Appointment): Appointment?
+    suspend fun establishRecordatory(userId: String)
+    suspend fun establishRecordatoryForMonitor(userId: String)
 }
 class AppointmentServiceImpl: AppointmentService {
     val notificationService: NotificationService = NotificationServiceImpl()
@@ -93,6 +90,76 @@ class AppointmentServiceImpl: AppointmentService {
         return null
     }
 
+    override suspend fun establishRecordatory(userId: String) {
+        val db = Firebase.firestore
+        val now = Timestamp.now()
+        val twoDaysAfter = Timestamp.now().toDate().time + 48 * 60 * 60 * 1000
+        val result = db.collection("student")
+            .document(userId)
+            .collection("appointment")
+            .whereGreaterThanOrEqualTo("dateFinal", now) //Seleccioname aquellos apointments que se encuentren entre hoy y los proximos 2 dias
+            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoDaysAfter)))
+            .get()
+            .await()
+
+        result.forEach { document ->
+            val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
+            if (!isNotificationSent) {
+                val appointment = document.toObject(Appointment::class.java)
+                notificationService.createNotification(
+                    Notification(
+                        UUID.randomUUID().toString(),
+                        Timestamp.now(),
+                        appointment.dateInitial,
+                        "¡Recuerda tu cita próxima!",
+                        appointment.subjectname,
+                        appointment.studentId,
+                        appointment.studentName,
+                        appointment.monitorId,
+                        appointment.monitorName,
+                        Type_Notification.RECORDATORIO
+                    )
+                )
+                document.reference.update("NotificationGenerated", true).await()
+            }
+        }
+    }
+
+    override suspend fun establishRecordatoryForMonitor(userId: String) {
+        val db = Firebase.firestore
+        val now = Timestamp.now()
+        val twoDaysAfter = Timestamp.now().toDate().time + 48 * 60 * 60 * 1000
+        val result = db.collection("Monitor")
+            .document(userId)
+            .collection("appointment")
+            .whereGreaterThanOrEqualTo("dateFinal", now)
+            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoDaysAfter)))
+            .get()
+            .await()
+
+        result.forEach { document ->
+            val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
+            if (!isNotificationSent) {
+                val appointment = document.toObject(Appointment::class.java)
+                notificationService.createNotification(
+                    Notification(
+                        UUID.randomUUID().toString(),
+                        Timestamp.now(),
+                        appointment.dateInitial,
+                        "¡Recuerda tu cita próxima!",
+                        appointment.subjectname,
+                        appointment.studentId,
+                        appointment.studentName,
+                        appointment.monitorId,
+                        appointment.monitorName,
+                        Type_Notification.RECORDATORIO
+                    )
+                )
+                document.reference.update("NotificationGenerated", true).await()
+            }
+        }
+    }
+
     override suspend fun createAppointmentForStudent(appointment: Appointment) {
         Firebase.firestore.collection("student")
             .document(appointment.studentId)
@@ -100,6 +167,7 @@ class AppointmentServiceImpl: AppointmentService {
             .document(appointment.id)
             .set(appointment)
             .await()
+
     }
 
     override suspend fun createAppointmentForMonitor(appointment: Appointment) {
@@ -116,27 +184,29 @@ class AppointmentServiceImpl: AppointmentService {
         val result = db.collection("student")
             .document(userId)
             .collection("appointment")
-            .whereLessThan("dateFinal", Timestamp.now())
+            .whereLessThan("dateFinal", Timestamp.now()) //Traeme todo apointment cuya fecha final sea menor a la actual (ya se acabo)
             .get()
             .await()
 
         result.forEach { document ->
-            val isNotificationSent = document.getBoolean("isNotificationSent") ?: false
+            val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
             if (!isNotificationSent) {
                 val appointment = document.toObject(Appointment::class.java)
                 notificationService.createNotificationQualification(
                     Notification(
                         UUID.randomUUID().toString(),
-                        appointment.dateFinal,
+                        Timestamp.now(),
+                        appointment.dateInitial,
                         "¿Qué tal tu monitoria?",
                         appointment.subjectname,
                         appointment.studentId,
                         appointment.studentName,
                         appointment.monitorId,
-                        appointment.monitorName
+                        appointment.monitorName,
+                        Type_Notification.CALIFICACION
                     )
                 )
-                document.reference.update("isNotificationSent", true).await()
+                document.reference.update("NotificationGenerated", true).await()
             }
         }
     }

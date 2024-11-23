@@ -57,45 +57,43 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
-import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.components.FormatterDate
-import com.example.classmate.ui.components.FormatterHour
-import com.example.classmate.ui.viewModel.NotificationStudentViewModel
+import com.example.classmate.ui.viewModel.NotificationMonitorViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
-fun NotificationStudentScreen(navController: NavController,
-                              notificationStudentViewModel: NotificationStudentViewModel= viewModel()) {
+fun NotificationMonitorScreen(navController: NavController,
+                              notificationMonitorViewModel: NotificationMonitorViewModel = viewModel()
+) {
 
     var expanded by remember { mutableStateOf(false) }
-    val student: Student? by notificationStudentViewModel.student.observeAsState(initial = null)
-    val studentState by notificationStudentViewModel.studentState.observeAsState()
-    val notificationState by notificationStudentViewModel.notificationList.observeAsState()
+    val monitor: Monitor? by notificationMonitorViewModel.monitor.observeAsState(initial = null)
+    val monitorState by notificationMonitorViewModel.monitorState.observeAsState()
+    val notificationState by notificationMonitorViewModel.notificationList.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val listState = rememberLazyListState()
-    val image:String? by notificationStudentViewModel.image.observeAsState()
+    val image:String? by notificationMonitorViewModel.image.observeAsState()
     var notification = remember { mutableStateListOf<Notification>() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
-    if(student?.photo?.isNotEmpty() == true){
-        student?.let { notificationStudentViewModel.getStudentImage(it.photo) }
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { notificationMonitorViewModel.getMonitorImage(it.photoUrl) }
     }
 
     LaunchedEffect(true) {
-        notificationStudentViewModel.getStudent()
+        notificationMonitorViewModel.getMonitor()
     }
 
 
     LaunchedEffect(true) {
-        val job = notificationStudentViewModel.verifyAppointments()
+        val job = notificationMonitorViewModel.verifyAppointments()
         job.join()
-        val job2 = notificationStudentViewModel.deleteRecordatory()
-        job2.join()
-        notificationStudentViewModel.loadMoreNotifications()
+        notificationMonitorViewModel.loadMoreMonitorNotifications()
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -110,7 +108,7 @@ fun NotificationStudentScreen(navController: NavController,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(125.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
 
@@ -177,17 +175,6 @@ fun NotificationStudentScreen(navController: NavController,
                             DropdownMenuItemWithSeparator("Tu perfil", onClick = {
                                 navController.navigate("studentProfile")
                             }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate(
-                                    "requestBroadcast?student=${
-                                        Gson().toJson(
-                                            student
-                                        ) ?: "No"
-                                    }"
-                                )
-                            }, onDismiss = { expanded = false })
-
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
                             }, onDismiss = { expanded = false })
                         }
@@ -200,7 +187,7 @@ fun NotificationStudentScreen(navController: NavController,
                     .background(Color(0xFFCCD0CF))
                     .height(80.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement =Arrangement.Center
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = "Tus Notificaciones",
@@ -216,31 +203,31 @@ fun NotificationStudentScreen(navController: NavController,
                     .padding(horizontal = 20.dp)
                     .weight(1f)
             ) {
-                    notificationState?.let { notification ->
-                            if (notification.isEmpty()) {
-                                Column {
-                                    Box(modifier = Modifier.height(100.dp))
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.notifications_off),
-                                            contentDescription = "Sin notificaciones",
-                                            modifier = Modifier.size(200.dp).offset(x = 30.dp)
-                                        )
-                                    }
-                                    Text(
-                                        text = "No tienes notificaciones",
-                                        fontSize = 25.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black
-                                    )
-                                }
-                        }else{
-                            LazyColumn(state = listState) {
-                        notification.forEachIndexed{ _, n ->
-                            item{
+                notificationState?.let { notification ->
+                    if (notification.isEmpty()) {
+                        Column {
+                            Box(modifier = Modifier.height(100.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.notifications_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier.size(200.dp).offset(x = 30.dp)
+                                )
+                            }
+                            Text(
+                                text = "No tienes notificaciones",
+                                fontSize = 25.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        }
+                    }else{
+                        LazyColumn(state = listState) {
+                            notification.forEachIndexed{ _, n ->
+                                item{
                                     ElevatedCard(
                                         elevation = CardDefaults.cardElevation(
                                             defaultElevation = 5.dp,
@@ -299,11 +286,7 @@ fun NotificationStudentScreen(navController: NavController,
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
                                                     Text(
-                                                        text = if (n!!.type == Type_Notification.RECORDATORIO) {
-                                                            FormatterHour(timestamp = n.dateMonitoring)
-                                                        } else {
-                                                            FormatterDate(timestamp = n.aceptationDate)
-                                                        },
+                                                        text = FormatterDate(timestamp = n!!.aceptationDate),
                                                         fontSize = 16.sp,
                                                     )
                                                     Spacer(modifier = Modifier.width(20.dp))
@@ -311,7 +294,7 @@ fun NotificationStudentScreen(navController: NavController,
                                                         onClick = {
                                                             scope.launch {
                                                                 val job =
-                                                                    notificationStudentViewModel.deleteNotification(
+                                                                    notificationMonitorViewModel.deleteNotification(
                                                                         n
                                                                     )
                                                                 job.join()
@@ -344,7 +327,7 @@ fun NotificationStudentScreen(navController: NavController,
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == notificationState?.lastIndex }
                             .collect { isAtBottom ->
                                 if (isAtBottom) {
-                                    notificationStudentViewModel.loadMoreNotifications()
+                                    notificationMonitorViewModel.loadMoreMonitorNotifications()
                                 }
                             }
                     }
@@ -376,15 +359,15 @@ fun NotificationStudentScreen(navController: NavController,
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                        IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.add_home),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color.White
-                            )
+                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.add_home),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
                     }
                     Box(modifier = Modifier.weight(0.1f))
                     Box(
@@ -419,7 +402,7 @@ fun NotificationStudentScreen(navController: NavController,
                 }
             }
         }
-        if (studentState == 1) {
+        if (monitorState == 1) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -430,7 +413,7 @@ fun NotificationStudentScreen(navController: NavController,
                     color = Color.White
                 )
             }
-        } else if (studentState == 2) {
+        } else if (monitorState == 2) {
             LaunchedEffect(Unit) {
                 scope.launch {
                     snackbarHostState.currentSnackbarData?.dismiss()

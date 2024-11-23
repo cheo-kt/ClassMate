@@ -101,11 +101,9 @@ fun UnicastMonitoringScreen(
     monitor: String?,
     student: String?,
     materia: String?,
-    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
-    notificationViewModel: NotificationViewModel = viewModel()
+    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel()
 ) {
     val authState by unicastMonitoringViewModel.authState.observeAsState()
-    val authState2 by notificationViewModel.authState2.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -497,8 +495,6 @@ fun UnicastMonitoringScreen(
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-
-                // Notas
                 OutlinedTextField(
                     value = notas,
                     onValueChange = { nuevaNota -> notas = nuevaNota },
@@ -509,7 +505,6 @@ fun UnicastMonitoringScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botones de confirmar o cancelar
                 Row(
                     horizontalArrangement = Arrangement.SpaceAround,
                     modifier = Modifier.fillMaxWidth()
@@ -556,7 +551,6 @@ fun UnicastMonitoringScreen(
                                     unicastMonitoringViewModel.createRequest(
                                         studentObj.id,
                                         monitorObj.id,
-
                                         Request("",
                                             modalidadSeleccionada,
                                             tipoMonitoria,timestampInitial,timestampFinal,
@@ -565,11 +559,8 @@ fun UnicastMonitoringScreen(
                                             subjectObj.subjectId,subjectObj.name,
                                             studentObj.id, studentObj.name,monitorObj.id,monitorObj.name)
                                     )
+                                    navController.navigate("HomeStudentScreen")
                                 }
-
-
-
-
                             }
                         },
                         modifier = Modifier
@@ -588,7 +579,7 @@ fun UnicastMonitoringScreen(
                     }
 
                     IconButton(
-                        onClick = { navController.navigate("monitorProfile") },
+                        onClick = { navController.navigate("HomeStudentScreen") },
                         modifier = Modifier
                             .size(48.dp)
                             .border(
@@ -626,49 +617,12 @@ fun UnicastMonitoringScreen(
             }
         }
     } else if (authState == 3) {
-
         LaunchedEffect(Unit) {
             scope.launch {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar("La solicitud de monitoria enviada correctamente")
             }
         }
-
-        notificationViewModel.createNotification(
-            Notification("",timestampGlobal,"¡Tienes una nueva solicitud de monitoria!",
-                subjectObj.name,studentObj.id,studentObj.name,monitorObj.id,monitorObj.name)
-        )
-        if (authState2 == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
-            }
-        } else if (authState2 == 2) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Ha ocurrido un error")
-                }
-            }
-        } else if (authState2 == 3) {
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("La notificación fue enviada correctamente")
-                }
-            }
-            navController.navigate("HomeStudentScreen")
-
-        }
-
     }
-
-
 }
 

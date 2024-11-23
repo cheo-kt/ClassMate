@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.AppointmentRepository
+import com.example.classmate.data.repository.AppointmentRepositoryImpl
 import com.example.classmate.data.repository.NotificationRepository
 import com.example.classmate.data.repository.NotificationRepositoryImpl
 import com.example.classmate.data.repository.StudentRepository
@@ -19,7 +21,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class NotificationStudentViewModel( val repo2: StudentRepository =StudentRepositoryImpl(),val repo: NotificationRepository = NotificationRepositoryImpl()): ViewModel()  {
+class NotificationStudentViewModel( val repo2: StudentRepository =StudentRepositoryImpl(),val repo: NotificationRepository = NotificationRepositoryImpl(),
+                                    val repo3: AppointmentRepository = AppointmentRepositoryImpl()): ViewModel()  {
 
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
@@ -51,6 +54,7 @@ class NotificationStudentViewModel( val repo2: StudentRepository =StudentReposit
                     if (newNotification.isNotEmpty()) {
                         _notificationsList.value = _notificationsList.value.orEmpty() + newNotification
                         lastNotification= _notificationsList.value?.lastOrNull()
+
                         viewModelScope.launch(Dispatchers.Main) { studentState.value = 3 }
                     }
                     else{
@@ -87,5 +91,25 @@ class NotificationStudentViewModel( val repo2: StudentRepository =StudentReposit
         }
 
     }
+    fun verifyAppointments(): Job = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) { studentState.value = 1 }
+        try {
+            repo3.verifyAppointment()
+            withContext(Dispatchers.Main) { studentState.value = 3 }
+        } catch (ex: FirebaseAuthException) {
+            withContext(Dispatchers.Main) { studentState.value = 2 }
+            ex.printStackTrace()
+        }
+    }
 
+    fun deleteRecordatory(): Job = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) { studentState.value = 1 }
+        try {
+            repo.deleteRecordatory()
+            withContext(Dispatchers.Main) { studentState.value = 3 }
+        } catch (ex: FirebaseAuthException) {
+            withContext(Dispatchers.Main) { studentState.value = 2 }
+            ex.printStackTrace()
+        }
+    }
 }

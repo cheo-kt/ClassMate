@@ -68,25 +68,27 @@ import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun UnicastDecisionScreen(
     navController: NavController,
     request: String?,
     monitor: String?,
-    appointmentViewModel: AppointmentViewModel = viewModel(),
     unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
 ) {
-    val authState by appointmentViewModel.authState.observeAsState()
-
+    val authState by unicastMonitoringViewModel.authState.observeAsState()
     val scope = rememberCoroutineScope()
     val requestObj: Request = Gson().fromJson(request, Request::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
@@ -356,7 +358,7 @@ fun UnicastDecisionScreen(
             ) {
                 Button(
                     onClick = {
-                        appointmentViewModel.createAppointment(
+                        unicastMonitoringViewModel.createAppointment(
                             Appointment(
                                 "",
                                 requestObj.mode_class,
@@ -373,12 +375,26 @@ fun UnicastDecisionScreen(
                                 monitorObj.name
                             )
                         )
-
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
                             monitorObj.id,
                             requestObj.id
                         )
+                        unicastMonitoringViewModel.createNotification(
+                        Notification(
+                            UUID.randomUUID().toString(),
+                            Timestamp.now(),
+                            requestObj.dateInitial,
+                            "¡Se ha aceptado tu monitoria!",
+                            requestObj.subjectname,
+                            requestObj.studentId,
+                            requestObj.studentName,
+                            requestObj.monitorId,
+                            requestObj.monitorName,
+                            Type_Notification.ACEPTACION
+                            )
+                        )
+                        navController.navigate("HomeMonitorScreen")
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -398,14 +414,26 @@ fun UnicastDecisionScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 }
-
-
                 Button(
                     onClick = {
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
                             monitorObj.id,
                             requestObj.id
+                        )
+                        unicastMonitoringViewModel.createNotification(
+                            Notification(
+                                UUID.randomUUID().toString(),
+                                Timestamp.now(),
+                                Timestamp(Date(Timestamp.now().toDate().time + 1 * 60 * 60 * 1000)),
+                                "¡Se ha rechazado tu monitoria!",
+                                requestObj.subjectname,
+                                requestObj.studentId,
+                                requestObj.studentName,
+                                requestObj.monitorId,
+                                requestObj.monitorName,
+                                Type_Notification.RECHAZO
+                            )
                         )
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()

@@ -1,10 +1,15 @@
 package com.example.classmate.data.service
 
+import android.util.Log
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Type_Notification
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 interface NotificationService {
 
@@ -12,11 +17,19 @@ interface NotificationService {
     suspend fun loadMoreNotifications(limit: Int, notification: Notification?, userId:String): List<Notification?>
     suspend fun createNotificationQualification(notification: Notification)
     suspend fun deleteNotification(notification: Notification, userId: String)
+    suspend fun deleteRecordatory(userId: String)
 }
 
 class NotificationServiceImpl: NotificationService {
     override suspend fun createNotification(notification: Notification) {
         Firebase.firestore
+            .collection("notification")
+            .document(notification.id)
+            .set(notification)
+            .await()
+        Firebase.firestore
+            .collection("student")
+            .document(notification.studentId)
             .collection("notification")
             .document(notification.id)
             .set(notification)
@@ -39,8 +52,7 @@ class NotificationServiceImpl: NotificationService {
     }
 
     override suspend fun loadMoreNotifications(limit: Int, notification: Notification?, userId:String): List<Notification?> {
-        return try {
-            val querySnapshot = Firebase.firestore.collection("student")
+       val querySnapshot = Firebase.firestore.collection("student")
                 .document(userId)
                 .collection("notification")
                 .orderBy("id")
@@ -48,11 +60,25 @@ class NotificationServiceImpl: NotificationService {
                 .limit(limit.toLong())
                 .get()
                 .await()
-            querySnapshot.documents.mapNotNull { it.toObject(Notification::class.java) }
-        } catch (e: Exception) {
-            emptyList()
+        return  querySnapshot.documents.mapNotNull { it.toObject(Notification::class.java) }
+    }
+
+    override suspend fun deleteRecordatory(userId: String) {
+        val now = Timestamp.now()
+
+        val result = Firebase.firestore.collection("student")
+            .document(userId)
+            .collection("notification")
+            .whereIn("type", listOf("RECORDATORIO", "ACEPTACION","RECHAZO")) //Traeme las notis de tipo RECORDATORIO, RECHAZO o ACEPTACION
+            .whereLessThan("dateMonitoring", now) //Seleccioname aquellas notis que sean menor a la fecha actual para borrar
+            .get()
+            .await()
+        result.forEach { document ->
+            val notification = document.toObject(Notification::class.java)
+            deleteNotification(notification, userId)
         }
     }
+
     override suspend fun deleteNotification(notification: Notification, userId: String) {
         //General
         Firebase.firestore
@@ -60,7 +86,6 @@ class NotificationServiceImpl: NotificationService {
             .document(notification.id)
             .delete()
             .await()
-
         //Student
         Firebase.firestore
             .collection("student")
