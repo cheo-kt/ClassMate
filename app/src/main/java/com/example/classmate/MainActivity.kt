@@ -265,8 +265,7 @@ fun App() {
             val type = typeString?.toBoolean() ?: false
             AppointmentChatScreen(navController, appointmentId = appointmentId.toString(), type)
         }
-
-
+        composable("notificationMonitorScreen"){ NotificationStudentScreen(navController)}
 
         composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
 
