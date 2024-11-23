@@ -22,8 +22,8 @@ class ChatMenuStudentViewModel(val repo: StudentRepository = StudentRepositoryIm
     val studentState = MutableLiveData<Int?>(0)
 
 
-    private val _appointmentsList = MutableLiveData(listOf<Appointment?>())
-    val appointmentList: LiveData<List<Appointment?>> get() =_appointmentsList
+    private val _appointmentsList = MutableLiveData<List<Pair<Appointment, Boolean>>>()
+    val appointmentList: LiveData<List<Pair<Appointment, Boolean>>> get() = _appointmentsList
     val appointmentState = MutableLiveData<Int?>(0)
 
 

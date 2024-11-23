@@ -40,7 +40,7 @@ interface MonitorServices {
     suspend fun getAppointments(idStudent:String):List<Appointment?>
     suspend fun getRequest(limit: Int, request: Request?): List<Request>
     suspend fun getImageDownloadUrl(imageUrl:String):String
-    suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?>
+    suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -94,7 +94,6 @@ class MonitorServicesImpl: MonitorServices {
             .update("photoUrl", url)
             .await()
     }
-
 
     override suspend fun getMonitors(limit: Int, monitor: Monitor?): List<Monitor> {
         return try {
@@ -203,6 +202,8 @@ class MonitorServicesImpl: MonitorServices {
         }
         return calificationsList
     }
+
+
     override suspend fun getAppointments(idStudent:String):List<Appointment?> {
         return try {
             val appointmentList = Firebase.firestore
@@ -244,23 +245,47 @@ class MonitorServicesImpl: MonitorServices {
 
     }
 
-    override suspend fun getAppointmentsUpdate(idStudent: String): List<Appointment?> {
+    override suspend fun getAppointmentsUpdate(idMonitor: String): List<Pair<Appointment, Boolean>> {
         return try {
             val now = Timestamp.now()
 
             val appointmentList = Firebase.firestore
                 .collection("Monitor")
-                .document(idStudent)
+                .document(idMonitor)
                 .collection("appointment")
                 .whereGreaterThanOrEqualTo("dateFinal", now)
                 .get()
                 .await()
 
-            appointmentList.documents.map { document ->
-                document.toObject(Appointment::class.java)
+            appointmentList.documents.mapNotNull { document ->
+                val appointment = document.toObject(Appointment::class.java)
+
+                if (appointment == null) return@mapNotNull null
+                val unreadMessagesExist = hasUnreadMessages(document.id, idMonitor)
+
+                appointment to unreadMessagesExist
             }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    private suspend fun hasUnreadMessages(appointmentId: String, idMonitor: String): Boolean {
+        return try {
+            // Verifica si hay mensajes no leídos
+            val unreadMessages = Firebase.firestore
+                .collection("appointment")
+                .document(appointmentId)
+                .collection("messages")
+                .whereEqualTo("read", false)
+                .whereNotEqualTo("authorID", idMonitor)
+                .get()
+                .await()
+
+            // Si la colección tiene documentos, significa que hay mensajes no leídos
+            unreadMessages.isEmpty.not()
+        } catch (e: Exception) {
+            false
         }
     }
 }

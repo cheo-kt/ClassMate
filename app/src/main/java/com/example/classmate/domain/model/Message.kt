@@ -9,5 +9,6 @@ data class Message(
     var imageID:String? = null,
     var imageURL:String? = null,
     var authorID:String = "",
-    var isMine:Boolean = false
+    var isMine:Boolean = false,
+    var isRead:Boolean = false
 )

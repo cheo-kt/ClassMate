@@ -19,6 +19,7 @@ interface AppointmentChatRepository {
     suspend fun getMessages(appointmentId: String): List<Message?>
     suspend fun getLiveMessages(appointmentId: String, callback: suspend (Message) -> Unit)
     suspend fun getAppointmentById(appointmentId: String): Appointment
+
 }
 class AppointmentChatRepositoryImpl(val chatService: AppointmentChatService = AppointmentChatServiceImpl()) : AppointmentChatRepository {
 
@@ -39,14 +40,19 @@ class AppointmentChatRepositoryImpl(val chatService: AppointmentChatService = Ap
 
     override suspend fun getLiveMessages(appointmentId: String, callback: suspend (Message) -> Unit) {
         chatService.getLiveMessages(appointmentId) { doc ->
-                val message = doc.toObject(Message::class.java)
-                message?.imageID?.let {
-                    val url = chatService.getImageURLByID(it)
-                    message.imageURL = url
-                }
-                message.isMine = message.authorID == Firebase.auth.currentUser?.uid
-                callback(message)
+            val message = doc.toObject(Message::class.java)
+            message?.imageID?.let {
+                val url = chatService.getImageURLByID(it)
+                message.imageURL = url
+            }
+            message.isMine = message.authorID == Firebase.auth.currentUser?.uid
 
+            // Solo marca como leído si el mensaje no es del autor actual
+            if (message.authorID != Firebase.auth.currentUser?.uid && !message.isRead) {
+                chatService.markMessageAsRead(appointmentId, message.id, Firebase.auth.currentUser?.uid ?: "")
+            }
+
+            callback(message)
         }
     }
 

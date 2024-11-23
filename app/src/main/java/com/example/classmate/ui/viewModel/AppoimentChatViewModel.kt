@@ -42,7 +42,8 @@ class AppoimentChatViewModel ( val chatRepository: AppointmentChatRepository = A
     fun sendMessage(content: String, uri: Uri?, appointmentId: String) {
         val message = Message(
             id = UUID.randomUUID().toString(),
-            content = content
+            content = content,
+            isRead = false
         )
         viewModelScope.launch(Dispatchers.IO) {
             chatRepository.sendMessage(message, uri, appointmentId)
