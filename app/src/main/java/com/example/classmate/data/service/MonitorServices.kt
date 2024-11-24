@@ -11,6 +11,7 @@ import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Subject
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
@@ -41,6 +42,7 @@ interface MonitorServices {
     suspend fun getRequest(limit: Int, request: Request?): List<Request>
     suspend fun getImageDownloadUrl(imageUrl:String):String
     suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>>
+    suspend fun searchMonitorBySubject(subjectIds: List<String>):List<Monitor?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -111,12 +113,11 @@ class MonitorServicesImpl: MonitorServices {
     }
 
     override suspend fun searchMonitorByName(name: String): List<Monitor?> {
-        val queryInput = name.trim().lowercase()
 
         val result = Firebase.firestore
             .collection("Monitor")
-            .whereGreaterThanOrEqualTo("name", queryInput)
-            .whereLessThanOrEqualTo("name", queryInput + "\uf8ff")
+            .whereGreaterThanOrEqualTo("name", name)
+            .whereLessThanOrEqualTo("name", name + "\uf8ff")
             .get()
             .await()
 
@@ -267,6 +268,17 @@ class MonitorServicesImpl: MonitorServices {
             }
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    override suspend fun searchMonitorBySubject(subjectIds: List<String>): List<Monitor?> {
+        val result = Firebase.firestore
+            .collection("Monitor")
+            .whereIn("id",subjectIds)
+            .get()
+            .await()
+        return result.documents.map { document ->
+            document.toObject(Monitor::class.java)
         }
     }
 
