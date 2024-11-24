@@ -67,14 +67,17 @@ import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Type_Notification
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.AppointmentViewModel
 import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun BroadcastDecisionScreen(
@@ -375,6 +378,20 @@ fun BroadcastDecisionScreen(
                             requestObj.studentId,
                             requestObj.subjectID,
                             requestObj.id)
+                        requestBroadcastStudentViewmodel.createNotification(
+                            Notification(
+                                UUID.randomUUID().toString(),
+                                Timestamp.now(),
+                                requestObj.dateInitial,
+                                "¡Se ha aceptado tu monitoria!",
+                                requestObj.subjectname,
+                                requestObj.studentId,
+                                requestObj.studentName,
+                                monitorObj.id,
+                                monitorObj.name,
+                                Type_Notification.ACEPTACION
+                            )
+                        )
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)

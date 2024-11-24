@@ -4,12 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.NotificationRepository
+import com.example.classmate.data.repository.NotificationRepositoryImpl
 import com.example.classmate.data.repository.RequestBroadcastRepository
 import com.example.classmate.data.repository.RequestBroadcastRepositoryImpl
 import com.example.classmate.data.repository.StudentRepository
 import com.example.classmate.data.repository.StudentRepositoryImpl
 import com.example.classmate.data.repository.SubjectRepository
 import com.example.classmate.data.repository.SubjectRepositoryImpl
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
@@ -23,7 +26,8 @@ import kotlinx.coroutines.withContext
 class RequestBroadcastStudentViewModel(
     val repo: RequestBroadcastRepository = RequestBroadcastRepositoryImpl(),
     val repoSubjects: SubjectRepository = SubjectRepositoryImpl(),
-    val repoStudent: StudentRepository = StudentRepositoryImpl()
+    val repoStudent: StudentRepository = StudentRepositoryImpl(),
+    val repo2: NotificationRepository = NotificationRepositoryImpl()
 ): ViewModel(){
     val authState = MutableLiveData(0)
     val authState2 = MutableLiveData(0)
@@ -85,6 +89,18 @@ class RequestBroadcastStudentViewModel(
             val me = repoStudent.getCurrentStudent()
             withContext(Dispatchers.Main) {
                 _student.value = me
+            }
+        }
+    }
+    fun createNotification(notification: Notification) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { authState.value = 1 }
+            try {
+                repo2.createNotification(notification)
+                withContext(Dispatchers.Main) { authState.value = 3 }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { authState.value = 2 }
+                ex.printStackTrace()
             }
         }
     }
