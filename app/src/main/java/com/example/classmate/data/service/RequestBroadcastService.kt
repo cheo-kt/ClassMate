@@ -98,32 +98,36 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
     }
     override suspend fun getRandomRequest(monitor: Monitor){
         val subjects = monitor.subjects.map { it.name }
-        val db = Firebase.firestore
-        val result = db.collection("requestBroadcast")
-            .whereIn("subjectname", subjects)
-            .whereEqualTo("notificationGenerated", false)
-            .get()
-            .await()
-        val randomRequest = result.documents.randomOrNull()?.toObject(RequestBroadcast::class.java)
-        if (randomRequest != null) {
-            notificationService.createNotificationForMonitor(
-                Notification(
-                    UUID.randomUUID().toString(),
-                    Timestamp.now(),
-                    Timestamp.now(),
-                    "¡Te podría interesar!",
-                    randomRequest.subjectname,
-                    randomRequest.studentId,
-                    randomRequest.studentName,
-                    monitor.id,
-                    monitor.name,
-                    Type_Notification.INTERES
-                )
-            )
-            db.collection("requestBroadcast")
-                .document(randomRequest.id)
-                .update("notificationGenerated  ", true)
+        if (subjects.isNotEmpty()) {
+            val result = Firebase.firestore.collection("requestBroadcast")
+                .whereIn("subjectname", subjects)
+                .whereEqualTo("notificationGenerated", false)
+                .get()
                 .await()
+            val randomRequest =
+                result.documents.randomOrNull()?.toObject(RequestBroadcast::class.java)
+            val numberOfInterestRequest =
+                notificationService.getNumberOfInteresNotifications(monitor.id)
+            if (randomRequest != null && numberOfInterestRequest == 0) {
+                notificationService.createNotificationForMonitor(
+                    Notification(
+                        UUID.randomUUID().toString(),
+                        Timestamp.now(),
+                        Timestamp.now(),
+                        "¡Te podría interesar!",
+                        randomRequest.subjectname,
+                        randomRequest.studentId,
+                        randomRequest.studentName,
+                        monitor.id,
+                        monitor.name,
+                        Type_Notification.INTERES
+                    )
+                )
+                Firebase.firestore.collection("requestBroadcast")
+                    .document(randomRequest.id)
+                    .update("notificationGenerated", true)
+                    .await()
             }
+        }
     }
 }

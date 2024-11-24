@@ -17,6 +17,7 @@ interface NotificationService {
     suspend fun deleteNotification(notification: Notification, userId: String)
     suspend fun deleteRecordatory(userId: String)
     suspend fun deleteNotificationById(idNotification: String, userId: String)
+    suspend fun getNumberOfInteresNotifications(monitorId: String):Int
 }
 
 class NotificationServiceImpl: NotificationService {
@@ -139,5 +140,14 @@ class NotificationServiceImpl: NotificationService {
             .delete()
             .await()
     }
-
+    override suspend fun getNumberOfInteresNotifications(monitorId: String):Int {
+        return Firebase.firestore
+            .collection("Monitor")
+            .document(monitorId)
+            .collection("notification")
+            .whereEqualTo("type", "INTERES")
+            .get()
+            .await()
+            .size()
+    }
 }
