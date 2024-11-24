@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.data.repository.StudentRepository
@@ -150,6 +151,33 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
                 }
             }
         }
+    fun monitorsFilteredBySubject(subjectMonitorsID:List<String>){
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                withContext(Dispatchers.Main) {
+                    _monitorListFiltered.value = repoMonitor.searchMonitorBySubject(subjectMonitorsID)
+
+                    //Log.e("DEBUG", "AAA " + (result.size))
+                }
+            } catch (ex: FirebaseAuthException) {
+
+                ex.printStackTrace()
+            }
+        }
+    }
+    fun getSubjectsList(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                withContext(Dispatchers.Main) {
+                    _subjectList.value = subjectsRepo.getAllSubjects()
+                }
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+        }
+
+    }
 
         fun refresh() {
             _monitorListFiltered.value = emptyList()
