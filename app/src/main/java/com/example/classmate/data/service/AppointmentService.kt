@@ -93,12 +93,12 @@ class AppointmentServiceImpl: AppointmentService {
     override suspend fun establishRecordatory(userId: String) {
         val db = Firebase.firestore
         val now = Timestamp.now()
-        val twoDaysAfter = Timestamp.now().toDate().time + 48 * 60 * 60 * 1000
+        val twoHoursAfter = Timestamp.now().toDate().time + 2 * 60 * 60 * 1000
         val result = db.collection("student")
             .document(userId)
             .collection("appointment")
             .whereGreaterThanOrEqualTo("dateFinal", now) //Seleccioname aquellos apointments que se encuentren entre hoy y los proximos 2 dias
-            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoDaysAfter)))
+            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoHoursAfter)))
             .get()
             .await()
 
@@ -128,12 +128,12 @@ class AppointmentServiceImpl: AppointmentService {
     override suspend fun establishRecordatoryForMonitor(userId: String) {
         val db = Firebase.firestore
         val now = Timestamp.now()
-        val twoDaysAfter = Timestamp.now().toDate().time + 48 * 60 * 60 * 1000
+        val twoHoursAfter = Timestamp.now().toDate().time + 2 * 60 * 60 * 1000
         val result = db.collection("Monitor")
             .document(userId)
             .collection("appointment")
             .whereGreaterThanOrEqualTo("dateFinal", now)
-            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoDaysAfter)))
+            .whereLessThanOrEqualTo("dateFinal", Timestamp(Date(twoHoursAfter)))
             .get()
             .await()
 

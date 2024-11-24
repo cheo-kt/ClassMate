@@ -93,6 +93,8 @@ fun NotificationMonitorScreen(navController: NavController,
     LaunchedEffect(true) {
         val job = notificationMonitorViewModel.verifyAppointments()
         job.join()
+        val job2 = notificationMonitorViewModel.loadRandomSuggestion(monitor!!)
+        job2.join()
         notificationMonitorViewModel.loadMoreMonitorNotifications()
     }
 

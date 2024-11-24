@@ -12,4 +12,5 @@ data class RequestBroadcast(var id: String = "",
                             var subjectID: String = "",
                             var subjectname: String= "",
                             var studentId: String = "",
-                            var studentName: String = "")
+                            var studentName: String = "",
+                            var notificationGenerated: Boolean = false)

@@ -1,12 +1,17 @@
 package com.example.classmate.data.service
 
 import android.util.Log
+import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Type_Notification
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 interface RequestBroadcastService {
     suspend fun createRequestInMainCollection(request: RequestBroadcast)
@@ -16,10 +21,11 @@ interface RequestBroadcastService {
     suspend fun deleteRequestForStudent(studentId: String, requestId: String)
     suspend fun deleteRequestForSubject(subjectId: String, requestId: String)
     suspend fun checkForOverlappingRequest(userId: String, requestBroadcast: RequestBroadcast): RequestBroadcast?
+    suspend fun getRandomRequest(monitor: Monitor)
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
-
+    val notificationService: NotificationService = NotificationServiceImpl()
 
     override suspend fun createRequestInMainCollection(request: RequestBroadcast) {
         Firebase.firestore.collection("requestBroadcast")
@@ -90,5 +96,34 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
         }
         return null
     }
-
+    override suspend fun getRandomRequest(monitor: Monitor){
+        val subjects = monitor.subjects.map { it.name }
+        val db = Firebase.firestore
+        val result = db.collection("requestBroadcast")
+            .whereIn("subjectname", subjects)
+            .whereEqualTo("notificationGenerated", false)
+            .get()
+            .await()
+        val randomRequest = result.documents.randomOrNull()?.toObject(RequestBroadcast::class.java)
+        if (randomRequest != null) {
+            notificationService.createNotificationForMonitor(
+                Notification(
+                    UUID.randomUUID().toString(),
+                    Timestamp.now(),
+                    Timestamp.now(),
+                    "¡Te podría interesar!",
+                    randomRequest.subjectname,
+                    randomRequest.studentId,
+                    randomRequest.studentName,
+                    monitor.id,
+                    monitor.name,
+                    Type_Notification.INTERES
+                )
+            )
+            db.collection("requestBroadcast")
+                .document(randomRequest.id)
+                .update("notificationGenerated  ", true)
+                .await()
+            }
+    }
 }

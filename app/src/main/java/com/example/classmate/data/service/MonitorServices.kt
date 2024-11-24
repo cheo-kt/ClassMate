@@ -111,12 +111,11 @@ class MonitorServicesImpl: MonitorServices {
     }
 
     override suspend fun searchMonitorByName(name: String): List<Monitor?> {
-        val queryInput = name.trim().lowercase()
 
         val result = Firebase.firestore
             .collection("Monitor")
-            .whereGreaterThanOrEqualTo("name", queryInput)
-            .whereLessThanOrEqualTo("name", queryInput + "\uf8ff")
+            .whereGreaterThanOrEqualTo("name", name)
+            .whereLessThanOrEqualTo("name", name + "\uf8ff")
             .get()
             .await()
 

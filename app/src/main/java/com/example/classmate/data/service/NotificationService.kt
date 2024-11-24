@@ -20,6 +20,7 @@ interface NotificationService {
 }
 
 class NotificationServiceImpl: NotificationService {
+
     override suspend fun createNotification(notification: Notification) {
         Firebase.firestore
             .collection("notification")
@@ -122,7 +123,6 @@ class NotificationServiceImpl: NotificationService {
             .delete()
             .await()
     }
-
     override suspend fun deleteNotification(notification: Notification, userId: String) {
         //General
         Firebase.firestore

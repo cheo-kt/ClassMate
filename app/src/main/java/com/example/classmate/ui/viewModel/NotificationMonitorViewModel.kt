@@ -11,6 +11,8 @@ import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.data.repository.NotificationRepository
 import com.example.classmate.data.repository.NotificationRepositoryImpl
+import com.example.classmate.data.repository.RequestBroadcastRepository
+import com.example.classmate.data.repository.RequestBroadcastRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.google.firebase.auth.FirebaseAuthException
@@ -20,7 +22,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorRepositoryImpl(), val repo: NotificationRepository = NotificationRepositoryImpl(),
-                                   val repo3: AppointmentRepository = AppointmentRepositoryImpl()
+                                   val repo3: AppointmentRepository = AppointmentRepositoryImpl(), val repo4: RequestBroadcastRepository = RequestBroadcastRepositoryImpl()
 ): ViewModel()  {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
@@ -100,6 +102,16 @@ class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorReposit
         withContext(Dispatchers.Main) { monitorState.value = 1 }
         try {
             repo3.establishRecordatoryForMonitor()
+            withContext(Dispatchers.Main) { monitorState.value = 3 }
+        } catch (ex: FirebaseAuthException) {
+            withContext(Dispatchers.Main) { monitorState.value = 2 }
+            ex.printStackTrace()
+        }
+    }
+    fun loadRandomSuggestion(monitor: Monitor): Job = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) { monitorState.value = 1 }
+        try {
+            repo4.loadRandomReqBroadcast(monitor)
             withContext(Dispatchers.Main) { monitorState.value = 3 }
         } catch (ex: FirebaseAuthException) {
             withContext(Dispatchers.Main) { monitorState.value = 2 }
