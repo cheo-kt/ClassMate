@@ -264,7 +264,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 ) {
                                     if (filter.isEmpty()) {
                                         Text(
-                                            text = "Filtrar",
+                                            text = "Filtrar por Materia",
                                             color = Color.Gray,
                                         )
                                     }

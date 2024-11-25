@@ -375,6 +375,7 @@ fun UnicastDecisionScreen(
                                 monitorObj.name
                             )
                         )
+
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
                             monitorObj.id,
@@ -397,7 +398,7 @@ fun UnicastDecisionScreen(
                             Type_Notification.ACEPTACION
                             )
                         )
-                        navController.navigate("HomeMonitorScreen")
+
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -562,6 +563,7 @@ fun UnicastDecisionScreen(
                 snackbarHostState.showSnackbar("Ya existe una cita a esa hora, rechaza la monitoria.")
             }
         }
+        navController.navigate("HomeMonitorScreen")
     } else if (authState == 3) {
 
         LaunchedEffect(Unit) {
