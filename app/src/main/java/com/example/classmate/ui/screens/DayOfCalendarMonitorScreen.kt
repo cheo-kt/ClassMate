@@ -234,7 +234,7 @@ fun DayOfCalendarMonitorScreen(navController: NavController, listAppointment: Li
                                 verticalArrangement = Arrangement.spacedBy((-5).dp)
                             ) {
                                 androidx.compose.material3.Text(
-                                    text = "${appointment.monitorName}",
+                                    text = "${appointment.studentName}",
                                     color = Color.Blue,
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(top = 10.dp)
