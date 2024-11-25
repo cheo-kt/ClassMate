@@ -1,8 +1,6 @@
 package com.example.classmate.data.service
 
 import com.example.classmate.domain.model.Request
-import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Student
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -78,18 +76,18 @@ class RequestServicesImpl: RequestService {
             .await()
     }
 
-    override suspend fun deleteRequestForMonitor(studentId: String, requestId: String) {
-        Firebase.firestore.collection("student")
-            .document(studentId)
+    override suspend fun deleteRequestForMonitor(monitorId: String, requestId: String) {
+        Firebase.firestore.collection("Monitor")
+            .document(monitorId)
             .collection("request")
             .document(requestId)
             .delete()
             .await()
     }
 
-    override suspend fun deleteRequestForStudent(monitorId: String, requestId: String) {
-        Firebase.firestore.collection("Monitor")
-            .document(monitorId)
+    override suspend fun deleteRequestForStudent(studentId: String, requestId: String) {
+        Firebase.firestore.collection("student")
+            .document(studentId)
             .collection("request")
             .document(requestId)
             .delete()
