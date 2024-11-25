@@ -41,7 +41,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,6 +78,7 @@ import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,7 +101,8 @@ fun UnicastDecisionScreen(
     var expanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)}) { innerpadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -543,36 +548,52 @@ fun UnicastDecisionScreen(
                 }
             }
         }
+
+        if (authState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (authState == 2) {
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    // Asegúrate de mostrar el Snackbar
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    val snackbarResult = snackbarHostState.showSnackbar(
+                        "Ya tienes una cita a esa hora, monitoria rechazada.",
+                        duration = SnackbarDuration.Long // Duración del Snackbar (Short, Long, Indefinite)
+                    )
+
+                    // Retraso adicional para asegurar que el usuario pueda leer el mensaje.
+                    delay(2000) // 2 segundos extra
+
+                    // Navega después del retraso.
+                    navController.navigate("MonitorRequest")
+                }
+            }
+
+
+        } else if (authState == 3) {
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Monitoria Aceptada")
+                }
+            }
+
+            navController.navigate("MonitorRequest")
+        }
+
+
     }
 
-    if (authState == 1) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
-            )
-        }
-    } else if (authState == 2) {
-        LaunchedEffect(Unit) {
-            scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ya existe una cita a esa hora, rechaza la monitoria.")
-            }
-        }
-        navController.navigate("HomeMonitorScreen")
-    } else if (authState == 3) {
 
-        LaunchedEffect(Unit) {
-            scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Monitoria Aceptada")
-            }
-        }
-
-        navController.navigate("HomeMonitorScreen")
-    }
 }
