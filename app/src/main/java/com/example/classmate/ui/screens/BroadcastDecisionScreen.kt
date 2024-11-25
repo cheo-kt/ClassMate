@@ -536,6 +536,7 @@ fun BroadcastDecisionScreen(
                 snackbarHostState.showSnackbar("Ya existe una cita a esa hora, rechaza la monitoria.")
             }
         }
+        navController.navigate("HomeMonitorScreen")
     } else if (authState == 3) {
 
         LaunchedEffect(Unit) {
