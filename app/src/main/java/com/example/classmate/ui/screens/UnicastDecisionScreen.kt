@@ -358,23 +358,7 @@ fun UnicastDecisionScreen(
             ) {
                 Button(
                     onClick = {
-                        unicastMonitoringViewModel.createAppointment(
-                            Appointment(
-                                "",
-                                requestObj.mode_class,
-                                requestObj.type,
-                                requestObj.dateInitial,
-                                requestObj.dateFinal,
-                                requestObj.description,
-                                requestObj.place,
-                                requestObj.subjectId,
-                                requestObj.subjectname,
-                                requestObj.studentId,
-                                requestObj.studentName,
-                                monitorObj.id,
-                                monitorObj.name
-                            )
-                        )
+
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
                             monitorObj.id,
