@@ -25,7 +25,7 @@ interface MonitorRepository {
     suspend fun updateMonitorImageUrl(id:String,url:String)
     suspend fun searchMonitor(name:String):List<Monitor?>
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
-    suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?>
+    suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?, monitor: Monitor):List<RequestBroadcast?>
     suspend fun calificateMonitor(opinionsAndQualifications:OpinionsAndQualifications, monitorId:String)
     suspend fun getMonitorById(id: String): Monitor? // Nuevo método
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
@@ -47,6 +47,7 @@ class MonitorRepositoryImpl(
 
     override suspend fun getCurrentMonitor(): Monitor? {
         Firebase.auth.currentUser?.let {
+            Log.e(">>>UID",it.uid)
             return monitorServices.getMonitorById(it.uid)
         } ?: run {
             return null
@@ -71,8 +72,8 @@ class MonitorRepositoryImpl(
     override suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?> {
         return monitorServices.getMonitors(limit,monitor)
     }
-    override suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?):List<RequestBroadcast?> {
-        return monitorServices.getBroadRequest(limit, request)
+    override suspend fun getBroadRequest(limit: Int, request: RequestBroadcast?, monitor: Monitor):List<RequestBroadcast?> {
+        return monitorServices.getBroadRequest(limit, request, monitor)
     }
 
     override suspend fun calificateMonitor(

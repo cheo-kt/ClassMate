@@ -97,14 +97,15 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
-    val monitor by homeMonitorViewModel.monitor.observeAsState()
+    val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     var image = monitor?.photoUrl
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     val listState = rememberLazyListState()
     LaunchedEffect(true) {
-        homeMonitorViewModel.getMonitor()
-        homeMonitorViewModel.loadMoreRequestB()
+        val job = homeMonitorViewModel.getMonitor()
+        job.join()
+        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -368,7 +369,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
                             .collect { isAtBottom ->
                                 if (isAtBottom) {
-                                    homeMonitorViewModel.loadMoreRequestB()
+                                    monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
                                 }
                             }
                     }

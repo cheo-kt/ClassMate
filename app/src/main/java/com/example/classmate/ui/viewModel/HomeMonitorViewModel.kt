@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,6 +10,7 @@ import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,19 +24,17 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
     val broadcastList: LiveData<List<RequestBroadcast?>> get() = _broadcastReqList
     private val limit = 10
 
-    fun getMonitor() {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun getMonitor(): Job = viewModelScope.launch(Dispatchers.IO) {
             val me = repoMonitor.getCurrentMonitor()
             withContext(Dispatchers.Main) {
                 _monitor.value = me
             }
-        }
     }
-    fun loadMoreRequestB() {
+    fun loadMoreRequestB(monitor: Monitor) {
         viewModelScope.launch(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.Main) { monitorState.value = 1 }
             try {
-                val newRequests = repoMonitor.getBroadRequest(limit, lastReq)
+                val newRequests = repoMonitor.getBroadRequest(limit, lastReq, monitor)
                 withContext(Dispatchers.Main) {
                     if (newRequests.isNotEmpty()) {
                         _broadcastReqList.value = _broadcastReqList.value.orEmpty() + newRequests
