@@ -4,7 +4,9 @@ import android.util.Log
 import com.example.classmate.data.service.AppointmentService
 import com.example.classmate.data.service.AppointmentServiceImpl
 import com.example.classmate.domain.model.Appointment
+import com.google.firebase.FirebaseException
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import java.util.UUID
@@ -47,9 +49,9 @@ class AppointmentRepositoryImpl(
             appointmentServices.createAppointmentForStudent(appointmentWithId)
             appointmentServices.createAppointmentForMonitor(appointmentWithId)
             //TODO Llamar a requestRepo.delete -> Eliminar las 3 referencias al request
-        }catch (ex:Exception){
-            ex.printStackTrace()
-            Log.e(">>>", ex.localizedMessage)
+        }catch (e:FirebaseAuthException){
+            throw  e
+
         }
     }
 

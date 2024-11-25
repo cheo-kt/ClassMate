@@ -358,6 +358,23 @@ fun UnicastDecisionScreen(
             ) {
                 Button(
                     onClick = {
+                        unicastMonitoringViewModel.createAppointment(
+                            Appointment(
+                                "",
+                                requestObj.mode_class,
+                                requestObj.type,
+                                requestObj.dateInitial,
+                                requestObj.dateFinal,
+                                requestObj.description,
+                                requestObj.place,
+                                requestObj.subjectId,
+                                requestObj.subjectname,
+                                requestObj.studentId,
+                                requestObj.studentName,
+                                monitorObj.id,
+                                monitorObj.name
+                            )
+                        )
 
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
@@ -381,7 +398,7 @@ fun UnicastDecisionScreen(
                             Type_Notification.ACEPTACION
                             )
                         )
-                        navController.navigate("HomeMonitorScreen")
+
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -546,6 +563,7 @@ fun UnicastDecisionScreen(
                 snackbarHostState.showSnackbar("Ya existe una cita a esa hora, rechaza la monitoria.")
             }
         }
+        navController.navigate("HomeMonitorScreen")
     } else if (authState == 3) {
 
         LaunchedEffect(Unit) {
