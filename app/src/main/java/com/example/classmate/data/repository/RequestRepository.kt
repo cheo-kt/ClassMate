@@ -6,6 +6,7 @@ import com.example.classmate.data.service.RequestService
 import com.example.classmate.data.service.RequestServicesImpl
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.Student
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -29,13 +30,18 @@ class RequestRRepositoryImpl(
         val documentId = UUID.randomUUID().toString()
         request.id = documentId
 
-        requestServices.checkForOverlappingRequest(
-            Firebase.auth.currentUser?.uid ?: "",
-            request)
+        try {
+            requestServices.checkForOverlappingRequest(
+                Firebase.auth.currentUser?.uid ?: "",
+                request)
 
-        requestServices.createRequest(request)
-        requestServices.createRequestForStudent(studentID,request)
-        requestServices.createRequestForMonitor(monitorID,request)
+            requestServices.createRequest(request)
+            requestServices.createRequestForStudent(studentID,request)
+            requestServices.createRequestForMonitor(monitorID,request)
+        }catch (e:FirebaseAuthException){
+            throw e
+        }
+
     }
 
     override suspend fun deleteRequest(studentID: String, monitorID: String, requestId: String) {

@@ -5,6 +5,7 @@ import com.example.classmate.data.service.RequestBroadcastServicesImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -26,13 +27,20 @@ class RequestBroadcastRepositoryImpl(
 
         val requestId = UUID.randomUUID().toString()
         val requestWithId = requestBroadcast.copy(id = requestId)
+        try {
+            requestBroadcastServices.checkForOverlappingRequest(
+                Firebase.auth.currentUser?.uid ?: "",
+                requestBroadcast)
 
-         requestBroadcastServices.checkForOverlappingRequest(
-            Firebase.auth.currentUser?.uid ?: "",
-            requestBroadcast)
-        requestBroadcastServices.createRequestInMainCollection(requestWithId)
-        requestBroadcastServices.createRequestForStudent(Firebase.auth.currentUser?.uid ?: "", requestWithId)
-        requestBroadcastServices.createRequestForSubject(requestBroadcast.subjectID, requestId)
+
+
+            requestBroadcastServices.createRequestInMainCollection(requestWithId)
+            requestBroadcastServices.createRequestForStudent(Firebase.auth.currentUser?.uid ?: "", requestWithId)
+            requestBroadcastServices.createRequestForSubject(requestBroadcast.subjectID, requestId)
+        }catch (e: FirebaseAuthException){
+            throw e
+        }
+
 
     }
 

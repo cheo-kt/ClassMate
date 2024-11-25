@@ -59,13 +59,13 @@ class RequestServicesImpl: RequestService {
             val querySnapshot = Firebase.firestore.collection("student")
                 .document(userId)
                 .collection(subcollection)
-                .whereGreaterThan("dateFinal", startTime)
-                .whereLessThan("dateInitial", endTime)
+                .whereGreaterThanOrEqualTo("dateFinal", startTime)
+                .whereLessThanOrEqualTo("dateInitial", endTime)
                 .get()
                 .await()
 
             if (!querySnapshot.isEmpty) {
-                return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", " ")
+                return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", "ya existe ")
             }
         }
         return null
