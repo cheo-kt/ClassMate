@@ -99,7 +99,7 @@ import kotlin.math.sqrt
 @Composable
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
-    val monitorStateFiltered by homeMonitorViewModel.monitorListFiltered.observeAsState()
+    //val monitorStateFiltered by homeMonitorViewModel.monitorListFiltered.observeAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor by homeMonitorViewModel.monitor.observeAsState()
@@ -113,13 +113,13 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var filterSubjectName by remember { mutableStateOf("") }
     var isSearch= false
     val listState = rememberLazyListState()
-    val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
+    //val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
     var buttonMessage by remember { mutableStateOf("") }
     LaunchedEffect(true) {
         homeMonitorViewModel.getMonitor()
         homeMonitorViewModel.loadMoreRequestB()
-        homeMonitorViewModel.getSubjects()
-        homeMonitorViewModel.getSubjectsList()
+        //homeMonitorViewModel.getSubjects()
+        //homeMonitorViewModel.getSubjectsList()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -351,7 +351,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
 
                                     if (subjectIdList.isNotEmpty()) {
                                         filterSubjectName = buttonMessage
-                                        homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
+                                       // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
                                     }
 
                                 } else if(filteringType == "Tipo"){
@@ -419,9 +419,9 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 Spacer(modifier = Modifier.height(2.dp))
 
                                 if(filter.isNotEmpty()){
-                                    subjectFilteredList = subjectsState?.filter {
-                                        it.name.lowercase().startsWith(filter.lowercase())
-                                    } ?: emptyList()
+                                   //* subjectFilteredList = subjectsState?.filter {
+                                   //     it.name.lowercase().startsWith(filter.lowercase())
+                                   // } ?: emptyList()
                                 }
 
                                 if(subjectFilteredList.isNotEmpty() && filter.isNotEmpty()){
@@ -440,7 +440,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                             androidx.compose.material3.Text(text = it.name)
                                         }
                                     }
-                                }else if(filter.isEmpty() || subjectFilteredList.isEmpty()){
+                                }/*else if(filter.isEmpty() || subjectFilteredList.isEmpty()){
                                     subjectsState?.forEach {
 
                                         Button(
@@ -457,7 +457,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                             androidx.compose.material3.Text(text = it.name)
                                         }
                                     }
-                                }
+                                }*/
                                 Spacer(modifier = Modifier.height(2.dp))
                             }
                         }
