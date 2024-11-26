@@ -7,7 +7,9 @@ import com.example.classmate.data.repository.AuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorAuthRepository
 import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.StudentAuthRepository
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.auth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -29,6 +31,16 @@ class MonitorSigninViewModel(val repo: MonitorAuthRepository = MonitorAuthReposi
                 delay(500)
                 withContext(Dispatchers.Main) { authState.value = 0 }
                 ex.printStackTrace()
+            }
+        }
+    }
+    fun checkIfLoggedIn() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                repo.checkAuth()
+                withContext(Dispatchers.Main) { authState.value = 3 } // Usuario autenticado
+            }catch (ex: FirebaseAuthException){
+                withContext(Dispatchers.Main) { authState.value = 0 } // No autenticado
             }
         }
     }
