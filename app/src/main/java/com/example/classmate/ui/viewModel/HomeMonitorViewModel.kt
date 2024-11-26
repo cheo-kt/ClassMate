@@ -4,15 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.AuthRepositoryImpl
+import com.example.classmate.data.repository.MonitorAuthRepository
+import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
+import com.example.classmate.data.repository.StudentAuthRepository
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositoryImpl()
+class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
 ): ViewModel() {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
@@ -49,6 +54,17 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
                 e.printStackTrace()
                 viewModelScope.launch(Dispatchers.Main) { monitorState.value = 2 }
             }
+        }
+    }
+
+    fun logOut(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(monitor.value?.id ?: "")
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
         }
     }
 }

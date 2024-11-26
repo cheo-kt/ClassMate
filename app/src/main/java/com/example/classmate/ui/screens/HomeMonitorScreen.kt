@@ -231,6 +231,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                homeMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

@@ -134,7 +134,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -179,6 +179,8 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                calendarMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

@@ -141,7 +141,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -186,6 +186,8 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                chatMenuMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }
