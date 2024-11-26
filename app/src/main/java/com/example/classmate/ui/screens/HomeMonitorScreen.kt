@@ -123,6 +123,14 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
         monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
     }
+
+    LaunchedEffect(true) {
+        val job = homeMonitorViewModel.getMonitor()
+        job.join()
+        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
+        homeMonitorViewModel.getSubjectsList()
+    }
+
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
         Column(
