@@ -43,6 +43,8 @@ interface MonitorServices {
     suspend fun getImageDownloadUrl(imageUrl:String):String
     suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>>
     suspend fun searchMonitorBySubject(subjectIds: List<String>):List<Monitor?>
+    suspend fun searchSubjectsByName(subjectName :String):List<RequestBroadcast>
+    suspend fun  searchSubjectsByNameRequest(subjectName: String):List<Request>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -282,6 +284,29 @@ class MonitorServicesImpl: MonitorServices {
         }
     }
 
+    override suspend fun searchSubjectsByName(subjectName: String): List<RequestBroadcast> {
+        val result = Firebase.firestore
+            .collection("requestBroadcast")
+            .whereEqualTo("subjectname", subjectName)
+            .get()
+            .await()
+        return result.documents.mapNotNull { document ->
+            document.toObject(RequestBroadcast::class.java)
+        }
+    }
+
+    override suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request> {
+        val result = Firebase.firestore
+            .collection("request")
+            .whereEqualTo("subjectname", subjectName)
+            .get()
+            .await()
+        return result.documents.mapNotNull { document ->
+            document.toObject(Request::class.java)
+        }
+    }
+
+
     private suspend fun hasUnreadMessages(appointmentId: String, idMonitor: String): Boolean {
         return try {
             // Verifica si hay mensajes no leídos
@@ -301,3 +326,5 @@ class MonitorServicesImpl: MonitorServices {
         }
     }
 }
+
+

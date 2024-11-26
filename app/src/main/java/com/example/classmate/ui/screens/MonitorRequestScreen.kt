@@ -32,16 +32,19 @@ import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -67,12 +70,15 @@ import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.components.RequestCard
 import com.example.classmate.ui.viewModel.MonitorRequestViewModel
 import com.google.gson.Gson
+import kotlinx.coroutines.launch
 
 @Composable
 fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: MonitorRequestViewModel = viewModel()) {
     val requestState by monitorRequestViewModel.list.observeAsState()
     val scrollState = rememberScrollState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val monitorState by monitorRequestViewModel.monitorState.observeAsState()
+    val filterrequestState by  monitorRequestViewModel.filterSubjectList.observeAsState()
     var filter by remember { mutableStateOf("") }
     val monitor by monitorRequestViewModel.monitor.observeAsState()
     var image = monitor?.photoUrl
@@ -86,6 +92,11 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var buttonMessage by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
         monitorRequestViewModel.loadMoreRequest()
@@ -332,8 +343,9 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
 
-                                        if (subjectIdList.isNotEmpty()) {
-                                            // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
+                                        if( buttonMessage != "Materia no seleccionada" && buttonMessage != "") {
+
+                                            monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -364,7 +376,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     subjectIdList = emptyList()
                                     buttonMessage = "Materia no seleccionada"
                                 }, colors = ButtonDefaults.buttonColors(
-                                    Color(0xFF815FF0),
+                                    Color(0xFF209619),
                                     Color.White
                                 ),
                                 modifier = Modifier.fillMaxWidth(0.8f)
@@ -418,7 +430,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)
@@ -435,7 +447,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)
@@ -459,6 +471,26 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
+                        if(buttonMessage != "Materia no seleccionada" && buttonMessage != ""){
+                            filterrequestState?.let { requests ->
+                                RequestCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController = navController
+                                )
+                            }
+                        }else{
+                            requestState?.let { requests ->
+                                RequestCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController = navController
+                                )
+                            }
+
+                        }
                         requestState?.let { requests ->
                             RequestCard(
                                 monitor = monitor,
@@ -553,4 +585,29 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
             }
         }
     }
+
+    if (monitorState == 1) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
+        }
+    } else if (monitorState == 2) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("Ha ocurrido un error")
+            }
+        }
+    }
+
+
+
+
 }
