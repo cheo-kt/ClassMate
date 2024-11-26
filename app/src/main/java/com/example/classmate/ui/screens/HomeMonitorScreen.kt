@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
@@ -91,6 +92,7 @@ import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.ui.components.RequestBroadcastCard
 import com.example.classmate.ui.viewModel.HomeMonitorViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -99,7 +101,7 @@ import kotlin.math.sqrt
 @Composable
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
-    //val monitorStateFiltered by homeMonitorViewModel.monitorListFiltered.observeAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor by homeMonitorViewModel.monitor.observeAsState()
@@ -109,17 +111,21 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     val maxLength = 20
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
-    var filteringType by remember { mutableStateOf("Nombre") }
+    var filteringType by remember { mutableStateOf("Materia") }
     var filterSubjectName by remember { mutableStateOf("") }
     var isSearch= false
     val listState = rememberLazyListState()
-    //val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
+    val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
     var buttonMessage by remember { mutableStateOf("") }
+    LaunchedEffect (navBackStackEntry){
+        homeMonitorViewModel.getMonitor()
+        homeMonitorViewModel.loadMoreRequestB()
+        homeMonitorViewModel.getSubjectsList()
+    }
     LaunchedEffect(true) {
         homeMonitorViewModel.getMonitor()
         homeMonitorViewModel.loadMoreRequestB()
-        //homeMonitorViewModel.getSubjects()
-        //homeMonitorViewModel.getSubjectsList()
+        homeMonitorViewModel.getSubjectsList()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -186,7 +192,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = { navController.navigate("notificationMonitorScreen") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -252,145 +258,156 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Box(
-                        Modifier
-                            .width(250.dp)
-                            .align(Alignment.Start)
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween){
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
 
-                            BasicTextField(
-                                value = filter,
-                                onValueChange = {
-                                    if (it.length <= maxLength) {
-                                        filter = it
-                                    }
-                                },
-                                textStyle = TextStyle(
-                                    fontSize = 16.sp,
-                                    color = Color.Black
-                                ),
-                                decorationBox = { innerTextField ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(40.dp)
-                                            .background(Color.LightGray, shape = RoundedCornerShape(50))
-                                            .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                            .padding(horizontal = 15.dp),
-                                        contentAlignment = Alignment.CenterStart
-                                    ) {
-                                        if (filter.isEmpty()) {
-                                            Text(
-                                                text = "Filtrar",
-                                                color = Color.Gray,
+                                BasicTextField(
+                                    value = filter,
+                                    onValueChange = {
+                                        if (it.length <= maxLength) {
+                                            filter = it
+                                        }
+                                    },
+                                    textStyle = TextStyle(
+                                        fontSize = 16.sp,
+                                        color = Color.Black
+                                    ),
+                                    decorationBox = { innerTextField ->
+                                        Box(
+                                            modifier = Modifier
+                                                .height(40.dp)
+                                                .width(150.dp)
+                                                .background(
+                                                    Color.LightGray,
+                                                    shape = RoundedCornerShape(50)
+                                                )
+                                                .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                                .padding(horizontal = 15.dp),
+                                            contentAlignment = Alignment.CenterStart
+                                        ) {
+                                            if (filter.isEmpty()) {
+                                                Text(
+                                                    text = "Filtrar",
+                                                    color = Color.Gray,
+                                                )
+                                            }
+                                            innerTextField()
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.data_loss_prevention),
+                                                contentDescription = "Search Icon",
+                                                tint = Color.Black,
+                                                modifier = Modifier
+                                                    .size(20.dp)
+                                                    .align(Alignment.CenterEnd)
                                             )
                                         }
-                                        innerTextField()
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.data_loss_prevention),
-                                            contentDescription = "Search Icon",
-                                            tint = Color.Black,
-                                            modifier = Modifier
-                                                .size(20.dp)
-                                                .align(Alignment.CenterEnd)
-                                        )
-                                    }
-                                },
-                                singleLine = true,
-                            )
-                            Box {
-
-                                Button(
-                                    onClick = { expandedFilter = true },
-                                    colors = ButtonDefaults.buttonColors(
-                                        Color(0xFF3F21DB),
-                                        Color.White
-                                    )
-                                ) {
-                                    Row {
-                                        androidx.compose.material3.Text(filteringType)
-                                        Icon(
-                                            imageVector = Icons.Filled.KeyboardArrowDown,
-                                            contentDescription = ""
-                                        )
-                                    }
-                                }
-                                androidx.compose.material3.DropdownMenu(
-                                    expanded = expandedFilter,
-                                    onDismissRequest = { expandedFilter = false },
-                                    modifier = Modifier
-                                        .background(Color(0xFFCCD0CF))
-                                        .border(1.dp, Color.Black)
-                                        .width(100.dp)
-                                ) {
-
-                                    DropdownMenuItemWithSeparator("Materia", onClick = {
-                                        filteringType = "Materia"
-                                        expandedFilter = false
-                                    }, onDismiss = { expandedFilter = false })
-                                    DropdownMenuItemWithSeparator("Fecha", onClick = {
-                                        filteringType = "Fecha"
-                                        expandedFilter = false
-                                        subjectIdList = emptyList()
-                                    }, onDismiss = { expandedFilter = false })
-                                    DropdownMenuItemWithSeparator("Tipo", onClick = {
-                                        filteringType = "Tipo"
-                                        expandedFilter = false
-                                        subjectIdList = emptyList()
-                                    }, onDismiss = { expandedFilter = false })
-                                }
-
-                            }
-                            IconButton(onClick = {
-                                isSearch=true
-                                if (filteringType=="Fecha") {
-                                    // homeMonitorViewModel.monitorsFilteredByName(filter)
-                                }
-                                else if(filteringType=="Materia"){
-
-                                    if (subjectIdList.isNotEmpty()) {
-                                        filterSubjectName = buttonMessage
-                                       // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
-                                    }
-
-                                } else if(filteringType == "Tipo"){
-                                    TODO()
-                                }
-                            }) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.data_loss_prevention),
-                                    contentDescription = "Search Icon",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF3F21DB))
-                                        .padding(10.dp)
+                                    },
+                                    singleLine = true,
                                 )
-                            }
+                                Box {
 
+                                    Button(
+                                        onClick = { expandedFilter = true },
+                                        colors = ButtonDefaults.buttonColors(
+                                            Color(0xFF209619),
+                                            Color.White
+                                        )
+                                    ) {
+                                        Row {
+                                            androidx.compose.material3.Text(filteringType)
+                                            Icon(
+                                                imageVector = Icons.Filled.KeyboardArrowDown,
+                                                contentDescription = ""
+                                            )
+                                        }
+                                    }
+                                    androidx.compose.material3.DropdownMenu(
+                                        expanded = expandedFilter,
+                                        onDismissRequest = { expandedFilter = false },
+                                        modifier = Modifier
+                                            .background(Color(0xFFCCD0CF))
+                                            .border(1.dp, Color.Black)
+                                            .width(100.dp)
+                                    ) {
+
+                                        DropdownMenuItemWithSeparator("Materia", onClick = {
+                                            filteringType = "Materia"
+                                            expandedFilter = false
+                                        }, onDismiss = { expandedFilter = false })
+                                        DropdownMenuItemWithSeparator("Fecha", onClick = {
+                                            filteringType = "Fecha"
+                                            expandedFilter = false
+                                            subjectIdList = emptyList()
+                                        }, onDismiss = { expandedFilter = false })
+                                        DropdownMenuItemWithSeparator("Tipo", onClick = {
+                                            filteringType = "Tipo"
+                                            expandedFilter = false
+                                            subjectIdList = emptyList()
+                                        }, onDismiss = { expandedFilter = false })
+                                    }
+
+                                }
+                                IconButton(onClick = {
+                                    isSearch = true
+                                    if (filteringType == "Fecha") {
+                                        // homeMonitorViewModel.monitorsFilteredByName(filter)
+                                    } else if (filteringType == "Materia") {
+
+                                        if (subjectIdList.isNotEmpty()) {
+                                            filterSubjectName = buttonMessage
+                                            // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
+                                        }
+
+                                    } else if (filteringType == "Tipo") {
+                                        TODO()
+                                    }
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.data_loss_prevention),
+                                        contentDescription = "Search Icon",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(50.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF209619))
+                                            .padding(10.dp)
+                                    )
+                                }
+
+
+                            }
 
                         }
 
                     }
+
                     Spacer(modifier = Modifier.height(10.dp))
-                    if(filteringType == "Materia"){
+                    if (filteringType == "Materia") {
                         Row {
                             Spacer(modifier = Modifier.width(2.dp))
                             Button(
                                 onClick = {
                                     subjectIdList = emptyList()
                                     buttonMessage = "Materia no seleccionada"
-                                },colors = ButtonDefaults.buttonColors(
+                                }, colors = ButtonDefaults.buttonColors(
                                     Color(0xFF815FF0),
                                     Color.White
                                 ),
                                 modifier = Modifier.fillMaxWidth(0.8f)
                             ) {
-                                Row{
+                                Row {
                                     androidx.compose.material3.Text(text = buttonMessage)
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Icon(
@@ -420,20 +437,20 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             ) {
                                 Spacer(modifier = Modifier.height(2.dp))
 
-                                if(filter.isNotEmpty()){
-                                   //* subjectFilteredList = subjectsState?.filter {
-                                   //     it.name.lowercase().startsWith(filter.lowercase())
-                                   // } ?: emptyList()
+                                if (filter.isNotEmpty()) {
+                                    subjectFilteredList = subjectsState?.filter {
+                                        it.name.lowercase().startsWith(filter.lowercase())
+                                    } ?: emptyList()
                                 }
 
-                                if(subjectFilteredList.isNotEmpty() && filter.isNotEmpty()){
+                                if (subjectFilteredList.isNotEmpty() && filter.isNotEmpty()) {
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
                                                 subjectIdList = it.monitorsID
                                                 buttonMessage = it.name
 
-                                            },colors = ButtonDefaults.buttonColors(
+                                            }, colors = ButtonDefaults.buttonColors(
                                                 Color(0xFF3F21DB),
                                                 Color.White
                                             ),
@@ -442,7 +459,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                             androidx.compose.material3.Text(text = it.name)
                                         }
                                     }
-                                }/*else if(filter.isEmpty() || subjectFilteredList.isEmpty()){
+                                } else if (filter.isEmpty() || subjectFilteredList.isEmpty()) {
                                     subjectsState?.forEach {
 
                                         Button(
@@ -450,7 +467,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                                 subjectIdList = it.monitorsID
                                                 buttonMessage = it.name
 
-                                            },colors = ButtonDefaults.buttonColors(
+                                            }, colors = ButtonDefaults.buttonColors(
                                                 Color(0xFF3F21DB),
                                                 Color.White
                                             ),
@@ -459,11 +476,10 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                             androidx.compose.material3.Text(text = it.name)
                                         }
                                     }
-                                }*/
+                                }
                                 Spacer(modifier = Modifier.height(2.dp))
                             }
                         }
-
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     androidx.compose.material3.Text(
@@ -473,87 +489,14 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-
-
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         requestState?.let { requests ->
-                            val rb:List<RequestBroadcast?> = if(filter.isNotEmpty()) {
-                                requests.filter {
-                                    it?.studentName!!.startsWith(
-                                        filter,
-                                        ignoreCase = true
-                                    )
-                                }
-                            } else {
-                                requests
-                            }
-                            rb.forEach { request ->
-                                ElevatedCard(
-                                        elevation = CardDefaults.cardElevation(
-                                            defaultElevation = 5.dp,
-                                        ), modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 10.dp)
-                                    ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        AsyncImage(
-                                            model = R.drawable.botonestudiante,
-                                            contentDescription = "",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .padding(horizontal = 10.dp)
-                                                .size(50.dp)
-                                                .clip(CircleShape)
-                                        )
-                                            Column(
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterVertically)
-                                                    .padding(20.dp)
-                                            ) {
-                                                androidx.compose.material3.Text(
-                                                    text = request!!.studentName,
-                                                    color = Color(0xFF209619),
-                                                    fontSize = 16.sp,
-                                                )
-                                                androidx.compose.material3.Text(
-                                                    text = ("Materia:" + request.subjectname),
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .align(Alignment.CenterEnd)
-                                                    .padding(horizontal = 5.dp)
-                                            ) {
-                                                    IconButton(onClick = {
-                                                        navController.navigate(
-                                                            "DecisionMonitor?request=${
-                                                                Gson().toJson(
-                                                                    request
-                                                                ) ?: "No"
-                                                            }&monitor=${
-                                                                Gson().toJson(
-                                                                    monitor
-                                                                ) ?: "No"
-                                                            }"
-                                                        )
-                                                    }) {
-                                                        Icon(
-                                                            imageVector = Icons.Outlined.PlayArrow,
-                                                            contentDescription = "Arrow",
-                                                            modifier = Modifier.size(50.dp)
-                                                        )
-                                                    }
-                                                }
-                                        }
-                                    }
-                                }
-                            }
+                            RequestBroadcastCard(
+                                monitor = monitor,
+                                requests = requests,
+                                filter = filter,
+                                navController =navController
+                            )
                         }
                     }
                     LaunchedEffect(listState) {

@@ -8,15 +8,19 @@ import com.example.classmate.data.repository.MonitorAuthRepository
 import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
+import com.example.classmate.data.repository.SubjectRepository
+import com.example.classmate.data.repository.SubjectRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.google.firebase.auth.FirebaseAuthException
+import com.example.classmate.domain.model.Subject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
+                               ,val subjectsRepo : SubjectRepository = SubjectRepositoryImpl()
 ): ViewModel() {
 
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
@@ -26,6 +30,8 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     private val _list = MutableLiveData(listOf<Request?>())
     val list: LiveData<List<Request?>> get() = _list
     private val limit = 10
+    private val _subjectList = MutableLiveData(listOf<Subject>())
+    val subjectList: LiveData<List<Subject>> get() = _subjectList
 
     fun getMonitor() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -56,7 +62,18 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
             }
         }
     }
+    fun getSubjectsList(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                withContext(Dispatchers.Main) {
+                    _subjectList.value = subjectsRepo.getAllSubjects()
+                }
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+        }
 
+    }
     fun logOut(){
         viewModelScope.launch(Dispatchers.IO){
             try {
