@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -89,7 +90,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch= false
-    var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
 
@@ -99,7 +100,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
-        monitorRequestViewModel.loadMoreRequest()
         monitorRequestViewModel.getSubjectsList()
     }
     LaunchedEffect(true) {
@@ -343,9 +343,11 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
 
-                                        if( buttonMessage != "Materia no seleccionada" && buttonMessage != "") {
+                                        if( buttonMessage != "Materia no seleccionada") {
 
                                             monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
+                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
+                                            Log.e("FilterRequestState", "El tamaño del arreglo es: ${filterrequestState?.size ?: "null"}")
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -471,7 +473,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(buttonMessage != "Materia no seleccionada" && buttonMessage != ""){
+                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
                             filterrequestState?.let { requests ->
                                 RequestCard(
                                     monitor = monitor,
@@ -491,14 +493,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             }
 
                         }
-                        requestState?.let { requests ->
-                            RequestCard(
-                                monitor = monitor,
-                                requests = requests,
-                                filter = filter,
-                                navController = navController
-                            )
-                        }
+
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }

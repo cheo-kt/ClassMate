@@ -118,13 +118,12 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var isSearch= false
     val listState = rememberLazyListState()
     val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
-    var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect (navBackStackEntry){
         homeMonitorViewModel.getMonitor()
-        homeMonitorViewModel.loadMoreRequestB()
         homeMonitorViewModel.getSubjectsList()
     }
     LaunchedEffect(true) {
@@ -368,9 +367,12 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
                                           //subjectIdList es una lista de ids de materias??buttonMessage
-                                        if( buttonMessage != "Materia no seleccionada" && buttonMessage != "") {
+                                        if( buttonMessage != "Materia no seleccionada") {
 
                                              homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
+                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
+
+
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -493,7 +495,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(buttonMessage != "Materia no seleccionada" && buttonMessage != ""  ){
+                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
                             filterrequestState?.let { requests ->
                                 RequestBroadcastCard(
                                     monitor = monitor,
