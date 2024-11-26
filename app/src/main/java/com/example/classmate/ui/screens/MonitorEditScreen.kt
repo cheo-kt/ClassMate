@@ -24,6 +24,7 @@ import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -50,15 +51,16 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.ui.viewModel.MonitorEditProfileViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 @Composable
-fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditProfileViewModel = viewModel()) {
+fun MonitorEditScreen(navController: NavController,monitor:String?,image:String?,authViewModel: MonitorEditProfileViewModel = viewModel()) {
     authViewModel.showMonitorInformation()
-
-    val monitor: Monitor? by authViewModel.monitor.observeAsState(initial = null)
     val scrollState = rememberScrollState()
-    var oldImage = monitor?.photoUrl
+    val monitorObj:Monitor = Gson().fromJson(monitor, Monitor::class.java)
+    var oldImage = image
+    val monitorPhotoState by authViewModel.monitorPhotoState.observeAsState()
     var newImage by remember { mutableStateOf<Uri>(Uri.EMPTY) }
     var name by remember { mutableStateOf("") }
     var lastname by remember { mutableStateOf("") }
@@ -70,12 +72,17 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
     val scope = rememberCoroutineScope()
     var isInitialized by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    LaunchedEffect(monitorPhotoState) {
+        if (monitorPhotoState == 3) {
+            navController.navigate("monitorProfile")
+        }
+    }
     LaunchedEffect(!isInitialized) {
-        name = monitor?.name ?: ""
-        lastname = monitor?.lastname ?: ""
-        phone = monitor?.phone ?: ""
-        description = monitor?.description ?: ""
-        email = monitor?.email ?: ""
+        name = monitorObj.name
+        lastname = monitorObj.lastname
+        phone = monitorObj.phone
+        description = monitorObj.description
+        email = monitorObj.email
         isInitialized = true
 
     }
@@ -141,9 +148,7 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
                     .clip(CircleShape)
             )
             {
-                monitor?.let {
-                    oldImage = it.photoUrl
-                }
+
                 Image(
                     modifier = Modifier
                         .size(200.dp) // Tamaño de la imagen
@@ -205,12 +210,32 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
 
                     }
                 } else {
-                    authViewModel.updateMonitorProfile(phone, name, lastname, description, email)
+                    if (name != monitorObj.name) {
+                        authViewModel.updateMonitorProfile(monitorObj.id, "name", name)
+                    }
+                    if (lastname != monitorObj.lastname) {
+                        authViewModel.updateMonitorProfile(monitorObj.id, "lastname", lastname)
+                    }
+                    if (phone != monitorObj.phone) {
+                        authViewModel.updateMonitorProfile(monitorObj.id, "phone", phone)
+                    }
+                    if (description != monitorObj.description) {
+                        authViewModel.updateMonitorProfile(
+                            monitorObj.id,
+                            "description",
+                            description
+                        )
+                    }
+                    if (email != monitorObj.email) {
+                        authViewModel.updateMonitorProfile(monitorObj.id, "email", email)
+                    }
 
                     if (newImage.toString().isNotBlank()) {
 
-                        authViewModel.updateMonitorPhoto(newImage, context)
-                        if (authViewModel.monitorPhotoState.value == 2) {
+                        oldImage?.let { 
+                            authViewModel.updateMonitorPhoto(newImage, context, it) 
+                        }
+                        if (monitorPhotoState == 2) {
                             scope.launch {
                                 snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar("Error durante la subida de la imágen")
@@ -222,7 +247,6 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
                             snackbarHostState.showSnackbar("No se eligió ninguna imágen")
                         }
                     }
-                    navController.navigate("monitorProfile")
                 }
 
 
@@ -238,6 +262,18 @@ fun MonitorEditScreen(navController: NavController,authViewModel: MonitorEditPro
                 Text(text = "Subir Foto")
             }
 
+        }
+        if (monitorPhotoState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
         }
     }
 }

@@ -75,7 +75,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     var filter by remember { mutableStateOf("") }
     val monitor by monitorRequestViewModel.monitor.observeAsState()
-    var image = monitor?.photoUrl
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     val listState = rememberLazyListState()
@@ -83,6 +82,10 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch= false
+    val image by monitorRequestViewModel.image.observeAsState()
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
+    }
     var buttonMessage by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()

@@ -130,7 +130,13 @@ fun App() {
         composable("HomeMonitorScreen"){ HomeMonitorScreen(navController)} //HomeMonitor
         composable("introductionMonitor") { IntroductionsMonitorScreen(navController) } //introducción Estudiante
         composable("monitorProfile") { MonitorProfileScreen(navController) } //Perfil Monitor
-        composable("monitorEdit"){ MonitorEditScreen(navController) } //Editar perfil Monitor
+        composable("monitorEdit?monitor={monitor}&image={image}",arguments=
+            listOf(navArgument("monitor"){type=NavType.StringType},
+                navArgument("image"){type=NavType.StringType}
+            )){ entry ->
+            val monitor = entry.arguments?.getString("monitor")
+            val image = entry.arguments?.getString("image")
+            MonitorEditScreen(navController,monitor,image) } //Editar perfil Monitor
         composable("studentProfile") { StudentProfileScreen(navController) } // Perfil del estudiante
         composable("studentEdit?student={student}&image={image}",arguments =
         listOf(navArgument("student"){type=NavType.StringType},

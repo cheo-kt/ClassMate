@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.util.UUID
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -29,7 +30,7 @@ interface MonitorServices {
 
     suspend fun createMonitor(monitor: Monitor)
     suspend fun  getMonitorById(id:String): Monitor?
-    suspend fun uploadProfileImage(id: String, uri: Uri, context: Context): String
+    suspend fun uploadProfileImage(id: String, uri: Uri, context: Context,oldImageID:String): String
     suspend fun updateMonitorField(id: String, field: String, value: Any)
     suspend fun updateMonitorImageUrl(id:String,url: String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
@@ -64,8 +65,14 @@ class MonitorServicesImpl: MonitorServices {
         val userObject = user.toObject(Monitor::class.java)
         return userObject
     }
-    override suspend fun uploadProfileImage(id: String, uri: Uri, context: Context, ): String  {
-        val storageRef = Firebase.storage.reference.child("images/monitors/$id.jpg")
+    override suspend fun uploadProfileImage(id: String, uri: Uri, context: Context,oldImageID:String): String  {
+        if(oldImageID.isNotEmpty() && oldImageID != "noImage"){
+            Firebase.storage
+                .reference.child("images/monitors/$oldImageID.jpg")
+                .delete()
+        }
+        val uid = UUID.randomUUID()
+        val storageRef = Firebase.storage.reference.child("images/monitors/$uid.jpg")
         val bitmap= withContext(Dispatchers.IO){
             val inputStream = context.contentResolver.openInputStream(uri)
 
@@ -78,7 +85,7 @@ class MonitorServicesImpl: MonitorServices {
 
         storageRef.putBytes(compressedData).await()
 
-        return storageRef.downloadUrl.await().toString()
+        return uid.toString()
     }
 
     override suspend fun updateMonitorField(id: String, field: String, value: Any) {
