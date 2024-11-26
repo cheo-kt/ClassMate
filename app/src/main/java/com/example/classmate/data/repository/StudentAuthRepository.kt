@@ -11,7 +11,8 @@ interface StudentAuthRepository {
 
     suspend fun signup(student: Student, password:String)
     suspend fun signin(email:String, password: String)
-
+    suspend fun logOut(studentId:String)
+    suspend fun checkAuth()
 }
 
 class AuthRepositoryImpl(
@@ -31,5 +32,13 @@ class AuthRepositoryImpl(
       }
     override suspend fun signin(email: String, password: String) {
         authService.loginWithEmailAndPassword(email, password)
+    }
+
+    override suspend fun logOut(studentId: String) {
+        authService.logOut(studentId)
+    }
+
+    override suspend fun checkAuth() {
+        authService.checkAuth()
     }
 }

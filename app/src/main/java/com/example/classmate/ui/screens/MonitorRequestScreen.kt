@@ -172,7 +172,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -217,6 +217,8 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                monitorRequestViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }
@@ -565,7 +567,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",

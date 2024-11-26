@@ -102,7 +102,7 @@ class AppointmentServiceImpl: AppointmentService {
             .await()
 
         result.forEach { document ->
-            val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
+            val isNotificationSent = document.getBoolean("notificationGenerated") ?: false
             if (!isNotificationSent) {
                 val appointment = document.toObject(Appointment::class.java)
                 notificationService.createNotification(
@@ -119,7 +119,7 @@ class AppointmentServiceImpl: AppointmentService {
                         Type_Notification.RECORDATORIO
                     )
                 )
-                document.reference.update("NotificationGenerated", true).await()
+                document.reference.update("notificationGenerated", true).await()
             }
         }
     }
@@ -137,7 +137,7 @@ class AppointmentServiceImpl: AppointmentService {
             .await()
 
         result.forEach { document ->
-            val isNotificationSent = document.getBoolean("NotificationGenerated") ?: false
+            val isNotificationSent = document.getBoolean("notificationGenerated") ?: false
             if (!isNotificationSent) {
                 val appointment = document.toObject(Appointment::class.java)
                 notificationService.createNotificationForMonitor(
@@ -154,7 +154,7 @@ class AppointmentServiceImpl: AppointmentService {
                         Type_Notification.RECORDATORIO
                     )
                 )
-                document.reference.update("NotificationGenerated", true).await()
+                document.reference.update("notificationGenerated", true).await()
             }
         }
     }

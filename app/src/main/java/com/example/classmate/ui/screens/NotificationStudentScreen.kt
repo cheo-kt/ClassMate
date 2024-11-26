@@ -189,6 +189,8 @@ fun NotificationStudentScreen(navController: NavController,
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                notificationStudentViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

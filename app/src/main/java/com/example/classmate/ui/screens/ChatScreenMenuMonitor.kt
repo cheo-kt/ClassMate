@@ -141,7 +141,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -186,6 +186,8 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                chatMenuMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }
@@ -269,7 +271,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("MonitorRequest")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -281,7 +283,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -294,13 +296,8 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+
+                        IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
@@ -310,17 +307,24 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 tint = Color.White
                             )
                         }
-                    }
+
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp),
-                            tint = Color.White
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(2.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
                     Box(modifier = Modifier.weight(0.1f))
                 }
