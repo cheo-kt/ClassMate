@@ -269,7 +269,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("MonitorRequest")}) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -281,7 +281,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -294,13 +294,8 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+
+                        IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
@@ -310,17 +305,24 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 tint = Color.White
                             )
                         }
-                    }
+
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp),
-                            tint = Color.White
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { /*TODO*/ }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(2.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
                     Box(modifier = Modifier.weight(0.1f))
                 }

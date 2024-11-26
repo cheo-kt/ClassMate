@@ -206,7 +206,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  navController.navigate("MonitorRequest") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -218,7 +218,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
@@ -249,7 +249,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  navController.navigate("chatScreenMonitor")  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
