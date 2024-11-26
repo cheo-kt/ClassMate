@@ -104,7 +104,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
-    val monitor by homeMonitorViewModel.monitor.observeAsState()
+    val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     var image = monitor?.photoUrl
     var expanded by remember { mutableStateOf(false) }
     var expandedFilter by remember { mutableStateOf(false) }
@@ -118,15 +118,19 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
     var buttonMessage by remember { mutableStateOf("") }
     LaunchedEffect (navBackStackEntry){
-        homeMonitorViewModel.getMonitor()
-        homeMonitorViewModel.loadMoreRequestB()
+        val job = homeMonitorViewModel.getMonitor()
+        job.join()
+        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
     }
+
     LaunchedEffect(true) {
-        homeMonitorViewModel.getMonitor()
-        homeMonitorViewModel.loadMoreRequestB()
+        val job = homeMonitorViewModel.getMonitor()
+        job.join()
+        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
     }
+
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
         Column(
@@ -501,7 +505,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
                             .collect { isAtBottom ->
                                 if (isAtBottom) {
-                                    homeMonitorViewModel.loadMoreRequestB()
+                                    monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
                                 }
                             }
                     }

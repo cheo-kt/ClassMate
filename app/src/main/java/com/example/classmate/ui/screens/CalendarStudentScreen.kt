@@ -173,6 +173,8 @@ fun CalendarStudentScreen(navController: NavController,calendarStudentViewModel:
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                calendarStudentViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.classmate.data.repository.AppointmentRepository
 import com.example.classmate.data.repository.AppointmentRepositoryImpl
 import com.example.classmate.data.repository.AuthRepositoryImpl
+import com.example.classmate.data.repository.MonitorAuthRepository
+import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.NotificationRepository
 import com.example.classmate.data.repository.NotificationRepositoryImpl
 import com.example.classmate.data.repository.RequestRRepositoryImpl
@@ -23,7 +25,8 @@ import kotlinx.coroutines.withContext
 class UnicastMonitoringViewModel (
     val repo: RequestRepository = RequestRRepositoryImpl(),
     val repo2:NotificationRepository = NotificationRepositoryImpl(),
-    val repo3: AppointmentRepository = AppointmentRepositoryImpl()
+    val repo3: AppointmentRepository = AppointmentRepositoryImpl(),
+    val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
 ):ViewModel(){
     val authState = MutableLiveData(0)
     //0. Idle
@@ -105,6 +108,16 @@ class UnicastMonitoringViewModel (
                 withContext(Dispatchers.Main) { authState.value = 2 }
                 ex.printStackTrace()
             }
+        }
+    }
+    fun logOut(MonitorID: String){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(MonitorID)
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
         }
     }
 }

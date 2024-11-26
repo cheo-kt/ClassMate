@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.MonitorAuthRepository
+import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.data.repository.SubjectRepository
@@ -11,13 +13,13 @@ import com.example.classmate.data.repository.SubjectRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
-import com.example.classmate.domain.model.Subject
 import com.google.firebase.auth.FirebaseAuthException
+import com.example.classmate.domain.model.Subject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepositoryImpl()
+class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
                                ,val subjectsRepo : SubjectRepository = SubjectRepositoryImpl()
 ): ViewModel() {
 
@@ -72,4 +74,15 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
         }
 
     }
+    fun logOut(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(monitor.value?.id ?: "")
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
+        }
+    }
+
 }

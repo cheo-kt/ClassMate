@@ -35,7 +35,7 @@ interface MonitorServices {
     suspend fun updateMonitorImageUrl(id:String,url: String)
     suspend fun getMonitors(limit: Int, monitor: Monitor?):List<Monitor?>
     suspend fun searchMonitorByName(name:String):List<Monitor?>
-    suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast>
+    suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?, monitor: Monitor): List<RequestBroadcast>
     suspend fun calificateMonitor(opinionsAndQualifications: OpinionsAndQualifications,monitorId:String, )
     suspend fun getOpinionMonitor(monitorId:String, limit: Int)
     suspend fun loadMoreOpinions(limit: Int, lastOpinion: OpinionsAndQualifications?, monitorId: String):List<OpinionsAndQualifications>
@@ -133,9 +133,11 @@ class MonitorServicesImpl: MonitorServices {
         }
     }
 
-    override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?): List<RequestBroadcast> {
+    override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?, monitor: Monitor): List<RequestBroadcast> {
         return try {
+            val subjects = monitor.subjects.map { it.name }
             val querySnapshot = Firebase.firestore.collection("requestBroadcast")
+                .whereIn("subjectname", subjects)
                 .orderBy("id")
                 .startAfter(broadRequest?.id)
                 .limit(limit.toLong())

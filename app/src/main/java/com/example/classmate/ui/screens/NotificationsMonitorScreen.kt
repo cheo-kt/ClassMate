@@ -212,6 +212,8 @@ fun NotificationMonitorScreen(navController: NavController,
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                notificationMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                 }
@@ -392,7 +394,7 @@ fun NotificationMonitorScreen(navController: NavController,
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {navController.navigate("HomeMonitorScreen")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",

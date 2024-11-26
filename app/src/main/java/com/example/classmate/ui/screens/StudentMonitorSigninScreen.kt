@@ -67,6 +67,11 @@ fun StudentMonitorSigninScreen (navController: NavController,
     val scope = rememberCoroutineScope() //Crear una corrutina (Segundo plano)
 
 
+    LaunchedEffect(Unit) {
+        monitorAuthViewModel.checkIfLoggedIn()
+        authViewModel.checkIfLoggedIn()
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
@@ -209,31 +214,33 @@ fun StudentMonitorSigninScreen (navController: NavController,
             )
 
         }
-        if (authStateMonitor == 1 || authState == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
+        // Manejo de estados
+        when {
+            authStateMonitor == 1 || authState == 1 -> {
+                // Loading
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.6f))
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                        color = Color.White
+                    )
+                }
             }
-        } else if (authStateMonitor == 2 || authState == 2) {
-            scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Tu contraseña o tu correo no coincide, intenta de nuevo.")
+            authStateMonitor == 2 || authState == 2 -> {
+                // Error
+                scope.launch {
+                    snackbarHostState.showSnackbar("Tu correo o contraseña no coincide. Intenta de nuevo.")
+                }
             }
-        } else if (authStateMonitor == 3 || authState == 3) {
-            if (authStateMonitor == 3) {
-                LaunchedEffect(Unit) {
+            authStateMonitor == 3 -> {
                     navController.navigate("HomeMonitorScreen")
-                }
-            } else {
-                LaunchedEffect(Unit) {
+
+            }
+            authState == 3 -> {
                     navController.navigate("HomeStudentScreen")
-                }
             }
         }
 

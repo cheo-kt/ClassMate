@@ -134,7 +134,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -179,6 +179,8 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                calendarMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }
@@ -206,7 +208,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  navController.navigate("MonitorRequest") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -218,7 +220,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
@@ -249,7 +251,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  navController.navigate("chatScreenMonitor")  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",

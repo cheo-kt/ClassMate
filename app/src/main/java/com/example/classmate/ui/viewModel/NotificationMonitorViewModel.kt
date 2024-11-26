@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.classmate.data.repository.AppointmentRepository
 import com.example.classmate.data.repository.AppointmentRepositoryImpl
+import com.example.classmate.data.repository.MonitorAuthRepository
+import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.data.repository.NotificationRepository
@@ -22,7 +24,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorRepositoryImpl(), val repo: NotificationRepository = NotificationRepositoryImpl(),
-                                   val repo3: AppointmentRepository = AppointmentRepositoryImpl(), val repo4: RequestBroadcastRepository = RequestBroadcastRepositoryImpl()
+                                   val repo3: AppointmentRepository = AppointmentRepositoryImpl(), val repo4: RequestBroadcastRepository = RequestBroadcastRepositoryImpl(),
+                                   val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
 ): ViewModel()  {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
@@ -116,6 +119,17 @@ class NotificationMonitorViewModel(val repo2: MonitorRepository = MonitorReposit
         } catch (ex: FirebaseAuthException) {
             withContext(Dispatchers.Main) { monitorState.value = 2 }
             ex.printStackTrace()
+        }
+    }
+
+    fun logOut(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(monitor.value?.id ?: "")
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
         }
     }
 }

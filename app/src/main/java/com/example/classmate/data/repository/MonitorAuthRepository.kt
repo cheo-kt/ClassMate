@@ -13,7 +13,8 @@ interface MonitorAuthRepository {
 
     suspend fun signup(monitor: Monitor, password:String):String
     suspend fun signin(email:String, password: String)
-
+    suspend fun logOut(monitorId:String)
+    suspend fun checkAuth()
 }
 class MonitorAuthRepositoryImpl(
     val authServiceMonitor: MonitorAuthService = MonitorAuthServiceImpl(),
@@ -34,5 +35,13 @@ class MonitorAuthRepositoryImpl(
     }
     override suspend fun signin(email: String, password: String) {
         authServiceMonitor.loginWithEmailAndPassword(email, password)
+    }
+
+    override suspend fun logOut(monitorId: String) {
+        authServiceMonitor.logOut(monitorId)
+    }
+
+    override suspend fun checkAuth() {
+        authServiceMonitor.checkAuth()
     }
 }

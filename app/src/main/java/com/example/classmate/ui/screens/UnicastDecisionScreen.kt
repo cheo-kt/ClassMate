@@ -161,7 +161,7 @@ fun UnicastDecisionScreen(
                                 .width(40.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { /* TODO: Acción de ayuda */ })
+                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
                         ) {
                             IconButton(
                                 onClick = { },
@@ -224,6 +224,8 @@ fun UnicastDecisionScreen(
                                     }, onDismiss = { expanded = false })
 
                                     DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                        unicastMonitoringViewModel.logOut(monitorObj.id.toString())
+                                        navController.navigate("signing")
                                     }, onDismiss = { expanded = false })
                                 }
                             }
@@ -534,7 +536,7 @@ fun UnicastDecisionScreen(
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
