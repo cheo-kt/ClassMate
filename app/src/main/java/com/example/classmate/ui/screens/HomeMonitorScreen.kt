@@ -38,11 +38,15 @@ import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.sharp.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -95,16 +99,27 @@ import kotlin.math.sqrt
 @Composable
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
+    //val monitorStateFiltered by homeMonitorViewModel.monitorListFiltered.observeAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor by homeMonitorViewModel.monitor.observeAsState()
     var image = monitor?.photoUrl
     var expanded by remember { mutableStateOf(false) }
+    var expandedFilter by remember { mutableStateOf(false) }
+    var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     val maxLength = 20
+    var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
+    var filteringType by remember { mutableStateOf("Nombre") }
+    var filterSubjectName by remember { mutableStateOf("") }
+    var isSearch= false
     val listState = rememberLazyListState()
+    //val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
+    var buttonMessage by remember { mutableStateOf("") }
     LaunchedEffect(true) {
         homeMonitorViewModel.getMonitor()
         homeMonitorViewModel.loadMoreRequestB()
+        //homeMonitorViewModel.getSubjects()
+        //homeMonitorViewModel.getSubjectsList()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -240,48 +255,223 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             .width(250.dp)
                             .align(Alignment.Start)
                     ) {
-                        BasicTextField(
-                            value = filter,
-                            onValueChange = {
-                                if (it.length <= maxLength) {
-                                    filter = it
-                                }
-                            },
-                            textStyle = TextStyle(
-                                fontSize = 16.sp,
-                                color = Color.Black
-                            ),
-                            decorationBox = { innerTextField ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .background(Color.LightGray, shape = RoundedCornerShape(50))
-                                        .border(2.dp, Color.Black, RoundedCornerShape(50))
-                                        .padding(horizontal = 15.dp),
-                                    contentAlignment = Alignment.CenterStart
-                                ) {
-                                    if (filter.isEmpty()) {
-                                        Text(
-                                            text = "Filtrar",
-                                            color = Color.Gray,
+                        Row(Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween){
+
+                            BasicTextField(
+                                value = filter,
+                                onValueChange = {
+                                    if (it.length <= maxLength) {
+                                        filter = it
+                                    }
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 16.sp,
+                                    color = Color.Black
+                                ),
+                                decorationBox = { innerTextField ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(40.dp)
+                                            .background(Color.LightGray, shape = RoundedCornerShape(50))
+                                            .border(2.dp, Color.Black, RoundedCornerShape(50))
+                                            .padding(horizontal = 15.dp),
+                                        contentAlignment = Alignment.CenterStart
+                                    ) {
+                                        if (filter.isEmpty()) {
+                                            Text(
+                                                text = "Filtrar",
+                                                color = Color.Gray,
+                                            )
+                                        }
+                                        innerTextField()
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.data_loss_prevention),
+                                            contentDescription = "Search Icon",
+                                            tint = Color.Black,
+                                            modifier = Modifier
+                                                .size(20.dp)
+                                                .align(Alignment.CenterEnd)
                                         )
                                     }
-                                    innerTextField()
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.data_loss_prevention),
-                                        contentDescription = "Search Icon",
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .align(Alignment.CenterEnd)
+                                },
+                                singleLine = true,
+                            )
+                            Box {
+
+                                Button(
+                                    onClick = { expandedFilter = true },
+                                    colors = ButtonDefaults.buttonColors(
+                                        Color(0xFF3F21DB),
+                                        Color.White
                                     )
+                                ) {
+                                    Row {
+                                        androidx.compose.material3.Text(filteringType)
+                                        Icon(
+                                            imageVector = Icons.Filled.KeyboardArrowDown,
+                                            contentDescription = ""
+                                        )
+                                    }
                                 }
-                            },
-                            singleLine = true,
-                        )
+                                androidx.compose.material3.DropdownMenu(
+                                    expanded = expandedFilter,
+                                    onDismissRequest = { expandedFilter = false },
+                                    modifier = Modifier
+                                        .background(Color(0xFFCCD0CF))
+                                        .border(1.dp, Color.Black)
+                                        .width(100.dp)
+                                ) {
+
+                                    DropdownMenuItemWithSeparator("Materia", onClick = {
+                                        filteringType = "Materia"
+                                        expandedFilter = false
+                                    }, onDismiss = { expandedFilter = false })
+                                    DropdownMenuItemWithSeparator("Fecha", onClick = {
+                                        filteringType = "Fecha"
+                                        expandedFilter = false
+                                        subjectIdList = emptyList()
+                                    }, onDismiss = { expandedFilter = false })
+                                    DropdownMenuItemWithSeparator("Tipo", onClick = {
+                                        filteringType = "Tipo"
+                                        expandedFilter = false
+                                        subjectIdList = emptyList()
+                                    }, onDismiss = { expandedFilter = false })
+                                }
+
+                            }
+                            IconButton(onClick = {
+                                isSearch=true
+                                if (filteringType=="Fecha") {
+                                    // homeMonitorViewModel.monitorsFilteredByName(filter)
+                                }
+                                else if(filteringType=="Materia"){
+
+                                    if (subjectIdList.isNotEmpty()) {
+                                        filterSubjectName = buttonMessage
+                                       // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
+                                    }
+
+                                } else if(filteringType == "Tipo"){
+                                    TODO()
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.data_loss_prevention),
+                                    contentDescription = "Search Icon",
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF3F21DB))
+                                        .padding(10.dp)
+                                )
+                            }
+
+
+                        }
+
                     }
                     Spacer(modifier = Modifier.height(10.dp))
+                    if(filteringType == "Materia"){
+                        Row {
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Button(
+                                onClick = {
+                                    subjectIdList = emptyList()
+                                    buttonMessage = "Materia no seleccionada"
+                                },colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF815FF0),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                Row{
+                                    androidx.compose.material3.Text(text = buttonMessage)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Search Icon",
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                if(filter.isNotEmpty()){
+                                   //* subjectFilteredList = subjectsState?.filter {
+                                   //     it.name.lowercase().startsWith(filter.lowercase())
+                                   // } ?: emptyList()
+                                }
+
+                                if(subjectFilteredList.isNotEmpty() && filter.isNotEmpty()){
+                                    subjectFilteredList.forEach {
+                                        Button(
+                                            onClick = {
+                                                subjectIdList = it.monitorsID
+                                                buttonMessage = it.name
+
+                                            },colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                }/*else if(filter.isEmpty() || subjectFilteredList.isEmpty()){
+                                    subjectsState?.forEach {
+
+                                        Button(
+                                            onClick = {
+                                                subjectIdList = it.monitorsID
+                                                buttonMessage = it.name
+
+                                            },colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                }*/
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    androidx.compose.material3.Text(
+                        text = "Solicitudes Broadcast",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+
 
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         requestState?.let { requests ->

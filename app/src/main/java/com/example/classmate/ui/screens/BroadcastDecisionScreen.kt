@@ -40,7 +40,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,10 +77,12 @@ import com.example.classmate.ui.viewModel.RequestBroadcastStudentViewModel
 import com.example.classmate.ui.viewModel.UnicastMonitoringViewModel
 import com.google.firebase.Timestamp
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
+
 
 @Composable
 fun BroadcastDecisionScreen(
@@ -99,7 +104,8 @@ fun BroadcastDecisionScreen(
     var expanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { innerpadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -277,7 +283,10 @@ fun BroadcastDecisionScreen(
 
                     Column {
                         val spanishLocale = Locale("es", "ES")
-                        val dateFormatter = SimpleDateFormat("EEEE dd 'de' MMMM 'de' yyyy 'a las' HH:mm", spanishLocale)
+                        val dateFormatter = SimpleDateFormat(
+                            "EEEE dd 'de' MMMM 'de' yyyy 'a las' HH:mm",
+                            spanishLocale
+                        )
 
                         Text(
                             text = dateFormatter.format(requestObj.dateInitial.toDate()),
@@ -304,10 +313,10 @@ fun BroadcastDecisionScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
 
-                        if(requestObj.mode_class == "Virtual"){
+                        if (requestObj.mode_class == "Virtual") {
                             Text(requestObj.mode_class)
 
-                        }else{
+                        } else {
                             Text("${requestObj.mode_class}, en : ${requestObj.mode_class}")
 
                         }
@@ -377,7 +386,8 @@ fun BroadcastDecisionScreen(
                         requestBroadcastStudentViewmodel.deleteRequest(
                             requestObj.studentId,
                             requestObj.subjectID,
-                            requestObj.id)
+                            requestObj.id
+                        )
                         requestBroadcastStudentViewmodel.createNotification(
                             Notification(
                                 UUID.randomUUID().toString(),
@@ -414,7 +424,11 @@ fun BroadcastDecisionScreen(
 
                 Button(
                     onClick = {
-                        requestBroadcastStudentViewmodel.deleteRequest(requestObj.studentId,requestObj.subjectID,requestObj.id)
+                        requestBroadcastStudentViewmodel.deleteRequest(
+                            requestObj.studentId,
+                            requestObj.subjectID,
+                            requestObj.id
+                        )
                         scope.launch {
                             snackbarHostState.currentSnackbarData?.dismiss()
                             snackbarHostState.showSnackbar("Monitoria Rechazada.")
@@ -462,8 +476,8 @@ fun BroadcastDecisionScreen(
                             .size(58.dp)
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { navController.navigate("MonitorRequest")}) {
+                    ) {
+                        IconButton(onClick = { navController.navigate("MonitorRequest") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.people),
                                 contentDescription = "calendario",
@@ -478,7 +492,7 @@ fun BroadcastDecisionScreen(
 
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = {navController.navigate("HomeMonitorScreen")  }) {
+                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -516,37 +530,52 @@ fun BroadcastDecisionScreen(
                 }
             }
         }
+        if (authState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (authState == 2) {
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    // Asegúrate de mostrar el Snackbar
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    val snackbarResult = snackbarHostState.showSnackbar(
+                        "Ya tienes una cita a esa hora, monitoria rechazada.",
+                        duration = SnackbarDuration.Long // Duración del Snackbar (Short, Long, Indefinite)
+                    )
+
+                    // Retraso adicional para asegurar que el usuario pueda leer el mensaje.
+                    delay(2000) // 2 segundos extra
+
+                    // Navega después del retraso.
+                    navController.navigate("MonitorRequest")
+                }
+            }
+
+
+        } else if (authState == 3) {
+
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Monitoria Aceptada")
+                }
+            }
+            navController.navigate("MonitorRequest")
+        }
+
     }
 
-    if (authState == 1) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
-            )
-        }
-    } else if (authState == 2) {
-        LaunchedEffect(Unit) {
-            scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ya existe una cita a esa hora, rechaza la monitoria.")
-            }
-        }
-    } else if (authState == 3) {
+}
 
-        LaunchedEffect(Unit) {
-            scope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Monitoria Aceptada")
-            }
-        }
-        navController.navigate("HomeMonitorScreen")
-        }
 
-    }
 
 

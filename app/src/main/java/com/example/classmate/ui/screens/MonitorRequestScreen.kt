@@ -231,7 +231,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 ) {
                                     if (filter.isEmpty()) {
                                         Text(
-                                            text = "Filtrar",
+                                            text = "Filtrar por Materia",
                                             color = Color.Gray,
                                         )
                                     }

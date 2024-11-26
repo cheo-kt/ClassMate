@@ -75,13 +75,12 @@ class AppointmentServiceImpl: AppointmentService {
             val querySnapshot = Firebase.firestore.collection("Monitor")
                 .document(userId)
                 .collection(subcollection)
-                .whereGreaterThan("dateFinal", startTime)
-                .whereLessThan("dateInitial", endTime)
+                .whereGreaterThanOrEqualTo("dateFinal", startTime)
+                .whereLessThanOrEqualTo("dateInitial", endTime)
                 .get()
                 .await()
-            Log.e(">>>", ">>>"+querySnapshot.documents.size)
             for(doc in querySnapshot.documents){
-                Log.e(">>>", ">>>"+doc.toString())
+
             }
             if (!querySnapshot.isEmpty) {
                 return throw FirebaseAuthException("ERROR_USER_NOT_FOUND", "ERROR_USER_NOT_FOUND"+subcollection)
