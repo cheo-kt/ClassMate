@@ -5,15 +5,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.classmate.data.repository.MonitorAuthRepository
+import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
+import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class CalendarMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImpl()): ViewModel() {
+class CalendarMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()): ViewModel() {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState = MutableLiveData<Int?>(0)
@@ -56,5 +59,15 @@ class CalendarMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryIm
             }
         }
 
+    }
+    fun logOut(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(monitor.value?.id ?: "")
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
+        }
     }
 }

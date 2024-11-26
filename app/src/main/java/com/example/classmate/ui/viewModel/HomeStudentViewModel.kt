@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.classmate.data.repository.AuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
+import com.example.classmate.data.repository.StudentAuthRepository
 import com.example.classmate.data.repository.StudentRepository
 import com.example.classmate.data.repository.StudentRepositoryImpl
 import com.example.classmate.data.repository.SubjectRepository
@@ -22,7 +24,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl(),val subjectsRepo : SubjectRepository = SubjectRepositoryImpl(),
-                            val repoMonitor: MonitorRepository = MonitorRepositoryImpl()): ViewModel() {
+                            val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: StudentAuthRepository = AuthRepositoryImpl()): ViewModel() {
     private val _student = MutableLiveData<Student?>(Student())
     val student: LiveData<Student?> get() = _student
     val studentState = MutableLiveData<Int?>(0)
@@ -182,6 +184,18 @@ class HomeStudentViewModel(val repo: StudentRepository = StudentRepositoryImpl()
         fun refresh() {
             _monitorListFiltered.value = emptyList()
         }
+
+    fun logOut(){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                repoAuth.logOut(student.value?.id ?: "")
+            }catch (ex: FirebaseAuthException){
+                ex.printStackTrace()
+            }
+
+        }
+
+    }
 
 }
 

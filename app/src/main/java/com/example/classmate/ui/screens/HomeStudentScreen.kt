@@ -232,6 +232,8 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                homeStudentViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

@@ -225,7 +225,7 @@ fun AppoimentMonitorViewScreen(navController: NavController, appointment: String
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate("MonitorRequest") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -237,7 +237,7 @@ fun AppoimentMonitorViewScreen(navController: NavController, appointment: String
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {navController.navigate("HomeMonitorScreen") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -256,7 +256,7 @@ fun AppoimentMonitorViewScreen(navController: NavController, appointment: String
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = {navController.navigate("CalendarMonitor")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
@@ -268,7 +268,7 @@ fun AppoimentMonitorViewScreen(navController: NavController, appointment: String
                         }
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {  navController.navigate("chatScreenMonitor") }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
