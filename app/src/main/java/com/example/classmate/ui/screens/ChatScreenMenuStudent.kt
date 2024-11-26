@@ -180,6 +180,8 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                chatMenuStudentViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

@@ -13,7 +13,7 @@ interface StudentAuthService {
 
     suspend fun  createStudent(email:String, password:String)
     suspend fun loginWithEmailAndPassword(email: String, password: String)
-
+    suspend fun logOut(studentId:String)
 }
 
 class StudentAuthServiceImpl: StudentAuthService {
@@ -29,5 +29,9 @@ class StudentAuthServiceImpl: StudentAuthService {
         else{
             throw FirebaseAuthException("ERROR_USER_NOT_FOUND", "El usuario no es estudiante")
         }
+    }
+
+    override suspend fun logOut(studentId: String) {
+        Firebase.auth.signOut()
     }
 }

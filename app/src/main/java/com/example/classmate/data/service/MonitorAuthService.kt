@@ -11,7 +11,7 @@ import kotlinx.coroutines.tasks.await
 interface MonitorAuthService {
     suspend fun createMonitor(email:String, password:String)
     suspend fun loginWithEmailAndPassword(email: String, password: String)
-
+    suspend fun logOut(monitorId:String)
 }
 
 class MonitorAuthServiceImpl: MonitorAuthService {
@@ -29,4 +29,9 @@ class MonitorAuthServiceImpl: MonitorAuthService {
             throw FirebaseAuthException("ERROR_USER_NOT_FOUND", "El usuario no es monitor")
         }
     }
+
+    override suspend fun logOut(monitorId: String) {
+        Firebase.auth.signOut()
+    }
+
 }
