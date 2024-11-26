@@ -19,6 +19,8 @@ class MonitorProfileViewModel(val repo: MonitorRepository = MonitorRepositoryImp
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState= MutableLiveData<Int?>(0)
+    private val _image = MutableLiveData<String?>()
+    val image : LiveData<String?> get()  = _image
     fun showMonitorInformation() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -41,6 +43,18 @@ class MonitorProfileViewModel(val repo: MonitorRepository = MonitorRepositoryImp
 
             }
         }
+    }
+    fun getMonitorImage(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                withContext(Dispatchers.Main){
+                    _image.value = repo.getMonitorImage(imageUrl)
+                }
+            }catch (e: Exception){
+                Log.e("ViewModel", "Error fetching student info: ${e.message}")
+            }
+        }
+
     }
 
 }

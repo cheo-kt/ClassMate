@@ -28,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -41,22 +42,40 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.ui.viewModel.MonitorProfileViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 
 @Composable
 fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorProfileViewModel = viewModel()){
-    authViewModel.showMonitorInformation()
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
     val monitorState by  authViewModel.monitorState.observeAsState()
     val monitor: Monitor? by authViewModel.monitor.observeAsState(initial = null)
-    var image = monitor?.photoUrl
+    val image by authViewModel.image.observeAsState()
     val scrollState= rememberScrollState()
     val snackbarHostState= remember { SnackbarHostState()}
     val scope= rememberCoroutineScope()
-
+    if (monitor?.photoUrl?.isNotEmpty() == true) {
+        monitor?.let { authViewModel.getMonitorImage(it.photoUrl) }
+    }
+    LaunchedEffect(true) {
+        authViewModel.showMonitorInformation()
+        if(monitor?.photoUrl?.isEmpty()== false){
+            monitor?.let { authViewModel.getMonitorImage(it.photoUrl) }
+        }
+    }
+    LaunchedEffect (navBackStackEntry){
+        authViewModel.showMonitorInformation()
+        if(monitor?.photoUrl?.isEmpty()== false){
+            monitor?.let { authViewModel.getMonitorImage(it.photoUrl) }
+        }
+    }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier
             .fillMaxSize()
@@ -71,11 +90,11 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
             ) {
                 IconButton(
                     onClick = {
-                        navController.navigate("signing")
+                        navController.navigate("HomeMonitorScreen")
                     },
                     modifier = Modifier
-                    .size(50.dp)
-                    .align(Alignment.CenterStart)
+                        .size(50.dp)
+                        .align(Alignment.CenterStart)
                 ) {
                     Icon(
 
@@ -103,15 +122,6 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
                     .background(Color(0xFFCCD0CF))
             )
             {
-                monitor?.let {
-                    image = it.photoUrl
-                    if(monitorState==2){
-                        scope.launch{
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar("Hubo problemas con la conexión al servidor, revise su conexión")
-                        }
-                    }
-                }
                 Image(
                     modifier = Modifier
                         .size(200.dp) // Tamaño de la imagen
@@ -120,7 +130,8 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
                         .fillMaxSize()
                     ,contentScale = ContentScale.Crop,
                     contentDescription = null,
-                    painter = rememberAsyncImagePainter(image, error = painterResource(R.drawable.botonestudiante))
+                    painter = rememberAsyncImagePainter(image
+                        , error = painterResource(R.drawable.botonestudiante))
 
                 )
 
@@ -181,7 +192,12 @@ fun MonitorProfileScreen(navController: NavController, authViewModel: MonitorPro
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = {
-                navController.navigate("monitorEdit")
+                if(!image.isNullOrEmpty()){
+                    navController.navigate("monitorEdit?monitor=${Gson().toJson(monitor)?:"No"}&image=${URLEncoder.encode(image, "UTF-8")}")
+                }else{
+                    val noImage = "noImage"
+                    navController.navigate("monitorEdit?monitor=${Gson().toJson(monitor)?:"No"}&image=${noImage}")
+                }
             }) {
                 Text(text = "Editar perfil")
             }

@@ -44,13 +44,13 @@ class MonitorEditProfileViewModel( val repo: MonitorRepository = MonitorReposito
         }
     }
 
-    fun updateMonitorPhoto(imageUri: Uri, context: Context) {
+    fun updateMonitorPhoto(imageUri: Uri, context: Context,oldImage:String) {
         viewModelScope.launch {
             withContext(Dispatchers.Main) { monitorPhotoState.value = 1 }
             try {
                 val monitorId = monitor.value?.id
                 if (monitorId != null) {
-                    val photoUrl = repo.updateMonitorPhoto(monitorId, imageUri, context)
+                    val photoUrl =  repo.updateMonitorPhoto(monitorId, imageUri, context, oldImage)
                     repo.updateMonitorImageUrl(monitorId, photoUrl)
                     withContext(Dispatchers.Main) { monitorPhotoState.value = 3 }
                 } else {
@@ -66,33 +66,10 @@ class MonitorEditProfileViewModel( val repo: MonitorRepository = MonitorReposito
         }
     }
 
-    fun updateMonitorProfile(
-        phone: String,
-        name: String,
-        lastname: String,
-        description: String,
-        email: String
-    ) {
+    fun updateMonitorProfile(monitorID:String,field:String,value:String) {
         viewModelScope.launch {
-            val monitorId = _monitor.value?.id
             try {
-                if (monitorId != null) {
-                    if (name != _monitor.value?.name) {
-                        repo.updateMonitorInformation(monitorId, "name", name)
-                    }
-                    if (phone != _monitor.value?.phone) {
-                        repo.updateMonitorInformation(monitorId, "phone", phone)
-                    }
-                    if (lastname != _monitor.value?.lastname) {
-                        repo.updateMonitorInformation(monitorId, "lastname", lastname)
-                    }
-                    if (description != _monitor.value?.description) {
-                        repo.updateMonitorInformation(monitorId, "description", description)
-                    }
-                    if (email != _monitor.value?.email) {
-                        repo.updateMonitorInformation(monitorId, "email", email)
-                    }
-                }
+               repo.updateMonitorInformation(monitorID,field,value)
             } catch (e: FirebaseAuthException) {
                 Log.e("UpdateField", "Error al actualizar la información ${e.message}")
             }
