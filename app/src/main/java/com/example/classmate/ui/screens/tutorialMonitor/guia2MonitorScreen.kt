@@ -97,7 +97,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
 @Composable
-fun guia1MonitorScreen(navController: NavController) {
+fun guia2MonitorScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val maxLength = 20
@@ -436,7 +436,7 @@ fun guia1MonitorScreen(navController: NavController) {
         )
 
         Column(modifier = Modifier.align(Alignment.Center)){
-            Box(modifier = Modifier.weight(0.1f))
+            Box(modifier = Modifier.weight(0.04f))
             Box(
                 modifier = Modifier
                     .size(300.dp)
@@ -453,7 +453,7 @@ fun guia1MonitorScreen(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Aqui encontrarás las solicitudes públicas realizadas por los estudiantes.",
+                        text = "Aqui puedes seleccionar filtros para ver monitorias con un tipo o materia especificos.",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -467,7 +467,7 @@ fun guia1MonitorScreen(navController: NavController) {
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .clickable {
                             // Acción de navegación al presionar "Continuar"
-                            navController.navigate("guia2Monitor")
+                            navController.navigate("guia3Monitor")
                         }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
@@ -480,85 +480,12 @@ fun guia1MonitorScreen(navController: NavController) {
                     )
                 }
             }
-            Box(modifier = Modifier.weight(0.04f))
+            Box(modifier = Modifier.weight(0.1f))
         }
 
     }
 }
 
-@Composable
-fun RequestBroadcastCardIntroduction(monitor: Monitor?, requests:List<RequestBroadcast?>, filter:String, navController: NavController) {
-    val rb: List<RequestBroadcast?> = if (filter.isNotEmpty()) {
-        requests.filter {
-            it?.studentName!!.startsWith(
-                filter,
-                ignoreCase = true
-            )
-        }
-    } else {
-        requests
-    }
-    rb.forEach { request ->
-        ElevatedCard(
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 5.dp,
-            ), modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 10.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AsyncImage(
-                    model = R.drawable.botonestudiante,
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp)
-                        .size(50.dp)
-                        .clip(CircleShape)
-                )
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(20.dp)
-                ) {
-                    androidx.compose.material3.Text(
-                        text = request!!.studentName,
-                        color = Color(0xFF209619),
-                        fontSize = 16.sp,
-                    )
-                    androidx.compose.material3.Text(
-                        text = ("Materia:" + request.subjectname),
-                        fontSize = 12.sp,
-                    )
-                }
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(horizontal = 5.dp)
-                    ) {
-                        IconButton(onClick = {
-                        }) {
-                            Icon(
-                                imageVector = Icons.Outlined.PlayArrow,
-                                contentDescription = "Arrow",
-                                modifier = Modifier.size(50.dp)
-                            )
-                        }
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
-}
 
 
        
