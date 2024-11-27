@@ -294,7 +294,7 @@ fun App() {
         composable("guia4Monitor") { guia4MonitorScreen(navController) }
         composable("guia5Monitor") { guia5MonitorScreen(navController) }
         composable("guia6Monitor") { guia6MonitorScreen(navController) }
-        composable("guia7Monitor") { guia7MonitorScreen(navController,null,null) }
+        composable("guia7Monitor") { guia7MonitorScreen(navController) }
     }
 }
 

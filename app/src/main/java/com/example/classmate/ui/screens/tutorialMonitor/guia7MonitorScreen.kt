@@ -89,14 +89,9 @@ import java.util.UUID
 
 @Composable
 fun guia7MonitorScreen(
-    navController: NavController,
-    request: String?,
-    monitor: String?,
+    navController: NavController
 ) {
     val scope = rememberCoroutineScope()
-    val requestObj: Request = Gson().fromJson(request, Request::class.java)
-    val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
-    var image = monitor
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -203,10 +198,8 @@ fun guia7MonitorScreen(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clip(CircleShape),
-                                    painter = rememberAsyncImagePainter(
-                                        image,
-                                        error = painterResource(R.drawable.botonestudiante)
-                                    ),
+                                    painter = painterResource(R.drawable.botonestudiante)
+                                    ,
                                     contentDescription = "Foto de perfil",
                                     contentScale = ContentScale.Crop
                                 )
@@ -225,17 +218,17 @@ fun guia7MonitorScreen(
             ) {
                 // Header section
                 Text(
-                    text = requestObj.studentName,
+                    text = "Lina María ",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = requestObj.subjectname,
+                    text = "Álgebra y Funciones",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Tipo de ayuda: ${requestObj.type}",
+                    text = "Tipo de ayuda: Taller",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 16.dp)
                 )
@@ -270,11 +263,11 @@ fun guia7MonitorScreen(
                         )
 
                         Text(
-                            text = dateFormatter.format(requestObj.dateInitial.toDate()),
+                            text = "07:00 AM",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = dateFormatter.format(requestObj.dateFinal.toDate()),
+                            text = "9:00 AM",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -294,13 +287,7 @@ fun guia7MonitorScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
 
-                        if (requestObj.mode_class == "Virtual") {
-                            Text(requestObj.mode_class)
-
-                        } else {
-                            Text("${requestObj.mode_class}, en : ${requestObj.mode_class}")
-
-                        }
+                            Text("Virtual")
 
                     }
 
@@ -325,7 +312,7 @@ fun guia7MonitorScreen(
                             .height(100.dp)
                     ) {
                         Text(
-                            text = requestObj.description,
+                            text = "No entiendo nada, por favor ayuda :(",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(8.dp)
                         )
