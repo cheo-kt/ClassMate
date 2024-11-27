@@ -94,6 +94,7 @@ import guia1MonitorScreen
 import guia1StudentScreen
 import guia2MonitorScreen
 import guia2StudentScreen
+import guia3MonitorScreen
 import guia3StudentScreen
 import guia4StudentScreen
 import guia5StudentScreen
@@ -286,6 +287,7 @@ fun App() {
 
         composable("guia1Monitor") { guia1MonitorScreen(navController) }
         composable("guia2Monitor") { guia2MonitorScreen(navController) }
+        composable("guia3Monitor") { guia3MonitorScreen(navController) }
     }
 }
 
