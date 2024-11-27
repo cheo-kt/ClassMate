@@ -248,12 +248,7 @@ fun guia9MonitorScreen(navController: NavController) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
+
                         IconButton(onClick = {  }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.people),
@@ -263,7 +258,7 @@ fun guia9MonitorScreen(navController: NavController) {
                                     .padding(4.dp),
                                 tint = Color.White
                             )
-                        }}
+                        }
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { /*TODO*/ }) {
                         Icon(
@@ -278,16 +273,24 @@ fun guia9MonitorScreen(navController: NavController) {
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {  }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(58.dp)
+                            .background(color = Color(0xFF026900), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ){
+                        IconButton(onClick = {  }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
                     }
+
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { }) {
                         Icon(
