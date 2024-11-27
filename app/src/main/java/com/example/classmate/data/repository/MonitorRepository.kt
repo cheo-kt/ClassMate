@@ -12,6 +12,7 @@ import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.OpinionsAndQualifications
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Subject
 import java.util.UUID
 
 interface MonitorRepository {
@@ -34,6 +35,8 @@ interface MonitorRepository {
     suspend fun getRequest(limit: Int, request: Request?):List<Request?>
     suspend fun getAppointmentsUpdate(): List<Pair<Appointment, Boolean>>
     suspend fun searchMonitorBySubject(subjectIds: List<String>): List<Monitor?>
+    suspend fun searchSubjectsByName(subjectName: String):List<RequestBroadcast?>
+    suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request?>
 
 
 
@@ -117,6 +120,14 @@ class MonitorRepositoryImpl(
 
     override suspend fun searchMonitorBySubject(subjectIds: List<String>): List<Monitor?> {
         return monitorServices.searchMonitorBySubject(subjectIds)
+    }
+
+    override suspend fun searchSubjectsByName(subjectName: String): List<RequestBroadcast?> {
+        return monitorServices.searchSubjectsByName(subjectName)
+    }
+
+    override suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request?> {
+        return monitorServices.searchSubjectsByNameRequest(subjectName)
     }
 
 }
