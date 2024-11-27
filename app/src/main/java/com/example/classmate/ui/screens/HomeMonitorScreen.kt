@@ -107,7 +107,10 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
-    var image = monitor?.photoUrl
+    val image by homeMonitorViewModel.image.observeAsState()
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { homeMonitorViewModel.getMonitorPhoto(it.photoUrl) }
+    }
     var expanded by remember { mutableStateOf(false) }
     var expandedFilter by remember { mutableStateOf(false) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
@@ -129,7 +132,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
         monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
     }
-
     LaunchedEffect(true) {
         val job = homeMonitorViewModel.getMonitor()
         job.join()

@@ -34,6 +34,8 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     val subjectList: LiveData<List<Subject>> get() = _subjectList
     private val _filterSubjectList = MutableLiveData(listOf<Request?>())
     val filterSubjectList: LiveData<List<Request?>> get() = _filterSubjectList
+    private val _image = MutableLiveData<String?>()
+    val image: LiveData<String?> get() = _image
 
     fun getMonitor() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -97,6 +99,15 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
                 repoAuth.logOut(monitor.value?.id ?: "")
             }catch (ex: FirebaseAuthException){
                 ex.printStackTrace()
+            }
+
+        }
+    }
+    fun getMonitorPhoto(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _image.value =  repoMonitor.getMonitorImage(imageUrl)
+
             }
 
         }

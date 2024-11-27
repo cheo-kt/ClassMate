@@ -52,7 +52,6 @@ class StudentProfileViewModel(val repo: StudentRepository = StudentRepositoryImp
                 withContext(Dispatchers.Main){
                     _image.value = repo.getStudentImage(imageUrl)
                 }
-
             }catch (e: Exception){
                 Log.e("ViewModel", "Error fetching student info: ${e.message}")
             }

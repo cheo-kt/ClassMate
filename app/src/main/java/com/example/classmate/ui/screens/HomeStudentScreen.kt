@@ -124,6 +124,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
     if(student?.photo?.isNotEmpty() == true){
         student?.let { homeStudentViewModel.getStudentImage(it.photo) }
     }
+
     var isInitialized by remember { mutableStateOf(false) }
     LaunchedEffect(!isInitialized) {
         buttonMessage = "Elige una materia"
