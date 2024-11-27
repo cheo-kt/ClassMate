@@ -555,7 +555,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         }
                                     }
                                 } else if (filter.isEmpty() || requestTypeListFilter.isEmpty()) {
-                                    Log.e("ERROR", requestTypeList!!.size.toString())
                                     requestTypeList?.forEach {
 
                                         Button(

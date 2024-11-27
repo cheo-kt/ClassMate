@@ -8,11 +8,16 @@ import com.example.classmate.data.repository.MonitorAuthRepository
 import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
+import com.example.classmate.data.repository.RequestBroadcastRepository
+import com.example.classmate.data.repository.RequestBroadcastRepositoryImpl
+import com.example.classmate.data.repository.RequestRRepositoryImpl
+import com.example.classmate.data.repository.RequestRepository
 import com.example.classmate.data.repository.SubjectRepository
 import com.example.classmate.data.repository.SubjectRepositoryImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.google.firebase.auth.FirebaseAuthException
 import com.example.classmate.domain.model.Subject
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl()
-                               ,val subjectsRepo : SubjectRepository = SubjectRepositoryImpl()
+                               ,val subjectsRepo : SubjectRepository = SubjectRepositoryImpl(),val requestRepo : RequestRepository = RequestRRepositoryImpl()
 ): ViewModel() {
 
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
@@ -34,7 +39,8 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     val subjectList: LiveData<List<Subject>> get() = _subjectList
     private val _image = MutableLiveData<String?>()
     val image: LiveData<String?> get() = _image
-
+    private val _requestType = MutableLiveData(listOf<RequestType>())
+    val requestType: LiveData<List<RequestType>> get() = _requestType
     fun getMonitor() {
         viewModelScope.launch(Dispatchers.IO) {
             val me = repoMonitor.getCurrentMonitor()
@@ -93,6 +99,13 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
 
             }
 
+        }
+    }
+    fun getRequesTypeList(){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main){
+                _requestType.value = requestRepo.getRequestType()
+            }
         }
     }
 

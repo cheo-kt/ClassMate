@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -62,6 +63,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.components.RequestCard
@@ -78,7 +80,9 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
     val listState = rememberLazyListState()
+    val requestTypeList by monitorRequestViewModel.requestType.observeAsState()
     var expandedFilter by remember { mutableStateOf(false) }
+    var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch= false
@@ -98,6 +102,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
         monitorRequestViewModel.getMonitor()
         monitorRequestViewModel.loadMoreRequest()
         monitorRequestViewModel.getSubjectsList()
+        monitorRequestViewModel.getRequesTypeList()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -453,6 +458,92 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             }
                         }
 
+                    }
+                    if(filteringType=="Tipo"){
+                        Row {
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Button(
+                                onClick = {
+                                    requestTypeListFilter = emptyList()
+                                    buttonMessage = "Tipo no seleccionado"
+                                }, colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF815FF0),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                Row {
+                                    androidx.compose.material3.Text(text = buttonMessage)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Search Icon",
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                if (filter.isNotEmpty()) {
+                                    requestTypeListFilter = requestTypeList?.filter {
+                                        it.name.lowercase().startsWith(filter.lowercase())
+                                    } ?: emptyList()
+                                }
+
+                                if (requestTypeListFilter.isNotEmpty() && filter.isNotEmpty()) {
+                                    requestTypeListFilter.forEach {
+                                        Button(
+                                            onClick = {
+                                                buttonMessage = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                } else if (filter.isEmpty() || requestTypeListFilter.isEmpty()) {
+                                    Log.e("ERROR", requestTypeList!!.size.toString())
+                                    requestTypeList?.forEach {
+
+                                        Button(
+                                            onClick = {
+                                                buttonMessage = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))

@@ -24,7 +24,7 @@ interface RequestBroadcastService {
     suspend fun deleteRequestForSubject(subjectId: String, requestId: String)
     suspend fun checkForOverlappingRequest(userId: String, requestBroadcast: RequestBroadcast): RequestBroadcast?
     suspend fun getRandomRequest(monitor: Monitor)
-    suspend fun getRequestType():List<RequestType>
+    suspend fun getRequestBroadcastType():List<RequestType>
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
@@ -134,7 +134,7 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
         }
     }
 
-    override suspend fun getRequestType(): List<RequestType> {
+    override suspend fun getRequestBroadcastType(): List<RequestType> {
         return try{
             Firebase.firestore
                 .collection("requestType")

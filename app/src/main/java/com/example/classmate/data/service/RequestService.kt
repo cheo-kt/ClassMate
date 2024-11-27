@@ -1,6 +1,7 @@
 package com.example.classmate.data.service
 
 import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.RequestType
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -15,6 +16,7 @@ interface RequestService {
     suspend fun deleteRequestFromMainCollection(requestId: String)
     suspend fun deleteRequestForMonitor(studentId: String, requestId: String)
     suspend fun deleteRequestForStudent(monitorId: String, requestId: String)
+    suspend fun getRequestType():List<RequestType>
 }
 
 
@@ -92,6 +94,18 @@ class RequestServicesImpl: RequestService {
             .document(requestId)
             .delete()
             .await()
+    }
+
+    override suspend fun getRequestType(): List<RequestType> {
+        return try{
+            Firebase.firestore
+                .collection("requestType")
+                .get()
+                .await()
+                .toObjects(RequestType::class.java)
+        }catch (e: Exception){
+            emptyList<RequestType>()
+        }
     }
 
 

@@ -60,7 +60,7 @@ class RequestBroadcastRepositoryImpl(
     }
 
     override suspend fun getRequestTypeList(): List<RequestType> {
-        return requestBroadcastServices.getRequestType()
+        return requestBroadcastServices.getRequestBroadcastType()
     }
 
 }
