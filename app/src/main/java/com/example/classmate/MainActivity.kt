@@ -84,7 +84,6 @@ import com.example.classmate.ui.screens.RequestViewScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastDecisionScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
-import com.example.classmate.ui.screens.tutorialMonitor.guia2MonitorScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
 import com.example.classmate.ui.theme.ClassMateTheme
@@ -100,6 +99,7 @@ import guia4MonitorScreen
 import guia4StudentScreen
 import guia5MonitorScreen
 import guia5StudentScreen
+import guia6MonitorScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -292,6 +292,8 @@ fun App() {
         composable("guia3Monitor") { guia3MonitorScreen(navController) }
         composable("guia4Monitor") { guia4MonitorScreen(navController) }
         composable("guia5Monitor") { guia5MonitorScreen(navController) }
+        composable("guia6Monitor") { guia6MonitorScreen(navController) }
+        composable("guia7Monitor") { guia7MonitorScreen(navController) }
     }
 }
 
