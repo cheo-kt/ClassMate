@@ -97,7 +97,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
 @Composable
-fun guia3MonitorScreen(navController: NavController) {
+fun guia4MonitorScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val maxLength = 20
@@ -448,7 +448,7 @@ fun guia3MonitorScreen(navController: NavController) {
                         .border(2.dp, Color.Gray, CircleShape) // Borde opcional
                         .background(Color.Transparent)
                 )
-                Box(modifier = Modifier.weight(0.003f))
+                Box(modifier = Modifier.weight(0.03f))
             }
 
 
@@ -460,7 +460,7 @@ fun guia3MonitorScreen(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Presionando la imagen de perfil puedes ir a ver y modificar la información de tu perfil.",
+                        text = "Aqui estan los botones de preguntas frecuentes y notificaciones.",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -474,7 +474,7 @@ fun guia3MonitorScreen(navController: NavController) {
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .clickable {
                             // Acción de navegación al presionar "Continuar"
-                            navController.navigate("guia4Monitor")
+                            navController.navigate("guia5Monitor")
                         }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
