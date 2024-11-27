@@ -338,12 +338,6 @@ fun guia6MonitorScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(10.dp))
                     Spacer(modifier = Modifier.height(2.dp))
-                    androidx.compose.material3.Text(
-                        text = "Solicitudes Broadcast",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
                     Spacer(modifier = Modifier.height(5.dp))
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
                         requestState?.let { requests ->
