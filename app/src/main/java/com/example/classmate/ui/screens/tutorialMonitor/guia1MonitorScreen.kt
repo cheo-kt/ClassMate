@@ -1,6 +1,3 @@
-ackage com.example.classmate.ui.screens.tutorialMonitor
-
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -100,7 +97,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
 @Composable
-fun guia1Monitor(navController: NavController) {
+fun guia1MonitorScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val maxLength = 20
@@ -456,7 +453,7 @@ fun guia1Monitor(navController: NavController) {
                         .padding(12.dp)
                 ) {
                     Text(
-                        text = "Aqui encontrarás las solicitudes públicas realizadas por los estudiantes.",
+                        text = "Aquí encontrarás los monitores destacados y a los que busques",
                         style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                         color = Color.Black
                     )
@@ -489,10 +486,9 @@ fun guia1Monitor(navController: NavController) {
     }
 }
 
-}
 @Composable
-fun RequestBroadcastCardIntroduction(monitor: Monitor?, requests:List<RequestBroadcast?>, filter:String, navController: NavController){
-    val rb:List<RequestBroadcast?> = if(filter.isNotEmpty()) {
+fun RequestBroadcastCardIntroduction(monitor: Monitor?, requests:List<RequestBroadcast?>, filter:String, navController: NavController) {
+    val rb: List<RequestBroadcast?> = if (filter.isNotEmpty()) {
         requests.filter {
             it?.studentName!!.startsWith(
                 filter,
@@ -554,5 +550,15 @@ fun RequestBroadcastCardIntroduction(monitor: Monitor?, requests:List<RequestBro
                             )
                         }
                     }
+
+                }
+
+            }
+
+        }
+
+    }
+}
+
 
        

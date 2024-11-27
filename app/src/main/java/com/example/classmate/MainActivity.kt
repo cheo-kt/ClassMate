@@ -89,6 +89,7 @@ import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
+import guia1MonitorScreen
 import guia1StudentScreen
 import guia2StudentScreen
 import guia3StudentScreen
@@ -226,6 +227,7 @@ fun App() {
             val monitor =entry.arguments?.getString("monitor")
             UnicastDecisionScreen(navController,request,monitor) }
         //GUIA ESTUDIANTE
+
         composable("guia1Student") { guia1StudentScreen(navController) }
         composable("guia2Student") { guia2StudentScreen(navController) }
         composable("guia3Student") { guia3StudentScreen(navController) }
@@ -280,7 +282,7 @@ fun App() {
 
         //GUÍA MONITOR
 
-        composable("guia1Monitor) { guia1MonitorScreen(navController) }
+        composable("guia1Monitor") { guia1MonitorScreen(navController) }
     }
 }
 
