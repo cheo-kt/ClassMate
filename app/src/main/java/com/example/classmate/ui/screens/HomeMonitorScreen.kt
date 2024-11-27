@@ -101,6 +101,8 @@ import kotlin.math.sqrt
 @Composable
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
+    val monitorState by homeMonitorViewModel.monitorState.observeAsState()
+    val  filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
@@ -119,8 +121,12 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var isSearch= false
     val listState = rememberLazyListState()
     val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
-    var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect (navBackStackEntry){
+        homeMonitorViewModel.getMonitor()
         val job = homeMonitorViewModel.getMonitor()
         job.join()
         monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
@@ -368,10 +374,13 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     if (filteringType == "Fecha") {
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
+                                          //subjectIdList es una lista de ids de materias??buttonMessage
+                                        if( buttonMessage != "Materia no seleccionada") {
 
-                                        if (subjectIdList.isNotEmpty()) {
-                                            filterSubjectName = buttonMessage
-                                            // homeMonitorViewModel.monitorsFilteredBySubject(subjectIdList)
+                                             homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
+                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
+
+
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -403,10 +412,10 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             Spacer(modifier = Modifier.width(2.dp))
                             Button(
                                 onClick = {
-                                    subjectIdList = emptyList()
+
                                     buttonMessage = "Materia no seleccionada"
                                 }, colors = ButtonDefaults.buttonColors(
-                                    Color(0xFF815FF0),
+                                    Color(0xFF209619),
                                     Color.White
                                 ),
                                 modifier = Modifier.fillMaxWidth(0.8f)
@@ -455,7 +464,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)
@@ -472,7 +481,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)
@@ -494,14 +503,27 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                     Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        requestState?.let { requests ->
-                            RequestBroadcastCard(
-                                monitor = monitor,
-                                requests = requests,
-                                filter = filter,
-                                navController =navController
-                            )
+                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
+                            filterrequestState?.let { requests ->
+                                RequestBroadcastCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController =navController
+                                )
+                            }
+
+                        }else {
+                            requestState?.let { requests ->
+                                RequestBroadcastCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController =navController
+                                )
+                            }
                         }
+
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
@@ -581,6 +603,26 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                     }
                     Box(modifier = Modifier.weight(0.1f))
                 }
+            }
+        }
+    }
+    if (monitorState == 1) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f))
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = Color.White
+            )
+        }
+    } else if (monitorState == 2) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar("Ha ocurrido un error")
             }
         }
     }

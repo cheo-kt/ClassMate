@@ -31,6 +31,8 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
     private var lastReq: RequestBroadcast? = null
     private val _broadcastReqList = MutableLiveData(listOf<RequestBroadcast?>())
     val broadcastList: LiveData<List<RequestBroadcast?>> get() = _broadcastReqList
+    private val _filterSubjectList = MutableLiveData(listOf<RequestBroadcast?>())
+    val filterSubjectList: LiveData<List<RequestBroadcast?>> get() = _filterSubjectList
     private val limit = 10
     private val _subjectList = MutableLiveData(listOf<Subject>())
     val subjectList: LiveData<List<Subject>> get() = _subjectList
@@ -43,7 +45,24 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
                 _monitor.value = me
             }
     }
+
+    fun monitorsFilteredBySubject(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) { monitorState.value = 1 }
+            try {
+                withContext(Dispatchers.Main) {
+                    _filterSubjectList.value = repoMonitor.searchSubjectsByName(name)
+                    monitorState.value = 3
+                }
+            } catch (ex: FirebaseAuthException) {
+                withContext(Dispatchers.Main) { monitorState.value = 2 }
+                ex.printStackTrace()
+            }
+        }
+    }
+
     fun loadMoreRequestB(monitor: Monitor) {
+
         viewModelScope.launch(Dispatchers.IO) {
             viewModelScope.launch(Dispatchers.Main) { monitorState.value = 1 }
             try {

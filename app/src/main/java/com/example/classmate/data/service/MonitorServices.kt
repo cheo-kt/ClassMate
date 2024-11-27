@@ -25,6 +25,10 @@ import java.io.ByteArrayOutputStream
 import java.util.UUID
 import kotlin.math.round
 import kotlin.math.roundToInt
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 interface MonitorServices {
 
@@ -44,6 +48,8 @@ interface MonitorServices {
     suspend fun getImageDownloadUrl(imageUrl:String):String
     suspend fun getAppointmentsUpdate(idStudent: String): List<Pair<Appointment, Boolean>>
     suspend fun searchMonitorBySubject(subjectIds: List<String>):List<Monitor?>
+    suspend fun searchSubjectsByName(subjectName :String):List<RequestBroadcast?>
+    suspend fun  searchSubjectsByNameRequest(subjectName: String):List<Request?>
 }
 
 class MonitorServicesImpl: MonitorServices {
@@ -241,19 +247,35 @@ class MonitorServicesImpl: MonitorServices {
     }
 
     override suspend fun getRequest(limit: Int, request: Request?): List<Request> {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid
+
+        // Lanzar excepción si no hay usuario autenticado
+        if (userId == null) {
+            throw FirebaseAuthException("ERROR_NO_USER", "No hay un usuario autenticado actualmente.")
+        }
+
         return try {
-            val querySnapshot = Firebase.firestore.collection("request")
+
+            val querySnapshot = Firebase.firestore
+                .collection("Monitor")
+                .document(userId)
+                .collection("request")
                 .orderBy("id")
                 .startAfter(request?.id)
                 .limit(limit.toLong())
                 .get()
                 .await()
+
+
             querySnapshot.documents.mapNotNull { it.toObject(Request::class.java) }
         } catch (e: Exception) {
+            // Manejo de excepciones
+            Log.e("FirestoreError", "Error al obtener las solicitudes: ${e.message}", e)
             emptyList()
         }
-
     }
+
 
     override suspend fun getAppointmentsUpdate(idMonitor: String): List<Pair<Appointment, Boolean>> {
         return try {
@@ -291,6 +313,46 @@ class MonitorServicesImpl: MonitorServices {
         }
     }
 
+    override suspend fun searchSubjectsByName(subjectName: String): List<RequestBroadcast?> {
+        Log.e("nombre", "El nombre es : $subjectName")
+        val result = FirebaseFirestore.getInstance()
+            .collection("requestBroadcast")
+            .whereEqualTo("subjectname", subjectName)
+            .get()
+            .await()
+        Log.e("servicessize", "Tamaño de result: ${result.size()}")
+        return result.documents.map { document ->
+            document.toObject(RequestBroadcast::class.java)
+
+        }
+    }
+
+
+
+    override suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request?> {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val userId = currentUser?.uid
+
+        if (userId == null) {
+            throw FirebaseAuthException("ERROR_NO_USER", "No hay un usuario autenticado actualmente.")
+        }
+
+        val result = FirebaseFirestore.getInstance()
+            .collection("Monitor")
+            .document(userId)
+            .collection("request")
+            .whereEqualTo("subjectname", subjectName)
+            .get()
+            .await()
+
+
+        return result.documents.map { document ->
+            document.toObject(Request::class.java)
+        }
+    }
+
+
+
     private suspend fun hasUnreadMessages(appointmentId: String, idMonitor: String): Boolean {
         return try {
             // Verifica si hay mensajes no leídos
@@ -310,3 +372,5 @@ class MonitorServicesImpl: MonitorServices {
         }
     }
 }
+
+
