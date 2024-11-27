@@ -89,6 +89,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
@@ -106,6 +107,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var filter by remember { mutableStateOf("") }
     val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     val image by homeMonitorViewModel.image.observeAsState()
+    val requestTypeList by homeMonitorViewModel.requestType.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { homeMonitorViewModel.getMonitorPhoto(it.photoUrl) }
     }
@@ -113,6 +115,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     var expandedFilter by remember { mutableStateOf(false) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     val maxLength = 20
+    var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     var filteringType by remember { mutableStateOf("Materia") }
     var filterSubjectName by remember { mutableStateOf("") }
@@ -125,12 +128,14 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
         job.join()
         monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
+
     }
     LaunchedEffect(true) {
         val job = homeMonitorViewModel.getMonitor()
         job.join()
         monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
+        homeMonitorViewModel.getRequesTypeList()
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
@@ -469,6 +474,92 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         Button(
                                             onClick = {
                                                 subjectIdList = it.monitorsID
+                                                buttonMessage = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
+                    }
+                    if(filteringType=="Tipo"){
+                        Row {
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Button(
+                                onClick = {
+                                    requestTypeListFilter = emptyList()
+                                    buttonMessage = "Tipo no seleccionado"
+                                }, colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF815FF0),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                Row {
+                                    androidx.compose.material3.Text(text = buttonMessage)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Search Icon",
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                if (filter.isNotEmpty()) {
+                                    requestTypeListFilter = requestTypeList?.filter {
+                                        it.name.lowercase().startsWith(filter.lowercase())
+                                    } ?: emptyList()
+                                }
+
+                                if (requestTypeListFilter.isNotEmpty() && filter.isNotEmpty()) {
+                                    requestTypeListFilter.forEach {
+                                        Button(
+                                            onClick = {
+                                                buttonMessage = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF3F21DB),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                } else if (filter.isEmpty() || requestTypeListFilter.isEmpty()) {
+                                    Log.e("ERROR", requestTypeList!!.size.toString())
+                                    requestTypeList?.forEach {
+
+                                        Button(
+                                            onClick = {
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(

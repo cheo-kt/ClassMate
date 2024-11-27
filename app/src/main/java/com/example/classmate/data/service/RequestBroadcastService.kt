@@ -5,6 +5,8 @@ import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
+import com.example.classmate.domain.model.Subject
 import com.example.classmate.domain.model.Type_Notification
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
@@ -22,6 +24,7 @@ interface RequestBroadcastService {
     suspend fun deleteRequestForSubject(subjectId: String, requestId: String)
     suspend fun checkForOverlappingRequest(userId: String, requestBroadcast: RequestBroadcast): RequestBroadcast?
     suspend fun getRandomRequest(monitor: Monitor)
+    suspend fun getRequestType():List<RequestType>
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
@@ -128,6 +131,18 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
                     .update("notificationGenerated", true)
                     .await()
             }
+        }
+    }
+
+    override suspend fun getRequestType(): List<RequestType> {
+        return try{
+            Firebase.firestore
+                .collection("requestType")
+                .get()
+                .await()
+                .toObjects(RequestType::class.java)
+        }catch (e: Exception){
+            emptyList<RequestType>()
         }
     }
 }

@@ -5,6 +5,7 @@ import com.example.classmate.data.service.RequestBroadcastServicesImpl
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,6 +16,7 @@ interface RequestBroadcastRepository {
     suspend fun  createRequestBroadcast(requestBroadcast: RequestBroadcast)
     suspend fun eliminateRequestBroadcast(requestId: String, subjectID: String, studentId: String)
     suspend fun loadRandomReqBroadcast(monitor: Monitor)
+    suspend fun getRequestTypeList():List<RequestType>
 }
 
 
@@ -55,6 +57,10 @@ class RequestBroadcastRepositoryImpl(
 
     override suspend fun loadRandomReqBroadcast(monitor: Monitor) {
         requestBroadcastServices.getRandomRequest(monitor)
+    }
+
+    override suspend fun getRequestTypeList(): List<RequestType> {
+        return requestBroadcastServices.getRequestType()
     }
 
 }
