@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "signing" +
+    NavHost(navController = navController, startDestination = "guia1Monitor" +
             "") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
@@ -225,7 +225,7 @@ fun App() {
             val request =entry.arguments?.getString("request")
             val monitor =entry.arguments?.getString("monitor")
             UnicastDecisionScreen(navController,request,monitor) }
-        //GUIA
+        //GUIA ESTUDIANTE
         composable("guia1Student") { guia1StudentScreen(navController) }
         composable("guia2Student") { guia2StudentScreen(navController) }
         composable("guia3Student") { guia3StudentScreen(navController) }
@@ -277,6 +277,10 @@ fun App() {
         composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
 
         composable("chatScreenMonitor"){ ChatScreenMenuMonitor(navController) }
+
+        //GUÍA MONITOR
+
+        composable("guia1Monitor) { guia1MonitorScreen(navController) }
     }
 }
 
