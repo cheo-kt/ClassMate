@@ -88,6 +88,7 @@ import com.example.classmate.ui.screens.guia7MonitorScreen
 import com.example.classmate.ui.screens.guia8MonitorScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia9MonitorScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson

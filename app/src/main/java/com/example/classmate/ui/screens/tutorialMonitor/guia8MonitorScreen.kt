@@ -78,7 +78,7 @@ fun guia8MonitorScreen(navController: NavController){
             description = "Math tutoring session",
             place = "Zoom",
             subjectID = "MAT101",
-            subjectname = "Mathematics",
+            subjectname = "Algebra",
             studentId = "12345",
             studentName = "John Doe",
             monitorId = "67890",

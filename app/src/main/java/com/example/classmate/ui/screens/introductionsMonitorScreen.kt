@@ -53,7 +53,7 @@ fun IntroductionsMonitorScreen (navController: NavController, authViewModel: Int
 
     if (navigateToNextScreen) {
         authViewModel.navigateToNextScreen.value = false
-        navController.navigate("HomeMonitorScreen")
+        navController.navigate("guia1Monitor")
     }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
