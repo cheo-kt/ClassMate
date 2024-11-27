@@ -86,6 +86,7 @@ import com.example.classmate.ui.screens.UnicastDecisionScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
 import com.example.classmate.ui.screens.guia7MonitorScreen
 import com.example.classmate.ui.screens.guia8MonitorScreen
+import com.example.classmate.ui.screens.helpMonitorScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia9MonitorScreen
@@ -299,6 +300,8 @@ fun App() {
         composable("guia7Monitor") { guia7MonitorScreen(navController) }
         composable("guia8Monitor") { guia8MonitorScreen(navController) }
         composable("guia9Monitor") { guia9MonitorScreen(navController) }
+
+        composable("helpMonitor") { helpMonitorScreen(navController) }
     }
 }
 
