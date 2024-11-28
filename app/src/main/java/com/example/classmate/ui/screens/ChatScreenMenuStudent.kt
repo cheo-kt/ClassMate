@@ -188,7 +188,7 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                 }
             }
 
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
+            Column(modifier = Modifier.verticalScroll(scrollState).weight(1f)) {
                 appointmentsState.forEach { pair ->
                     val appointment = pair.first
                     val hasUnreadMessages = pair.second
@@ -252,7 +252,6 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
 
 
             }
-            Box(modifier = Modifier.weight(0.1f))
 
             Box(
                 modifier = Modifier
