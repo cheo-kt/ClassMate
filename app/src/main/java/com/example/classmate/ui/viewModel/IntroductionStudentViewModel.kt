@@ -8,7 +8,7 @@ class IntroductionStudentViewModel(): ViewModel() {
 
 
     // Lista de imágenes y mensajes
-    private val images = listOf(R.drawable.book_2,  R.drawable.add_location_alt, R.drawable.calendar_today, R.drawable.book_3)
+    private val images = listOf(R.drawable.book_2,  R.drawable.add_location_alt, R.drawable.calendario, R.drawable.book_3)
     private val messages = listOf(
         "¡Busca la materia que necesites!",
         "¡Ten monitorias en el lugar que quieras!",

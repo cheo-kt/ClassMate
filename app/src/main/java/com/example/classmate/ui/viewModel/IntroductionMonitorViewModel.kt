@@ -9,7 +9,7 @@ class IntroductionMonitorViewModel : ViewModel() {
 
 
     // Lista de imágenes y mensajes
-    private val images = listOf(R.drawable.local_library,  R.drawable.profileburbule, R.drawable.calendar_today, R.drawable.paid)
+    private val images = listOf(R.drawable.local_library,  R.drawable.profileburbule, R.drawable.calendario, R.drawable.paid)
     private val messages = listOf(
         "¡Ayuda a los estudiantes con sus materias!",
         "¡Comunicate con ellos de una forma sencilla!",
