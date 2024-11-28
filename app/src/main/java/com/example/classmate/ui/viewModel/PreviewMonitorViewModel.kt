@@ -50,9 +50,14 @@ class PreviewMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImp
     }
     fun getMonitorPhoto(imageUrl:String){
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) {
-                _image.value =  repo.getMonitorImage(imageUrl)
+            try {
 
+                withContext(Dispatchers.Main) {
+                    _image.value =  repo.getMonitorImage(imageUrl)
+
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
             }
 
         }
