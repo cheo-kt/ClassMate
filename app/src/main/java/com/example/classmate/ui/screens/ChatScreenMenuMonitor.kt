@@ -125,7 +125,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("helpMonitor")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -194,7 +194,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                 }
             }
 
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
+            Column(modifier = Modifier.verticalScroll(scrollState).weight(1f)) {
                 appointmentsState.forEach { pair ->
                     val appointment = pair.first
                     val hasUnreadMessages = pair.second
@@ -256,7 +256,6 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
                 }
             }
-            Box(modifier = Modifier.weight(0.1f))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

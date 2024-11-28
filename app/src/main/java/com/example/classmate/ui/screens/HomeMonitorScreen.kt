@@ -132,7 +132,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
         homeMonitorViewModel.getMonitor()
         val job = homeMonitorViewModel.getMonitor()
         job.join()
-        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
 
     }
@@ -193,7 +192,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("helpMonitor")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -254,6 +253,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
+                                homeMonitorViewModel.logOut()
+                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }

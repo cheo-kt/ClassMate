@@ -63,7 +63,10 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
     val monitorState by appointmentStudentViewModel.monitorState.observeAsState()
     val monitor: Monitor? by appointmentStudentViewModel.monitor.observeAsState(initial = null)
     var monitorID = appointmentObj?.monitorId.toString()
-    var image = monitor?.photoUrl
+    val image by appointmentStudentViewModel.imageMonitor.observeAsState()
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { appointmentStudentViewModel.getMonitorPhoto(it.photoUrl) }
+    }
 
     LaunchedEffect(true) {
         appointmentStudentViewModel.showMonitorInformation(monitorID)
@@ -137,15 +140,6 @@ fun AppoimentStudentScreen(navController: NavController,appointment: String?, ap
                         .clip(CircleShape)
                         .background(Color(0xFFCCD0CF))
                 ){
-                    monitor?.let {
-                        image = it.photoUrl
-                        if (monitorState==2){
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                            }
-                        }
-                    }
                     Image(
                         modifier = Modifier
                             .size(200.dp) // Tamaño de la imagen

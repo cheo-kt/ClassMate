@@ -18,6 +18,9 @@ class RequestStudentViewModel(val repo: MonitorRepository = MonitorRepositoryImp
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState = MutableLiveData<Int?>(0)
 
+    private val _imageMonitor = MutableLiveData<String?>()
+    val imageMonitor: LiveData<String?> get() = _imageMonitor
+
     fun showMonitorInformation(idMonitor: String) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {monitorState.value = 1}
@@ -40,6 +43,15 @@ class RequestStudentViewModel(val repo: MonitorRepository = MonitorRepositoryImp
                 }
 
             }
+        }
+    }
+    fun getMonitorPhoto(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _imageMonitor.value =  repo.getMonitorImage(imageUrl)
+
+            }
+
         }
     }
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,23 +12,18 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,45 +38,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Appointment
+import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
+import com.example.classmate.ui.components.CalendarWithMonthNavigation
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
-import com.example.classmate.ui.viewModel.ChatMenuStudentViewModel
-import com.google.gson.Gson
+import com.example.classmate.ui.viewModel.HelpMonitorViewModel
+import com.example.classmate.ui.viewModel.HelpStudentViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.Date
 
 @Composable
-fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel: ChatMenuStudentViewModel = viewModel()) {
-    val studentObj: Student? by chatMenuStudentViewModel.student.observeAsState(initial = null)
-    val studentState by chatMenuStudentViewModel.studentState.observeAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val image:String? by chatMenuStudentViewModel.image.observeAsState()
-    val scope = rememberCoroutineScope()
+fun helpMonitorScreen(navController: NavController, helpMonitorViewModel: HelpMonitorViewModel = viewModel()) {
+
+    val monitor: Monitor? by helpMonitorViewModel.monitor.observeAsState(initial = null)
+    val image by helpMonitorViewModel.image.observeAsState()
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { helpMonitorViewModel.getMonitorPhoto(it.photoUrl) }
+    }
     var expanded by remember { mutableStateOf(false) }
-    val scrollState = rememberScrollState()
-
-    val appointmentsState by chatMenuStudentViewModel.appointmentList.observeAsState(emptyList())
-
-    if(studentObj?.photo?.isNotEmpty() == true){
-        studentObj?.let { chatMenuStudentViewModel.getStudentImage(it.photo) }
-    }
-
     LaunchedEffect(true) {
-        chatMenuStudentViewModel.getStudent()
+        val job = helpMonitorViewModel.getMonitor()
+        job.join()
     }
-    LaunchedEffect(true) {
-        chatMenuStudentViewModel.getAppointments()
-    }
-
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
         Column(
@@ -91,6 +78,7 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                 .padding(innerpadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -103,7 +91,7 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                 ) {
 
                     Image(
-                        painter = painterResource(id = R.drawable.encabezadoestudaintes),
+                        painter = painterResource(id = R.drawable.encabezado),
                         contentDescription = "Encabezado",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
@@ -131,11 +119,27 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { navController.navigate("HelpStudent") })
+                                .clickable(onClick = {})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
                                 contentDescription = "Ayuda",
+                                tint = Color.White,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Box(
+                            modifier = Modifier
+                                .width(50.dp)
+                                .aspectRatio(1f)
+                                .background(Color.Transparent)
+                                .clickable(onClick = { navController.navigate("notificationMonitorScreen") })
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notifications),
+                                contentDescription = "notificaciones",
                                 tint = Color.White,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -172,92 +176,83 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                                 .padding(4.dp)
                         ) {
                             DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("studentProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Solicitud de monitoria", onClick = {
-                                navController.navigate("requestBroadcast")
+                                navController.navigate("monitorProfile")
                             }, onDismiss = { expanded = false })
 
                             DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                                chatMenuStudentViewModel.logOut()
-                                navController.navigate("signing")
                             }, onDismiss = { expanded = false })
                         }
                     }
                 }
             }
 
-            Column(modifier = Modifier.verticalScroll(scrollState).weight(1f)) {
-                appointmentsState.forEach { pair ->
-                    val appointment = pair.first
-                    val hasUnreadMessages = pair.second
 
-                    ElevatedCard(
-                        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
+            Box(modifier = Modifier.weight(0.1f))
+
+            Text(
+                text = "Preguntas frecuentes:",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xffCCD0CF))
+                    .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
+                    .padding(16.dp)
+            ) {
+                Column {
+                    Text(text="¿Como puedo modificar las materias que deseo monitorear?",)
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                                verticalArrangement = Arrangement.spacedBy((-5).dp)
-                            ) {
-                                androidx.compose.material3.Text(
-                                    text = "${appointment.monitorName}",
-                                    color = Color.Blue,
-                                    fontSize = 16.sp,
-                                    modifier = Modifier.padding(top = 10.dp)
-                                )
-                                androidx.compose.material3.Text(
-                                    text = "Materia: ${appointment.subjectname}",
-                                    fontSize = 12.sp,
-                                )
-                            }
-                            Box(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .align(Alignment.CenterEnd)
-                                        .padding(horizontal = 5.dp)
-                                ) {
-                                    if (hasUnreadMessages) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(10.dp)
-                                                .background(Color.Blue, shape = CircleShape)
-                                                .align(Alignment.CenterVertically)
-                                        )
-                                    }
-                                    IconButton(onClick = {
-                                        val appointmentId = appointment.id
-                                        val type = true
-                                        navController.navigate("AppointmentChat/$appointmentId/${type.toString()}")
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.PlayArrow,
-                                            contentDescription = "Arrow",
-                                            modifier = Modifier.size(50.dp),
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xffCCD0CF))
+                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ){
+                        Text(text="Puedes hacerlo yendo a tu perfil y modificando la sección de “Materias que monitoreo”, con ayuda del lapiz en la parte inferior derecha.",)
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(text="¿Si no puedo asistir a la monitoria, como le informo al estudiante?",)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xffCCD0CF))
+                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ){
+                        Text(text="Debes hablar con el estudiante usando el chat que se encuentra en la parte inferior derecha.",)
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(text="¿Como puedo modificar mi foto de perfil?",)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xffCCD0CF))
+                            .border(1.dp, Color.Black, shape = RoundedCornerShape(16.dp))
+                            .padding(16.dp)
+                    ){
+                        Text(text="Yendo a tu perfil, si seleccionas tu foto actual podrás cambiarla por una nueva.",)
                     }
                 }
-
-
             }
+
+            Box(modifier = Modifier.weight(0.1f))
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
-                    .background(Color(0xFF3F21DB)),
+                    .background(Color(0xFF209619)),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
@@ -267,64 +262,54 @@ fun ChatScreenMenuStudent(navController: NavController,chatMenuStudentViewModel:
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-
-                        IconButton(onClick = { navController.navigate("CalendarStudent") }){
+                    IconButton(onClick = { navController.navigate("MonitorRequest") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.people),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
+                    }
+                    Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.calendario),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
                                 tint = Color.White
                             )
                         }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("HomeStudentScreen") }) {
+                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.add_home),
+                            painter = painterResource(id = R.drawable.calendario),
                             contentDescription = "calendario",
                             modifier = Modifier
-                                .size(52.dp)
+                                .size(100.dp)
                                 .padding(4.dp),
                             tint = Color.White
                         )
                     }
-
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {navController.navigate("notificationStudentPrincipal")}) {
+                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.notifications),
+                            painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
                             modifier = Modifier
                                 .size(52.dp)
-                                .padding(4.dp),
+                                .padding(2.dp),
                             tint = Color.White
                         )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFFCCD0CF), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.message),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(4.dp),
-                                tint = Color(0xFF3F21DB)
-                            )
-                        }
                     }
                     Box(modifier = Modifier.weight(0.1f))
                 }
             }
         }
     }
-
 }
