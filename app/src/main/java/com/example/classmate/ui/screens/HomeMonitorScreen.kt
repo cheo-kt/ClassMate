@@ -88,6 +88,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Student
 import com.example.classmate.domain.model.Subject
@@ -104,7 +105,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val monitorState by homeMonitorViewModel.monitorState.observeAsState()
     val  filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     val image by homeMonitorViewModel.image.observeAsState()
@@ -113,14 +113,13 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     }
     var expanded by remember { mutableStateOf(false) }
     var expandedFilter by remember { mutableStateOf(false) }
-    var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
+    var subjectFilteredList by remember { mutableStateOf(emptyList<MonitorSubject>()) }
     val maxLength = 20
-    var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     var filteringType by remember { mutableStateOf("Materia") }
-    var filterSubjectName by remember { mutableStateOf("") }
+    var subjectId by remember { mutableStateOf("") }
     var isSearch= false
     val listState = rememberLazyListState()
-    val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
+    val subjectsState = monitor!!.subjects
     var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
 
     val scope = rememberCoroutineScope()
@@ -356,16 +355,17 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         DropdownMenuItemWithSeparator("Materia", onClick = {
                                             filteringType = "Materia"
                                             expandedFilter = false
+                                            buttonMessage = "Materia no seleccionada"
+                                            subjectId = ""
+
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Fecha", onClick = {
                                             filteringType = "Fecha"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Tipo", onClick = {
                                             filteringType = "Tipo"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                     }
 
@@ -377,11 +377,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     } else if (filteringType == "Materia") {
                                           //subjectIdList es una lista de ids de materias??buttonMessage
                                         if( buttonMessage != "Materia no seleccionada") {
-
                                              homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
                                             Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
-
-
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -413,8 +410,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                             Spacer(modifier = Modifier.width(2.dp))
                             Button(
                                 onClick = {
-
                                     buttonMessage = "Materia no seleccionada"
+                                    subjectId = ""
                                 }, colors = ButtonDefaults.buttonColors(
                                     Color(0xFF209619),
                                     Color.White
@@ -452,16 +449,16 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 Spacer(modifier = Modifier.height(2.dp))
 
                                 if (filter.isNotEmpty()) {
-                                    subjectFilteredList = subjectsState?.filter {
+                                    subjectFilteredList = subjectsState.filter {
                                         it.name.lowercase().startsWith(filter.lowercase())
-                                    } ?: emptyList()
+                                    }
                                 }
 
                                 if (subjectFilteredList.isNotEmpty() && filter.isNotEmpty()) {
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -474,11 +471,11 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         }
                                     }
                                 } else if (filter.isEmpty() || subjectFilteredList.isEmpty()) {
-                                    subjectsState?.forEach {
+                                    subjectsState.forEach {
 
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -503,7 +500,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    if(filterrequestState!!.isEmpty()) {
+                    if(filterrequestState!!.isEmpty() && isSearch) {
                         Column {
                             Box(modifier = Modifier.height(20.dp))
                             Row(
@@ -534,8 +531,12 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         }
                     }else{
                         LazyColumn(state = listState) {
-                            if(filteringType == "Materia") {
-                                filterrequestState?.let { requests ->
+                            if (filter.isEmpty()||subjectId=="") {
+                                isSearch = false
+                            }
+                            if (subjectId=="" && filter.isEmpty() || (!isSearch &&  filterrequestState!!.isEmpty())) {
+                                homeMonitorViewModel.refresh()
+                                requestState?.let { requests ->
                                     item {
                                         RequestBroadcastCard(
                                             monitor = monitor,
@@ -546,15 +547,17 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     }
                                 }
                             } else{
-                                requestState?.let { requests ->
+                                if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
+                                filterrequestState?.let { requests ->
                                     item {
                                         RequestBroadcastCard(
                                             monitor = monitor,
                                             requests = requests,
-                                            filter = filter,
+                                            filter = "",
                                             navController = navController
                                         )
                                     }
+                                }
                                 }
                             }
                         }

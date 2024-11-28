@@ -25,5 +25,4 @@ class SubjectRepositoryImpl(
     override suspend fun addMonitorToSubject(monitorId:String,subjectId: String) {
         subjectService.addMonitorToSubjectCollection(monitorId,subjectId)
     }
-
 }

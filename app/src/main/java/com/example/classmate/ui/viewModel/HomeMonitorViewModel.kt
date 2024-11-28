@@ -115,4 +115,7 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
 
         }
     }
+    fun refresh() {
+        _filterSubjectList.value = emptyList()
+    }
 }

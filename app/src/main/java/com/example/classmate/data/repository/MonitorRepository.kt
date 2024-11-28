@@ -97,7 +97,6 @@ class MonitorRepositoryImpl(
         lastOpinion: OpinionsAndQualifications?,
         monitorId: String
     ):List<OpinionsAndQualifications> {
-        Log.e(">>>>", "Estoy en repo")
         return monitorServices.loadMoreOpinions(limit, lastOpinion, monitorId)
 
     }

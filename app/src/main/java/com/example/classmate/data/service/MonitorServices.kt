@@ -141,12 +141,14 @@ class MonitorServicesImpl: MonitorServices {
 
     override suspend fun getBroadRequest(limit: Int, broadRequest: RequestBroadcast?, monitor: Monitor): List<RequestBroadcast> {
         return try {
+            val now = Timestamp.now()
             val subjects = monitor.subjects.map { it.name }
             val querySnapshot = Firebase.firestore.collection("requestBroadcast")
                 .whereIn("subjectname", subjects)
                 .orderBy("id")
                 .startAfter(broadRequest?.id)
                 .limit(limit.toLong())
+                .whereGreaterThanOrEqualTo("dateFinal", now)
                 .get()
                 .await()
             querySnapshot.documents.mapNotNull { it.toObject(RequestBroadcast::class.java) }
