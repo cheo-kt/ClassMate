@@ -1,5 +1,6 @@
 package com.example.classmate.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -97,6 +98,7 @@ fun BroadcastDecisionScreen(
 
 
     val scope = rememberCoroutineScope()
+    Log.e(">>>", request!!)
     val requestObj: RequestBroadcast = Gson().fromJson(request, RequestBroadcast::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
     var image = monitor

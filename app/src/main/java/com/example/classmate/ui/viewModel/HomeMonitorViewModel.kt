@@ -63,6 +63,7 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
             try {
                 withContext(Dispatchers.Main) {
                     _filterSubjectList.value = repoMonitor.searchSubjectsByName(name)
+                    Log.e(">>>", "ViewModel")
                     monitorState.value = 3
                 }
             } catch (ex: FirebaseAuthException) {
@@ -149,4 +150,7 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
         }
     }
 
+    fun refresh() {
+        _filterSubjectList.value = emptyList()
+    }
 }

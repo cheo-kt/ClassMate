@@ -92,6 +92,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Student
@@ -116,15 +117,14 @@ import java.util.Calendar
 import java.util.Date
 import kotlin.math.sqrt
 
-@SuppressLint("DefaultLocale")
+@SuppressLint("SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
     val monitorState by homeMonitorViewModel.monitorState.observeAsState()
-    val  filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
+    val filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val scrollState = rememberScrollState()
     var filter by remember { mutableStateOf("") }
     val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     val image by homeMonitorViewModel.image.observeAsState()
@@ -139,14 +139,16 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val requestListFilteredByType by homeMonitorViewModel.requestListType.observeAsState()
     var expanded by remember { mutableStateOf(false) }
     var expandedFilter by remember { mutableStateOf(false) }
-    var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
+    var subjectFilteredList by remember { mutableStateOf(emptyList<MonitorSubject>()) }
     val maxLength = 20
     var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     var filteringType by remember { mutableStateOf("Materia") }
     var buttonMessageType by remember { mutableStateOf("") }
+    var subjectId by remember { mutableStateOf("") }
+    var isSearch by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
-    val subjectsState by homeMonitorViewModel.subjectList.observeAsState()
+    val subjectsState = monitor!!.subjects
     var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
     var datePickerVisibility by remember { mutableStateOf(false) }
     var datePickerVisibility2 by remember { mutableStateOf(false) }
@@ -231,7 +233,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = { navController.navigate("helpMonitor") })
+                                .clickable(onClick = {navController.navigate("helpMonitor")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -400,6 +402,9 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         DropdownMenuItemWithSeparator("Materia", onClick = {
                                             filteringType = "Materia"
                                             expandedFilter = false
+                                            buttonMessage = "Materia no seleccionada"
+                                            subjectId = ""
+
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Fecha", onClick = {
                                             filteringType = "Fecha"
@@ -418,22 +423,9 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     if (filteringType == "Fecha") {
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
-                                        if (fecha.isEmpty() || horaInicio.isEmpty() ) {
-                                            scope.launch {
-                                                snackbarHostState.currentSnackbarData?.dismiss()
-                                                snackbarHostState.showSnackbar("la fecha u hora no se han definido.")
-                                            }
-                                        }else{
-
-
-
-
-                                        }
                                         if( buttonMessage != "Materia no seleccionada") {
-
-                                            homeMonitorViewModel.monitorsFilteredBySubject(
-                                                buttonMessage
-                                            )
+                                            homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
+                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
                                         }
 
                                     } else if (filteringType == "Tipo") {
@@ -471,6 +463,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 onClick = {
 
                                     buttonMessageType = "Materia no seleccionada"
+                                    buttonMessage = "Materia no seleccionada"
+                                    subjectId = ""
                                 }, colors = ButtonDefaults.buttonColors(
                                     Color(0xFF209619),
                                     Color.White
@@ -517,7 +511,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -534,7 +528,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
 
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -751,8 +745,8 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                         }
                                         return@Button
                                     }
-                                    val datetimeFinalString = "${fechaFinal.trim()} 24:00"
-                                    val datetimeInitialString = "${fecha.trim()} 00:00"
+                                    var datetimeFinalString = "${fechaFinal.trim()} 24:00"
+                                    var datetimeInitialString = "${fecha.trim()} 00:00"
 
                                     try {
                                         val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
@@ -806,43 +800,83 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia") {
-                            filterrequestState?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
+                    if(filterrequestState!!.isEmpty() && isSearch) {
+                        Column {
+                            Box(modifier = Modifier.height(20.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.search_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier
+                                        .size(200.dp)
+                                        .offset(x = 70.dp)
                                 )
                             }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.offset(x = 30.dp)
+                            ) {
+                                Text(
+                                    text = "Sin solicitudes broadcast",
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }else{
+                        LazyColumn(state = listState) {
 
-                        }else if(filteringType == "Tipo" && requestListFilteredByType?.isNotEmpty() == true && isFilterTypeUp){
-                            requestListFilteredByType?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
-                                )
-                            }
-                        } else if(filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true){
-                            requestByDateState?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
-                                )
-                            }
-                        }else{
-                            requestState?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
-                                )
+                            if (filterrequestState!!.isNotEmpty() && filteringType == "Materia" ) {
+                                homeMonitorViewModel.refresh()
+                                filterrequestState?.let { requests ->
+                                    item {
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            }else if(filteringType == "Tipo" && requestListFilteredByType?.isNotEmpty() == true && isFilterTypeUp){
+                                requestListFilteredByType?.let { requests ->
+                                    item{
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            } else if(filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true){
+                                requestByDateState?.let { requests ->
+                                    item{
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            }else{
+                                requestState?.let { requests ->
+                                    item{
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
                             }
                         }
 
@@ -942,6 +976,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     } else if (monitorState == 2) {
         LaunchedEffect(Unit) {
             scope.launch {
+
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar("Ha ocurrido un error")
             }

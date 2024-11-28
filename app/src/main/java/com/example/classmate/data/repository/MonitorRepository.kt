@@ -50,7 +50,6 @@ class MonitorRepositoryImpl(
 
     override suspend fun getCurrentMonitor(): Monitor? {
         Firebase.auth.currentUser?.let {
-            Log.e(">>>UID",it.uid)
             return monitorServices.getMonitorById(it.uid)
         } ?: run {
             return null
@@ -97,7 +96,6 @@ class MonitorRepositoryImpl(
         lastOpinion: OpinionsAndQualifications?,
         monitorId: String
     ):List<OpinionsAndQualifications> {
-        Log.e(">>>>", "Estoy en repo")
         return monitorServices.loadMoreOpinions(limit, lastOpinion, monitorId)
 
     }
@@ -123,7 +121,9 @@ class MonitorRepositoryImpl(
     }
 
     override suspend fun searchSubjectsByName(subjectName: String): List<RequestBroadcast?> {
+        Log.e(">>>", "REdyui")
         return monitorServices.searchSubjectsByName(subjectName)
+
     }
 
     override suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request?> {

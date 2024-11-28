@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,6 +51,7 @@ class UnicastMonitoringViewModel (
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { authState.value = 1 }
             try {
+                Log.e(">>>>", "Deberia estar acá")
                 repo.deleteRequest(StudentID,MonitorID,requestID)
                 withContext(Dispatchers.Main) { authState.value = 3 }
             } catch (ex: FirebaseAuthException) {

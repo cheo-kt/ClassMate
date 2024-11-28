@@ -125,7 +125,7 @@ fun NotificationMonitorScreen(navController: NavController,
 
                     IconButton(
                         onClick = {
-                            navController.navigate("")
+                            navController.popBackStack()
                         },
                         modifier = Modifier
                             .size(45.dp)
@@ -275,15 +275,20 @@ fun NotificationMonitorScreen(navController: NavController,
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            AsyncImage(
-                                                model = R.drawable.botonestudiante,
-                                                contentDescription = "a",
-                                                contentScale = ContentScale.Crop,
+                                            Box(
                                                 modifier = Modifier
                                                     .padding(horizontal = 10.dp)
-                                                    .size(50.dp)
+                                                    .size(50.dp) // Tamaño del círculo completo
                                                     .clip(CircleShape)
-                                            )
+                                                    .background(Color(0xFFCCD0CF)),
+                                                contentAlignment = Alignment.Center // Centra el contenido dentro del círculo
+                                            ) {
+                                                AsyncImage(
+                                                    model = R.drawable.notificationsblack,
+                                                    contentDescription = "Notificaciones",
+                                                    modifier = Modifier.size(30.dp) // Reduce el tamaño de la imagen dentro del círculo
+                                                )
+                                            }
                                             Column(
                                                 modifier = Modifier.align(Alignment.CenterVertically),
                                                 verticalArrangement = Arrangement.spacedBy((-5).dp)

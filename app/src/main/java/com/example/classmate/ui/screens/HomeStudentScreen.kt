@@ -463,7 +463,7 @@ fun HomeStudentScreen(navController: NavController, homeStudentViewModel: HomeSt
                         Column {
                             Box(modifier = Modifier.height(50.dp))
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                                verticalAlignment = CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Image(

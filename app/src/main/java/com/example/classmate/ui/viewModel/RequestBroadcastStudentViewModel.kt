@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -76,6 +77,7 @@ class RequestBroadcastStudentViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { authState2.value = 1 }
             try {
+                Log.e(">>>", "Pq rayos estoy aca...")
                 repo.eliminateRequestBroadcast(requestID,subjectID,StudentID)
                 withContext(Dispatchers.Main) { authState2.value = 3 }
             } catch (ex: FirebaseAuthException) {

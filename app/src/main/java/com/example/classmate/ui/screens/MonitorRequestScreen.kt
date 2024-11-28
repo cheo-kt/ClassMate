@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +61,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -68,6 +70,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
@@ -100,6 +103,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val monitor by monitorRequestViewModel.monitor.observeAsState()
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
+    var isFilterTypeUp = false
     val listState = rememberLazyListState()
     val requestTypeList by monitorRequestViewModel.requestType.observeAsState()
     val requestLisFilteretypeState by monitorRequestViewModel.requestListType.observeAsState()
@@ -107,10 +111,15 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
+    var isSearch by remember { mutableStateOf(false) }
     val image by monitorRequestViewModel.image.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
     }
+
+    var subjectId by remember { mutableStateOf("") }
+
+
     var buttonMessage by remember { mutableStateOf("") }
     var buttonMessageType by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
@@ -355,16 +364,16 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         DropdownMenuItemWithSeparator("Materia", onClick = {
                                             filteringType = "Materia"
                                             expandedFilter = false
+                                            buttonMessage = "Materia no seleccionada"
+                                            subjectId = ""
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Fecha", onClick = {
                                             filteringType = "Fecha"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Tipo", onClick = {
                                             filteringType = "Tipo"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                     }
 
@@ -374,15 +383,19 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                     } else if (filteringType == "Materia") {
 
-                                        if( buttonMessage != "Materia no seleccionada") {
-                                            monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
+                                        if (buttonMessage != "Materia no seleccionada") {
+                                            monitorRequestViewModel.monitorsFilteredBySubject(
+                                                buttonMessage
+                                            )
                                         }
 
                                     } else if (filteringType == "Tipo") {
-                                        if(buttonMessageType != "Tipo no seleccionado"){
+                                        if (buttonMessageType != "Tipo no seleccionado") {
                                             monitor?.let {
-                                                monitorRequestViewModel.getRequestByType(buttonMessageType,
-                                                    it.id)
+                                                monitorRequestViewModel.getRequestByType(
+                                                    buttonMessageType,
+                                                    it.id
+                                                )
                                             }
                                         }
                                     }
@@ -408,8 +421,8 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             Spacer(modifier = Modifier.width(2.dp))
                             Button(
                                 onClick = {
-                                    subjectIdList = emptyList()
                                     buttonMessage = "Materia no seleccionada"
+                                    subjectId = ""
                                 }, colors = ButtonDefaults.buttonColors(
                                     Color(0xFF209619),
                                     Color.White
@@ -452,8 +465,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                 if (filter.isNotEmpty()) {
                                     subjectFilteredList = subjectsState?.filter {
-                                        it.name.lowercase()
-                                            .startsWith(filter.lowercase())
+                                        it.name.lowercase().startsWith(filter.lowercase())
                                     } ?: emptyList()
                                 }
 
@@ -461,7 +473,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.id
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -478,7 +490,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.id
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -743,6 +755,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         }
                     }
 
+
                     Spacer(modifier = Modifier.height(10.dp))
                     androidx.compose.material3.Text(
                         text = "Tus Solicitudes",
@@ -751,46 +764,89 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
-                            filterrequestState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
+                    if (filterrequestState!!.isEmpty() && isSearch) {
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.search_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier
+                                        .size(200.dp)
+                                        .offset(x = 70.dp)
                                 )
                             }
-                        }else if(filteringType == "Tipo" && requestLisFilteretypeState?.isNotEmpty() == true){
-                            requestLisFilteretypeState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
-                                )
-                            }
-
-                        }else if(filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true){
-                            requestByDateState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
-                                )
-                            }
-                        }else{
-                            requestState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.offset(x = 40.dp)
+                            ) {
+                                Text(
+                                    text = "Sin solicitudes para ti",
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
+                    } else {
+                        LazyColumn(state = listState) {
+                            if ((filter.isEmpty() && filteringType != "Materia") || buttonMessage == "Materia no seleccionada") {
+                                isSearch = false
+                            }
+                            if (filterrequestState!!.isNotEmpty() && filteringType == "Materia") {
+                                monitorRequestViewModel.refresh()
+                                requestState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            } else if (filteringType == "Tipo" && requestLisFilteretypeState?.isNotEmpty() == true) {
+                                requestLisFilteretypeState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
 
+                                }
+
+                            } else if (filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true) {
+                                requestByDateState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            } else {
+                                requestState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            }
+
+                        }
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
@@ -800,106 +856,103 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 }
                             }
                     }
+
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color(0xFF209619)),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(Color(0xFF209619)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(modifier = Modifier.weight(0.1f))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                            .fillMaxSize()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(modifier = Modifier.weight(0.1f))
+                        Box(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .background(color = Color(0xFF026900), shape = CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.people),
+                                    contentDescription = "calendario",
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .padding(4.dp),
+                                    tint = Color.White
+                                )
+                            }
+
+                        }
+
+                        Box(modifier = Modifier.weight(0.1f))
+
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.people),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
                                 tint = Color.White
                             )
                         }
 
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(2.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
                     }
-
-                    Box(modifier = Modifier.weight(0.1f))
-
-                    IconButton(onClick = {navController.navigate("HomeMonitorScreen")  }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp)
-                                .offset(y = -(2.dp)),
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
                 }
             }
         }
-    }
 
-    if (monitorState == 1) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
-            )
-        }
-    } else if (monitorState == 2) {
-        LaunchedEffect(Unit) {
-            scope.launch {
+        if (monitorState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (monitorState == 2) {
+            LaunchedEffect(Unit) {
+                scope.launch {
 
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ha ocurrido un error")
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                }
             }
         }
-    }
-
-
-
-
 }

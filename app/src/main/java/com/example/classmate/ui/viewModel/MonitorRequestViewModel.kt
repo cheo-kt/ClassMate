@@ -59,6 +59,7 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     }
 
     fun monitorsFilteredBySubject(name: String) {
+        Log.e(">>>", name)
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { monitorState.value = 1 }
             try {
@@ -145,8 +146,10 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
                 _requestByDate.value = requestRepo.getRequestByDateRange(timestampInitial,timestampFinal,monitor)
             }
         }
-        Log.e("ERROR","HEREEEEEEE"+ (requestByDate.value?.size ?: "Nothing"))
     }
 
+    fun refresh() {
+        _filterSubjectList.value = emptyList()
+    }
 
 }
