@@ -64,7 +64,10 @@ fun RequestViewScreen(navController: NavController, request: String?, requestStu
     val monitorState by requestStudentViewModel.monitorState.observeAsState()
     val monitor: Monitor? by requestStudentViewModel.monitor.observeAsState(initial = null)
     var monitorID = requestObj?.monitorId.toString()
-    var image = monitor?.photoUrl
+    val image by requestStudentViewModel.imageMonitor.observeAsState()
+    if(monitor?.photoUrl?.isNotEmpty() == true){
+        monitor?.let { requestStudentViewModel.getMonitorPhoto(it.photoUrl) }
+    }
 
     LaunchedEffect(true) {
         requestStudentViewModel.showMonitorInformation(monitorID)
@@ -138,15 +141,6 @@ fun RequestViewScreen(navController: NavController, request: String?, requestStu
                         .clip(CircleShape)
                         .background(Color(0xFFCCD0CF))
                 ){
-                    monitor?.let {
-                        image = it.photoUrl
-                        if (monitorState==2){
-                            scope.launch {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                snackbarHostState.showSnackbar("Hay problemas para conectarse con el servidor, revise su conexión")
-                            }
-                        }
-                    }
                     Image(
                         modifier = Modifier
                             .size(200.dp) // Tamaño de la imagen
@@ -155,7 +149,10 @@ fun RequestViewScreen(navController: NavController, request: String?, requestStu
                             .fillMaxSize()
                         ,
                         contentDescription = null,
-                        painter = rememberAsyncImagePainter(image, error = painterResource(R.drawable.botonestudiante)),
+                        painter = rememberAsyncImagePainter(
+                            image,
+                            error = painterResource(R.drawable.botonestudiante)
+                        ),
                         contentScale = ContentScale.Crop
                     )
                 }

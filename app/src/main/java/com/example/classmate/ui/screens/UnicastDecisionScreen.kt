@@ -178,7 +178,7 @@ fun UnicastDecisionScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = {},
+                            onClick = {navController.navigate("helpMonitor")},
                             modifier = Modifier
                                 .width(50.dp)
                                 .offset(y = 5.dp)

@@ -273,13 +273,7 @@ fun helpMonitorScreen(navController: NavController, helpMonitorViewModel: HelpMo
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    Box(
-                        modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
@@ -290,7 +284,7 @@ fun helpMonitorScreen(navController: NavController, helpMonitorViewModel: HelpMo
                                 tint = Color.White
                             )
                         }
-                    }
+
                     Box(modifier = Modifier.weight(0.1f))
                     IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
                         Icon(
