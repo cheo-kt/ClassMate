@@ -129,7 +129,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
         homeMonitorViewModel.getMonitor()
         val job = homeMonitorViewModel.getMonitor()
         job.join()
-        monitor?.let { homeMonitorViewModel.loadMoreRequestB(it) }
         homeMonitorViewModel.getSubjectsList()
     }
     LaunchedEffect(true) {

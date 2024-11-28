@@ -103,7 +103,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
-        monitorRequestViewModel.loadMoreRequest()
         monitorRequestViewModel.getSubjectsList()
     }
     LaunchedEffect(true) {
