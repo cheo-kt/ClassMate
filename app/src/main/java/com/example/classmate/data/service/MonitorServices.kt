@@ -355,7 +355,7 @@ class MonitorServicesImpl: MonitorServices {
             .get()
             .await()
 
-            Log.e(">>>", result.size().toString())
+
         return result.documents.map { document ->
             document.toObject(Request::class.java)
         }

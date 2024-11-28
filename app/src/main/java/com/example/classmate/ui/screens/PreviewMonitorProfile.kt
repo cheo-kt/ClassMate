@@ -85,15 +85,16 @@ fun PreviewMonitorProfile(
     val opinionlist by previewMonitorViewModel.opinionList.observeAsState()
     val studentObj: Student = Gson().fromJson(student, Student::class.java)
     val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
-    val subjectObj: MonitorSubject= Gson().fromJson(materia, MonitorSubject::class.java)
+    val subjectObj: MonitorSubject = Gson().fromJson(materia, MonitorSubject::class.java)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    var image = monitorObj.photoUrl
+    val image by previewMonitorViewModel.image.observeAsState()
     val scrollState = rememberScrollState()
     val listState = rememberLazyListState()
 
     LaunchedEffect(true) {
         previewMonitorViewModel.getOpinionMonitor(monitorObj.id)
+        previewMonitorViewModel.getMonitorPhoto(monitorObj.photoUrl)
     }
 
 
@@ -171,9 +172,7 @@ fun PreviewMonitorProfile(
                         .clip(CircleShape)
                         .background(Color(0xFFCCD0CF))
                 ){
-                    monitorObj.let {
-                        image = it.photoUrl
-                    }
+
                     Image(
                         modifier = Modifier
                             .size(170.dp) // Tamaño de la imagen

@@ -4,8 +4,11 @@ import com.example.classmate.data.service.NotificationService
 import com.example.classmate.data.service.NotificationServiceImpl
 import com.example.classmate.data.service.RequestService
 import com.example.classmate.data.service.RequestServicesImpl
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Student
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,7 +18,9 @@ import java.util.UUID
 interface RequestRepository {
     suspend fun  createRequest(studentID:String, monitorID:String,request: Request)
     suspend fun  deleteRequest(studentID:String, monitorID:String,requestId: String)
-
+    suspend fun getRequestType():List<RequestType>
+    suspend fun getRequestByType(type:String,monitorID: String):List<Request>
+    suspend fun getRequestByDateRange(timeStampInitial: Timestamp, timeStampFinal: Timestamp, monitor: Monitor): List<Request>
 }
 
 
@@ -48,6 +53,22 @@ class RequestRRepositoryImpl(
         requestServices.deleteRequestFromMainCollection(requestId)
         requestServices.deleteRequestForMonitor(monitorID,requestId)
         requestServices.deleteRequestForStudent(studentID,requestId)
+    }
+
+    override suspend fun getRequestType(): List<RequestType> {
+        return requestServices.getRequestType()
+    }
+
+    override suspend fun getRequestByType(type: String,monitorID: String): List<Request> {
+        return requestServices.getRequestByType(type,monitorID)
+    }
+
+    override suspend fun getRequestByDateRange(
+        timeStampInitial: Timestamp,
+        timeStampFinal: Timestamp,
+        monitor: Monitor
+    ): List<Request> {
+        return requestServices.getRequestByDateRange(timeStampInitial,timeStampFinal,monitor)
     }
 
 

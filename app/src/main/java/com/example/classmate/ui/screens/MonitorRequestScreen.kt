@@ -36,10 +36,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,13 +73,25 @@ import com.example.classmate.R
 import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Subject
+import com.example.classmate.ui.components.DatePickerDialog
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.ui.components.RequestBroadcastCard
 import com.example.classmate.ui.components.RequestCard
 import com.example.classmate.ui.viewModel.MonitorRequestViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: MonitorRequestViewModel = viewModel()) {
     val requestState by monitorRequestViewModel.list.observeAsState()
@@ -87,23 +103,38 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val monitor by monitorRequestViewModel.monitor.observeAsState()
     var expanded by remember { mutableStateOf(false) }
     val maxLength = 20
+    var isFilterTypeUp = false
     val listState = rememberLazyListState()
+    val requestTypeList by monitorRequestViewModel.requestType.observeAsState()
+    val requestLisFilteretypeState by monitorRequestViewModel.requestListType.observeAsState()
     var expandedFilter by remember { mutableStateOf(false) }
+    var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<MonitorSubject>()) }
-    var filteringType by remember { mutableStateOf("Materia") }
+    var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch by remember { mutableStateOf(false) }
     val image by monitorRequestViewModel.image.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
     }
-    var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
-    var subjectId by remember { mutableStateOf("") }
-    val subjectsState = monitor!!.subjects
 
+    var subjectId by remember { mutableStateOf("") }
+
+
+    var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessageType by remember { mutableStateOf("") }
+    var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
+    var fecha by remember { mutableStateOf("") }
+    var fechaFinal by remember { mutableStateOf("") }
+    val currentTime = Calendar.getInstance()
+    val today = LocalDate.now()
+    val requestByDateState by monitorRequestViewModel.requestByDate.observeAsState()
+    var datePickerVisibility by remember { mutableStateOf(false) }
+    var datePickerVisibility2 by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
-
+    val datePickerState = rememberDatePickerState()
+    val datePickerState2 = rememberDatePickerState()
+    val subjectsState = monitor!!.subjects
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
         monitorRequestViewModel.getSubjectsList()
@@ -112,6 +143,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
         monitorRequestViewModel.getMonitor()
         monitorRequestViewModel.loadMoreRequest()
         monitorRequestViewModel.getSubjectsList()
+        monitorRequestViewModel.getRequesTypeList()
     }
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
 
@@ -162,7 +194,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("helpMonitor")})
+                                .clickable(onClick = { navController.navigate("helpMonitor") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -178,7 +210,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = { navController.navigate("notificationMonitorScreen") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -346,19 +378,25 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                 }
                                 IconButton(onClick = {
-                                    isSearch = true
                                     if (filteringType == "Fecha") {
-                                        // homeMonitorViewModel.monitorsFilteredByName(filter)
+
                                     } else if (filteringType == "Materia") {
 
-                                        if( buttonMessage != "Materia no seleccionada") {
-                                            monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
-                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
-                                            Log.e("FilterRequestState", "El tamaño del arreglo es: ${filterrequestState?.size ?: "null"}")
+                                        if (buttonMessage != "Materia no seleccionada") {
+                                            monitorRequestViewModel.monitorsFilteredBySubject(
+                                                buttonMessage
+                                            )
                                         }
 
                                     } else if (filteringType == "Tipo") {
-                                        TODO()
+                                        if (buttonMessageType != "Tipo no seleccionado") {
+                                            monitor?.let {
+                                                monitorRequestViewModel.getRequestByType(
+                                                    buttonMessageType,
+                                                    it.id
+                                                )
+                                            }
+                                        }
                                     }
                                 }) {
                                     Icon(
@@ -425,9 +463,9 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 Spacer(modifier = Modifier.height(2.dp))
 
                                 if (filter.isNotEmpty()) {
-                                    subjectFilteredList = subjectsState.filter {
+                                    subjectFilteredList = subjectsState?.filter {
                                         it.name.lowercase().startsWith(filter.lowercase())
-                                    }
+                                    } ?: emptyList()
                                 }
 
                                 if (subjectFilteredList.isNotEmpty() && filter.isNotEmpty()) {
@@ -447,7 +485,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         }
                                     }
                                 } else if (filter.isEmpty() || subjectFilteredList.isEmpty()) {
-                                    subjectsState.forEach {
+                                    subjectsState?.forEach {
 
                                         Button(
                                             onClick = {
@@ -469,6 +507,253 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         }
 
                     }
+                    if(filteringType=="Tipo"){
+                        Row {
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Button(
+                                onClick = {
+                                    requestTypeListFilter = emptyList()
+                                    buttonMessageType = "Tipo no seleccionado"
+                                }, colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF209619),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ) {
+                                Row {
+                                    androidx.compose.material3.Text(text = buttonMessageType)
+                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Search Icon",
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
+                            ) {
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                if (filter.isNotEmpty()) {
+                                    requestTypeListFilter = requestTypeList?.filter {
+                                        it.name.lowercase().startsWith(filter.lowercase())
+                                    } ?: emptyList()
+                                }
+
+                                if (requestTypeListFilter.isNotEmpty() && filter.isNotEmpty()) {
+                                    requestTypeListFilter.forEach {
+                                        Button(
+                                            onClick = {
+                                                buttonMessageType = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF209619),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                } else if (filter.isEmpty() || requestTypeListFilter.isEmpty()) {
+                                    Log.e("ERROR", requestTypeList!!.size.toString())
+                                    requestTypeList?.forEach {
+
+                                        Button(
+                                            onClick = {
+                                                buttonMessageType = it.name
+
+                                            }, colors = ButtonDefaults.buttonColors(
+                                                Color(0xFF209619),
+                                                Color.White
+                                            ),
+                                            modifier = Modifier.fillMaxWidth(0.8f)
+                                        ) {
+                                            androidx.compose.material3.Text(text = it.name)
+                                        }
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
+                    }
+                    if(filteringType == "Fecha"){
+                        Column {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                    .clip(RoundedCornerShape(16.dp))
+                            ) {
+
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+
+
+                                    OutlinedTextField(
+                                        value = fecha,
+                                        enabled = false,
+                                        onValueChange = {},
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                                        ),
+                                        label = { androidx.compose.material3.Text("Limite inferior") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                datePickerVisibility = true
+                                            },
+                                    )
+                                    OutlinedTextField(
+                                        value = fechaFinal,
+                                        enabled = false,
+                                        onValueChange = {},
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                                        ),
+                                        label = { androidx.compose.material3.Text("Limite superior") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                datePickerVisibility2 = true
+                                            },
+                                    )
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally){
+
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    DatePickerDialog(
+                                        visible = datePickerVisibility,
+                                        datePickerState = datePickerState
+                                    ) {
+                                        datePickerState.selectedDateMillis?.let {
+                                            val zonedDateTime = Instant.ofEpochMilli(it + 6 * 60 * 60 * 1000).atZone(
+                                                ZoneId.systemDefault())
+                                            val selectedDate = LocalDate.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault())
+
+                                            if (selectedDate.isBefore(today)) {
+                                                datePickerVisibility = false
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("Debe ser una fecha de hoy o después")
+                                                }
+                                            } else {
+                                                val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                                                fecha = formattedDate
+                                                datePickerVisibility = false
+                                            }
+                                        }
+
+                                    }
+                                    DatePickerDialog(
+                                        visible = datePickerVisibility2,
+                                        datePickerState = datePickerState2
+                                    ) {
+                                        datePickerState2.selectedDateMillis?.let {
+                                            val zonedDateTime = Instant.ofEpochMilli(it + 6 * 60 * 60 * 1000).atZone(
+                                                ZoneId.systemDefault())
+                                            val selectedDate = LocalDate.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault())
+
+                                            if (selectedDate.isBefore(today)) {
+                                                datePickerVisibility = false
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("Debe ser una fecha de hoy o después")
+                                                }
+                                            } else {
+                                                val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                                                fechaFinal = formattedDate
+                                                datePickerVisibility2 = false
+                                            }
+                                        }
+
+                                    }
+
+                                }
+
+
+                            }
+                            Button(
+                                onClick = {
+                                    if (fecha.isBlank()||fechaFinal.isBlank()) {
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar("Por favor selecciona una fecha y hora válidas.")
+                                        }
+                                        return@Button
+                                    }
+                                    val datetimeFinalString = "${fechaFinal.trim()} 24:00"
+                                    val datetimeInitialString = "${fecha.trim()} 00:00"
+
+                                    try {
+                                        val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
+                                        val datetimeInitial = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeInitialString)
+                                        val currentDate = Date()
+
+                                        if (datetimeInitial != null && datetimeInitial.after(currentDate)) {
+                                            if(datetimeFinal != null && datetimeFinal.after(datetimeInitial)){
+                                                val timestampInitial = Timestamp(datetimeInitial)
+                                                val timestampFinal = Timestamp(datetimeFinal)
+                                                monitor?.let {
+                                                    Log.e("ERROR",datetimeInitialString)
+                                                    monitorRequestViewModel.getRequestByDateRange(timestampInitial,timestampFinal ,it)
+                                                }
+                                            }else{
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("No se puede elegir una fecha anterior a la de el limite inferior en el limite superior.")
+                                                }
+                                            }
+
+                                        } else {
+                                            scope.launch {
+                                                snackbarHostState.currentSnackbarData?.dismiss()
+                                                snackbarHostState.showSnackbar("No se puede elegir una fecha anterior a la actual.")
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar("Formato de fecha y hora inválido.")
+                                        }
+                                    }
+                                }, colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF209619),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ){
+                                Text(text = "Buscar", color = Color.White)
+                            }
+                        }
+                    }
+
 
                     Spacer(modifier = Modifier.height(10.dp))
                     androidx.compose.material3.Text(
@@ -478,8 +763,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Log.e(">>>XDAA",(isSearch).toString())
-                    if(filterrequestState!!.isEmpty() && isSearch) {
+                    if (filterrequestState!!.isEmpty() && requestLisFilteretypeState?.isEmpty() == true && requestByDateState?.isEmpty() == true) {
                         Column {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -507,39 +791,49 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 )
                             }
                         }
-                    }else{
-                    LazyColumn(state = listState) {
-                        if ((filter.isEmpty() && filteringType!="Materia")|| buttonMessage=="Materia no seleccionada") {
-                            isSearch=false
-                        }
-                        Log.e(">>>",((subjectId == "" && filter.isEmpty()).toString()))
-                        if (buttonMessage== "Materia no seleccionada" || (filter.isEmpty() && filteringType!="Materia") || (!isSearch && filterrequestState!!.isEmpty())) {
-                            monitorRequestViewModel.refresh()
-                            requestState?.let { requests ->
-                                item {
-                                    RequestCard(
-                                        monitor = monitor,
-                                        requests = requests,
-                                        filter = filter,
-                                        navController = navController
-                                    )
-                                }
+                    } else {
+                        LazyColumn(state = listState) {
+                            if ((filter.isEmpty() && filteringType != "Materia") || buttonMessage == "Materia no seleccionada") {
+                                isSearch = false
                             }
-                        } else {
                             if (filterrequestState!!.isNotEmpty() && filteringType == "Materia") {
                                 filterrequestState?.let { requests ->
                                     item {
                                         RequestCard(
                                             monitor = monitor,
                                             requests = requests,
-                                            filter = "",
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            } else if (filteringType == "Tipo" && requestLisFilteretypeState?.isNotEmpty() == true) {
+                                requestLisFilteretypeState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+
+                                }
+
+                            } else if (filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true) {
+                                requestByDateState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
                                             navController = navController
                                         )
                                     }
                                 }
                             }
+
                         }
-                    }
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
@@ -549,106 +843,103 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 }
                             }
                     }
+
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color(0xFF209619)),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(Color(0xFF209619)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(modifier = Modifier.weight(0.1f))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .size(58.dp)
-                            .background(color = Color(0xFF026900), shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ){
-                        IconButton(onClick = { navController.navigate("MonitorRequest")}) {
+                            .fillMaxSize()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(modifier = Modifier.weight(0.1f))
+                        Box(
+                            modifier = Modifier
+                                .size(58.dp)
+                                .background(color = Color(0xFF026900), shape = CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.people),
+                                    contentDescription = "calendario",
+                                    modifier = Modifier
+                                        .size(52.dp)
+                                        .padding(4.dp),
+                                    tint = Color.White
+                                )
+                            }
+
+                        }
+
+                        Box(modifier = Modifier.weight(0.1f))
+
+                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.people),
+                                painter = painterResource(id = R.drawable.add_home),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(4.dp),
+                                    .padding(2.dp)
+                                    .offset(y = -(2.dp)),
                                 tint = Color.White
                             )
                         }
 
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.calendario),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(4.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
+                        IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.message),
+                                contentDescription = "calendario",
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .padding(2.dp),
+                                tint = Color.White
+                            )
+                        }
+                        Box(modifier = Modifier.weight(0.1f))
                     }
-
-                    Box(modifier = Modifier.weight(0.1f))
-
-                    IconButton(onClick = {navController.navigate("HomeMonitorScreen")  }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.add_home),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp)
-                                .offset(y = -(2.dp)),
-                            tint = Color.White
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.calendario),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.message),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(2.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
                 }
             }
         }
-    }
 
-    if (monitorState == 1) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White
-            )
-        }
-    } else if (monitorState == 2) {
-        LaunchedEffect(Unit) {
-            scope.launch {
+        if (monitorState == 1) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.White
+                )
+            }
+        } else if (monitorState == 2) {
+            LaunchedEffect(Unit) {
+                scope.launch {
 
-                snackbarHostState.currentSnackbarData?.dismiss()
-                snackbarHostState.showSnackbar("Ha ocurrido un error")
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar("Ha ocurrido un error")
+                }
             }
         }
-    }
-
-
-
-
 }

@@ -10,12 +10,17 @@ import com.example.classmate.data.repository.MonitorAuthRepository
 import com.example.classmate.data.repository.MonitorAuthRepositoryImpl
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
+import com.example.classmate.data.repository.RequestBroadcastRepository
+import com.example.classmate.data.repository.RequestBroadcastRepositoryImpl
 import com.example.classmate.data.repository.SubjectRepository
 import com.example.classmate.data.repository.SubjectRepositoryImpl
 import com.example.classmate.data.repository.StudentAuthRepository
 import com.example.classmate.domain.model.Monitor
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Subject
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,7 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositoryImpl(),val repoAuth: MonitorAuthRepository = MonitorAuthRepositoryImpl(),
-                           val subjectsRepo : SubjectRepository = SubjectRepositoryImpl()
+                           val subjectsRepo : SubjectRepository = SubjectRepositoryImpl(),val requestRepo : RequestBroadcastRepository = RequestBroadcastRepositoryImpl()
 ): ViewModel() {
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
@@ -38,13 +43,19 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
     val subjectList: LiveData<List<Subject>> get() = _subjectList
     private val _image = MutableLiveData<String?>()
     val image: LiveData<String?> get() = _image
-
+    private val _requestType = MutableLiveData(listOf<RequestType>())
+    val requestType: LiveData<List<RequestType>> get() = _requestType
+    private val _requestListType = MutableLiveData(listOf<RequestBroadcast?>())
+    val requestListType: LiveData<List<RequestBroadcast?>> get() = _requestListType
+    private val _requestByDate = MutableLiveData(listOf<RequestBroadcast?>())
+    val requestByDate: LiveData<List<RequestBroadcast?>> get() = _requestByDate
     fun getMonitor(): Job = viewModelScope.launch(Dispatchers.IO) {
             val me = repoMonitor.getCurrentMonitor()
             withContext(Dispatchers.Main) {
                 _monitor.value = me
             }
     }
+
 
     fun monitorsFilteredBySubject(name: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -116,6 +127,29 @@ class HomeMonitorViewModel(val repoMonitor: MonitorRepository = MonitorRepositor
 
         }
     }
+    fun getRequesTypeList(){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main){
+                _requestType.value = requestRepo.getRequestTypeList()
+            }
+        }
+    }
+    fun getRequestByType(type:String,monitor: Monitor){
+        viewModelScope.launch (Dispatchers.IO){
+            withContext(Dispatchers.Main){
+                _requestListType.value = requestRepo.getRequestBroadcastByType(type,monitor)
+            }
+        }
+
+    }
+    fun getRequestAfter(timestampInitial: Timestamp,timestampFinal: Timestamp,monitor: Monitor){
+        viewModelScope.launch (Dispatchers.IO){
+            withContext(Dispatchers.Main){
+                _requestByDate.value = requestRepo.getRequestBroadcastByDateRange(timestampInitial,timestampFinal,monitor)
+            }
+        }
+    }
+
     fun refresh() {
         _filterSubjectList.value = emptyList()
     }
