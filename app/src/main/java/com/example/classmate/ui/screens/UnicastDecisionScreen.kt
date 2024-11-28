@@ -1,6 +1,7 @@
 package com.example.classmate.ui.screens
 
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -92,6 +93,7 @@ fun UnicastDecisionScreen(
     monitor: String?,
     unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
 ) {
+    Log.e(">>>",request!!)
     val authState by unicastMonitoringViewModel.authState.observeAsState()
     val scope = rememberCoroutineScope()
     val requestObj: Request = Gson().fromJson(request, Request::class.java)
@@ -427,6 +429,7 @@ fun UnicastDecisionScreen(
                 }
                 Button(
                     onClick = {
+                        Log.e(">>>", "Llegue acá")
                         unicastMonitoringViewModel.deleteRequest(
                             requestObj.studentId,
                             monitorObj.id,

@@ -86,7 +86,7 @@ fun RequestCard(monitor: Monitor?, requests:List<Request?>, filter:String, navCo
                     ) {
                         IconButton(onClick = {
                             navController.navigate(
-                                "DecisionMonitor?request=${
+                                "DecisionMonitorUnicast?request=${
                                     Gson().toJson(
                                         request
                                     ) ?: "No"

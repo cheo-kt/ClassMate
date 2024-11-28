@@ -93,7 +93,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
     }
-    var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
 
@@ -349,7 +349,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     } else if (filteringType == "Materia") {
 
                                         if( buttonMessage != "Materia no seleccionada") {
-
                                             monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
                                             Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
                                             Log.e("FilterRequestState", "El tamaño del arreglo es: ${filterrequestState?.size ?: "null"}")

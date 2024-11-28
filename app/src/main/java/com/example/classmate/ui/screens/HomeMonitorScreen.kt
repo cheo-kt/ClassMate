@@ -103,11 +103,12 @@ import kotlin.math.sqrt
 fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMonitorViewModel = viewModel()) {
     val requestState by homeMonitorViewModel.broadcastList.observeAsState()
     val monitorState by homeMonitorViewModel.monitorState.observeAsState()
-    val  filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
+    val filterrequestState by homeMonitorViewModel.filterSubjectList.observeAsState()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     var filter by remember { mutableStateOf("") }
     val monitor:Monitor? by homeMonitorViewModel.monitor.observeAsState(initial = null)
     val image by homeMonitorViewModel.image.observeAsState()
+
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { homeMonitorViewModel.getMonitorPhoto(it.photoUrl) }
     }
@@ -375,9 +376,9 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     if (filteringType == "Fecha") {
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
-                                          //subjectIdList es una lista de ids de materias??buttonMessage
+                                        //subjectIdList es una lista de ids de materias??buttonMessage
                                         if( buttonMessage != "Materia no seleccionada") {
-                                             homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
+                                            homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
                                             Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
                                         }
 
@@ -548,16 +549,16 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                 }
                             } else{
                                 if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
-                                filterrequestState?.let { requests ->
-                                    item {
-                                        RequestBroadcastCard(
-                                            monitor = monitor,
-                                            requests = requests,
-                                            filter = "",
-                                            navController = navController
-                                        )
+                                    filterrequestState?.let { requests ->
+                                        item {
+                                            RequestBroadcastCard(
+                                                monitor = monitor,
+                                                requests = requests,
+                                                filter = "",
+                                                navController = navController
+                                            )
+                                        }
                                     }
-                                }
                                 }
                             }
                         }

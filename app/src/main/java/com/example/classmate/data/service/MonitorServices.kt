@@ -319,16 +319,19 @@ class MonitorServicesImpl: MonitorServices {
     }
 
     override suspend fun searchSubjectsByName(subjectName: String): List<RequestBroadcast?> {
-        Log.e("nombre", "El nombre es : $subjectName")
-        val result = FirebaseFirestore.getInstance()
-            .collection("requestBroadcast")
-            .whereEqualTo("subjectname", subjectName)
-            .get()
-            .await()
-        Log.e("servicessize", "Tamaño de result: ${result.size()}")
-        return result.documents.map { document ->
-            document.toObject(RequestBroadcast::class.java)
-
+        return try {
+            val now = Timestamp.now()
+            val result = FirebaseFirestore.getInstance()
+                .collection("requestBroadcast")
+                .whereEqualTo("subjectname", subjectName)
+                .whereGreaterThanOrEqualTo("dateFinal", now)
+                .get()
+                .await()
+            return result.documents.map { document ->
+                document.toObject(RequestBroadcast::class.java)
+            }
+        }catch (e:Exception){
+            emptyList()
         }
     }
 
@@ -337,6 +340,7 @@ class MonitorServicesImpl: MonitorServices {
     override suspend fun searchSubjectsByNameRequest(subjectName: String): List<Request?> {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid
+        val now = Timestamp.now()
 
         if (userId == null) {
             throw FirebaseAuthException("ERROR_NO_USER", "No hay un usuario autenticado actualmente.")
@@ -347,6 +351,7 @@ class MonitorServicesImpl: MonitorServices {
             .document(userId)
             .collection("request")
             .whereEqualTo("subjectname", subjectName)
+            .whereGreaterThanOrEqualTo("dateFinal", now)
             .get()
             .await()
 
