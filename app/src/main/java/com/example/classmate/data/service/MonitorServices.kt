@@ -259,6 +259,8 @@ class MonitorServicesImpl: MonitorServices {
 
         return try {
 
+            val now = Timestamp.now()
+
             val querySnapshot = Firebase.firestore
                 .collection("Monitor")
                 .document(userId)
@@ -266,6 +268,7 @@ class MonitorServicesImpl: MonitorServices {
                 .orderBy("id")
                 .startAfter(request?.id)
                 .limit(limit.toLong())
+                .whereGreaterThanOrEqualTo("dateFinal", now)
                 .get()
                 .await()
 

@@ -531,7 +531,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ){
-                        IconButton(onClick = { /*TODO*/ }) {
+                        IconButton(onClick = { navController.navigate("MonitorRequest")}) {
                             Icon(
                                 painter = painterResource(id = R.drawable.people),
                                 contentDescription = "calendario",
