@@ -232,7 +232,7 @@ fun RequestViewScreen(navController: NavController, request: String?, requestStu
                     ){
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.calendar_today),
+                                painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)

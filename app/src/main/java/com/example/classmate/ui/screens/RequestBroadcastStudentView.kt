@@ -185,7 +185,7 @@ fun RequestBroadcastStudentView(navController: NavController, requestBroadcast: 
                     ){
                         IconButton(onClick = { navController.navigate("CalendarStudent") }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.calendar_today),
+                                painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
