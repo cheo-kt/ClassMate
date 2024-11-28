@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -56,6 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,6 +66,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.MonitorSubject
 import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.Subject
@@ -86,16 +89,16 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val maxLength = 20
     val listState = rememberLazyListState()
     var expandedFilter by remember { mutableStateOf(false) }
-    var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
-    var filteringType by remember { mutableStateOf("Filtrar") }
-    var isSearch= false
+    var subjectFilteredList by remember { mutableStateOf(emptyList<MonitorSubject>()) }
+    var filteringType by remember { mutableStateOf("Materia") }
+    var isSearch by remember { mutableStateOf(false) }
     val image by monitorRequestViewModel.image.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
     }
     var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
-    var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
-    val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
+    var subjectId by remember { mutableStateOf("") }
+    val subjectsState = monitor!!.subjects
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -328,16 +331,16 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         DropdownMenuItemWithSeparator("Materia", onClick = {
                                             filteringType = "Materia"
                                             expandedFilter = false
+                                            buttonMessage = "Materia no seleccionada"
+                                            subjectId = ""
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Fecha", onClick = {
                                             filteringType = "Fecha"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                         DropdownMenuItemWithSeparator("Tipo", onClick = {
                                             filteringType = "Tipo"
                                             expandedFilter = false
-                                            subjectIdList = emptyList()
                                         }, onDismiss = { expandedFilter = false })
                                     }
 
@@ -379,8 +382,8 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             Spacer(modifier = Modifier.width(2.dp))
                             Button(
                                 onClick = {
-                                    subjectIdList = emptyList()
                                     buttonMessage = "Materia no seleccionada"
+                                    subjectId = ""
                                 }, colors = ButtonDefaults.buttonColors(
                                     Color(0xFF209619),
                                     Color.White
@@ -422,17 +425,16 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 Spacer(modifier = Modifier.height(2.dp))
 
                                 if (filter.isNotEmpty()) {
-                                    subjectFilteredList = subjectsState?.filter {
-                                        it.name.lowercase()
-                                            .startsWith(filter.lowercase())
-                                    } ?: emptyList()
+                                    subjectFilteredList = subjectsState.filter {
+                                        it.name.lowercase().startsWith(filter.lowercase())
+                                    }
                                 }
 
                                 if (subjectFilteredList.isNotEmpty() && filter.isNotEmpty()) {
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -445,11 +447,11 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         }
                                     }
                                 } else if (filter.isEmpty() || subjectFilteredList.isEmpty()) {
-                                    subjectsState?.forEach {
+                                    subjectsState.forEach {
 
                                         Button(
                                             onClick = {
-                                                subjectIdList = it.monitorsID
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -476,28 +478,68 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
-                            filterrequestState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
+                    Log.e(">>>XDAA",(isSearch).toString())
+                    if(filterrequestState!!.isEmpty() && isSearch) {
+                        Column {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.search_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier
+                                        .size(200.dp)
+                                        .offset(x = 70.dp)
                                 )
                             }
-                        }else{
-                            requestState?.let { requests ->
-                                RequestCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController = navController
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.offset(x = 40.dp)
+                            ) {
+                                Text(
+                                    text = "Sin solicitudes para ti",
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center
                                 )
                             }
-
                         }
-
+                    }else{
+                    LazyColumn(state = listState) {
+                        if ((filter.isEmpty() && filteringType!="Materia")|| buttonMessage=="Materia no seleccionada") {
+                            isSearch=false
+                        }
+                        Log.e(">>>",((subjectId == "" && filter.isEmpty()).toString()))
+                        if (buttonMessage== "Materia no seleccionada" || (filter.isEmpty() && filteringType!="Materia") || (!isSearch && filterrequestState!!.isEmpty())) {
+                            monitorRequestViewModel.refresh()
+                            requestState?.let { requests ->
+                                item {
+                                    RequestCard(
+                                        monitor = monitor,
+                                        requests = requests,
+                                        filter = filter,
+                                        navController = navController
+                                    )
+                                }
+                            }
+                        } else {
+                            if (filterrequestState!!.isNotEmpty() && filteringType == "Materia") {
+                                filterrequestState?.let { requests ->
+                                    item {
+                                        RequestCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = "",
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }

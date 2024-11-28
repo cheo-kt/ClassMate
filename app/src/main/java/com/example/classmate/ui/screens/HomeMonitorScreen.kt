@@ -118,7 +118,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
     val maxLength = 20
     var filteringType by remember { mutableStateOf("Materia") }
     var subjectId by remember { mutableStateOf("") }
-    var isSearch= false
+    var isSearch by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val subjectsState = monitor!!.subjects
     var buttonMessage by remember { mutableStateOf("Materia no seleccionada") }
@@ -376,7 +376,6 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                     if (filteringType == "Fecha") {
                                         // homeMonitorViewModel.monitorsFilteredByName(filter)
                                     } else if (filteringType == "Materia") {
-                                        //subjectIdList es una lista de ids de materias??buttonMessage
                                         if( buttonMessage != "Materia no seleccionada") {
                                             homeMonitorViewModel.monitorsFilteredBySubject(buttonMessage)
                                             Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
@@ -532,10 +531,10 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         }
                     }else{
                         LazyColumn(state = listState) {
-                            if (filter.isEmpty()||subjectId=="") {
+                            if ((filter.isEmpty() && filteringType!="Materia")|| buttonMessage=="Materia no seleccionada") {
                                 isSearch = false
                             }
-                            if (subjectId=="" && filter.isEmpty() || (!isSearch &&  filterrequestState!!.isEmpty())) {
+                            if (buttonMessage== "Materia no seleccionada" || (filter.isEmpty() && filteringType!="Materia") || (!isSearch && filterrequestState!!.isEmpty())) {
                                 homeMonitorViewModel.refresh()
                                 requestState?.let { requests ->
                                     item {

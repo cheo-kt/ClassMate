@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,6 +48,7 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     }
 
     fun monitorsFilteredBySubject(name: String) {
+        Log.e(">>>", name)
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { monitorState.value = 1 }
             try {
@@ -111,6 +113,9 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
             }
 
         }
+    }
+    fun refresh() {
+        _filterSubjectList.value = emptyList()
     }
 
 }
