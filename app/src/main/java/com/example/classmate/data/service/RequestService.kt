@@ -17,6 +17,7 @@ interface RequestService {
     suspend fun deleteRequestForMonitor(studentId: String, requestId: String)
     suspend fun deleteRequestForStudent(monitorId: String, requestId: String)
     suspend fun getRequestType():List<RequestType>
+    suspend fun getRequestByType(type:String):List<Request>
 }
 
 
@@ -105,6 +106,19 @@ class RequestServicesImpl: RequestService {
                 .toObjects(RequestType::class.java)
         }catch (e: Exception){
             emptyList<RequestType>()
+        }
+    }
+
+    override suspend fun getRequestByType(type: String): List<Request> {
+        return  try{
+            Firebase.firestore
+                .collection("request")
+                .whereEqualTo("subjectname",type)
+                .get()
+                .await()
+                .toObjects(Request::class.java)
+        }catch (e: Exception){
+            emptyList<Request>()
         }
     }
 

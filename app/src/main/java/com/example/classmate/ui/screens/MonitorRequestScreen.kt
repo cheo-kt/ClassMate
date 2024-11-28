@@ -92,11 +92,13 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch= false
+    var filteredRequestTypeList by remember { mutableStateOf(emptyList<Request>()) }
     val image by monitorRequestViewModel.image.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
     }
     var buttonMessage by remember { mutableStateOf("") }
+    var buttonMessageType by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
 
@@ -180,7 +182,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = { navController.navigate("notificationMonitorScreen") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -354,14 +356,13 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     } else if (filteringType == "Materia") {
 
                                         if( buttonMessage != "Materia no seleccionada") {
-
                                             monitorRequestViewModel.monitorsFilteredBySubject(buttonMessage)
-                                            Log.e("NombreMateria", "El nombre de la materia es : $buttonMessage" )
-                                            Log.e("FilterRequestState", "El tamaño del arreglo es: ${filterrequestState?.size ?: "null"}")
                                         }
 
                                     } else if (filteringType == "Tipo") {
-                                        TODO()
+                                        if(buttonMessageType != ""){
+
+                                        }
                                     }
                                 }) {
                                     Icon(
@@ -479,15 +480,15 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             Button(
                                 onClick = {
                                     requestTypeListFilter = emptyList()
-                                    buttonMessage = "Tipo no seleccionado"
+                                    buttonMessageType = "Tipo no seleccionado"
                                 }, colors = ButtonDefaults.buttonColors(
-                                    Color(0xFF815FF0),
+                                    Color(0xFF209619),
                                     Color.White
                                 ),
                                 modifier = Modifier.fillMaxWidth(0.8f)
                             ) {
                                 Row {
-                                    androidx.compose.material3.Text(text = buttonMessage)
+                                    androidx.compose.material3.Text(text = buttonMessageType)
                                     Spacer(modifier = Modifier.width(2.dp))
                                     Icon(
                                         imageVector = Icons.Default.Clear,
@@ -526,10 +527,10 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     requestTypeListFilter.forEach {
                                         Button(
                                             onClick = {
-                                                buttonMessage = it.name
+                                                buttonMessageType = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)
@@ -543,10 +544,10 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                         Button(
                                             onClick = {
-                                                buttonMessage = it.name
+                                                buttonMessageType = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
-                                                Color(0xFF3F21DB),
+                                                Color(0xFF209619),
                                                 Color.White
                                             ),
                                             modifier = Modifier.fillMaxWidth(0.8f)

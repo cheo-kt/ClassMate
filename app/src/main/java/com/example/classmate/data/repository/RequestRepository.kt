@@ -17,6 +17,7 @@ interface RequestRepository {
     suspend fun  createRequest(studentID:String, monitorID:String,request: Request)
     suspend fun  deleteRequest(studentID:String, monitorID:String,requestId: String)
     suspend fun getRequestType():List<RequestType>
+    suspend fun getRequestByType(type:String):List<Request>
 }
 
 
@@ -53,6 +54,10 @@ class RequestRRepositoryImpl(
 
     override suspend fun getRequestType(): List<RequestType> {
         return requestServices.getRequestType()
+    }
+
+    override suspend fun getRequestByType(type: String): List<Request> {
+        return requestServices.getRequestByType(type)
     }
 
 

@@ -43,6 +43,8 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     val image: LiveData<String?> get() = _image
     private val _requestType = MutableLiveData(listOf<RequestType>())
     val requestType: LiveData<List<RequestType>> get() = _requestType
+    private val _requestListType = MutableLiveData(listOf<Request>())
+    val requestListType: LiveData<List<Request>> get() = _requestListType
     fun getMonitor() {
         viewModelScope.launch(Dispatchers.IO) {
             val me = repoMonitor.getCurrentMonitor()
@@ -124,6 +126,14 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
                 _requestType.value = requestRepo.getRequestType()
             }
         }
+    }
+    fun getRequestByType(type:String){
+        viewModelScope.launch (Dispatchers.IO){
+            withContext(Dispatchers.Main){
+                requestRepo.getRequestByType(type)
+            }
+        }
+
     }
 
 }
