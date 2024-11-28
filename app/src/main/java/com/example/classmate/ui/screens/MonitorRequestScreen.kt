@@ -109,7 +109,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val requestLisFilteretypeState by monitorRequestViewModel.requestListType.observeAsState()
     var expandedFilter by remember { mutableStateOf(false) }
     var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
-    var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
+    var subjectFilteredList by remember { mutableStateOf(emptyList<MonitorSubject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
     var isSearch by remember { mutableStateOf(false) }
     val image by monitorRequestViewModel.image.observeAsState()
@@ -123,7 +123,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var buttonMessage by remember { mutableStateOf("") }
     var buttonMessageType by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
-    val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
     var fecha by remember { mutableStateOf("") }
     var fechaFinal by remember { mutableStateOf("") }
     val currentTime = Calendar.getInstance()
@@ -135,7 +134,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val snackbarHostState = remember { SnackbarHostState() }
     val datePickerState = rememberDatePickerState()
     val datePickerState2 = rememberDatePickerState()
-
+    val subjectsState = monitor!!.subjects
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
         monitorRequestViewModel.getSubjectsList()
@@ -473,7 +472,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     subjectFilteredList.forEach {
                                         Button(
                                             onClick = {
-                                                subjectId = it.id
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -490,7 +489,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                         Button(
                                             onClick = {
-                                                subjectId = it.id
+                                                subjectId = it.subjectId
                                                 buttonMessage = it.name
 
                                             }, colors = ButtonDefaults.buttonColors(
@@ -764,7 +763,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    if (filterrequestState!!.isEmpty() && isSearch) {
+                    if (filterrequestState!!.isEmpty() && requestLisFilteretypeState?.isEmpty() == true && requestByDateState?.isEmpty() == true) {
                         Column {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -798,8 +797,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 isSearch = false
                             }
                             if (filterrequestState!!.isNotEmpty() && filteringType == "Materia") {
-                                monitorRequestViewModel.refresh()
-                                requestState?.let { requests ->
+                                filterrequestState?.let { requests ->
                                     item {
                                         RequestCard(
                                             monitor = monitor,
@@ -824,17 +822,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                             } else if (filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true) {
                                 requestByDateState?.let { requests ->
-                                    item {
-                                        RequestCard(
-                                            monitor = monitor,
-                                            requests = requests,
-                                            filter = filter,
-                                            navController = navController
-                                        )
-                                    }
-                                }
-                            } else {
-                                requestState?.let { requests ->
                                     item {
                                         RequestCard(
                                             monitor = monitor,

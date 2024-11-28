@@ -831,9 +831,11 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         }
                     }else{
                         LazyColumn(state = listState) {
+                            if ((filter.isEmpty() && filteringType != "Materia") || buttonMessage == "Materia no seleccionada") {
+                                isSearch = false
+                            }
 
-                            if (filterrequestState!!.isNotEmpty() && filteringType == "Materia" ) {
-                                homeMonitorViewModel.refresh()
+                            if (filterrequestState?.isNotEmpty() == true && filteringType == "Materia" ) {
                                 filterrequestState?.let { requests ->
                                     item {
                                         RequestBroadcastCard(
@@ -843,6 +845,7 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                                             navController = navController
                                         )
                                     }
+                                    Log.e("ERROR", filterrequestState!!.size.toString())
                                 }
                             }else if(filteringType == "Tipo" && requestListFilteredByType?.isNotEmpty() == true && isFilterTypeUp){
                                 requestListFilteredByType?.let { requests ->
