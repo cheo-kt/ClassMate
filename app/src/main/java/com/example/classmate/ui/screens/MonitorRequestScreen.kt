@@ -103,7 +103,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
-        monitorRequestViewModel.loadMoreRequest()
         monitorRequestViewModel.getSubjectsList()
     }
     LaunchedEffect(true) {
@@ -160,7 +159,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {})
+                                .clickable(onClick = {navController.navigate("helpMonitor")})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),

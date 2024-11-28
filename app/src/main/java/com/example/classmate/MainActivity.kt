@@ -84,16 +84,26 @@ import com.example.classmate.ui.screens.RequestViewScreen
 import com.example.classmate.ui.screens.StudentSignupScreen
 import com.example.classmate.ui.screens.UnicastDecisionScreen
 import com.example.classmate.ui.screens.UnicastMonitoringScreen
+import com.example.classmate.ui.screens.guia7MonitorScreen
+import com.example.classmate.ui.screens.guia8MonitorScreen
+import com.example.classmate.ui.screens.helpMonitorScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia6StudentScreen
 import com.example.classmate.ui.screens.tutorialStudent.guia7StudentScreen
+import com.example.classmate.ui.screens.tutorialStudent.guia9MonitorScreen
 import com.example.classmate.ui.theme.ClassMateTheme
 import com.example.classmate.ui.viewModel.StudentSignupViewModel
 import com.google.gson.Gson
+import guia1MonitorScreen
 import guia1StudentScreen
+import guia2MonitorScreen
 import guia2StudentScreen
+import guia3MonitorScreen
 import guia3StudentScreen
+import guia4MonitorScreen
 import guia4StudentScreen
+import guia5MonitorScreen
 import guia5StudentScreen
+import guia6MonitorScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -225,7 +235,8 @@ fun App() {
             val request =entry.arguments?.getString("request")
             val monitor =entry.arguments?.getString("monitor")
             UnicastDecisionScreen(navController,request,monitor) }
-        //GUIA
+        //GUIA ESTUDIANTE
+
         composable("guia1Student") { guia1StudentScreen(navController) }
         composable("guia2Student") { guia2StudentScreen(navController) }
         composable("guia3Student") { guia3StudentScreen(navController) }
@@ -277,6 +288,20 @@ fun App() {
         composable("chatScreenStudent"){ChatScreenMenuStudent(navController)}
 
         composable("chatScreenMonitor"){ ChatScreenMenuMonitor(navController) }
+
+        //GUÍA MONITOR
+
+        composable("guia1Monitor") { guia1MonitorScreen(navController) }
+        composable("guia2Monitor") { guia2MonitorScreen(navController) }
+        composable("guia3Monitor") { guia3MonitorScreen(navController) }
+        composable("guia4Monitor") { guia4MonitorScreen(navController) }
+        composable("guia5Monitor") { guia5MonitorScreen(navController) }
+        composable("guia6Monitor") { guia6MonitorScreen(navController) }
+        composable("guia7Monitor") { guia7MonitorScreen(navController) }
+        composable("guia8Monitor") { guia8MonitorScreen(navController) }
+        composable("guia9Monitor") { guia9MonitorScreen(navController) }
+
+        composable("helpMonitor") { helpMonitorScreen(navController) }
     }
 }
 

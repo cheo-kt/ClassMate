@@ -61,8 +61,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
@@ -86,17 +88,10 @@ import java.util.Locale
 import java.util.UUID
 
 @Composable
-fun UnicastDecisionScreen(
-    navController: NavController,
-    request: String?,
-    monitor: String?,
-    unicastMonitoringViewModel: UnicastMonitoringViewModel = viewModel(),
+fun guia7MonitorScreen(
+    navController: NavController
 ) {
-    val authState by unicastMonitoringViewModel.authState.observeAsState()
     val scope = rememberCoroutineScope()
-    val requestObj: Request = Gson().fromJson(request, Request::class.java)
-    val monitorObj: Monitor = Gson().fromJson(monitor, Monitor::class.java)
-    var image = monitor
     val snackbarHostState = remember { SnackbarHostState() }
     var expanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -161,7 +156,7 @@ fun UnicastDecisionScreen(
                                 .width(40.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = {})
                         ) {
                             IconButton(
                                 onClick = { },
@@ -178,7 +173,7 @@ fun UnicastDecisionScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = {navController.navigate("helpMonitor")},
+                            onClick = {},
                             modifier = Modifier
                                 .width(50.dp)
                                 .offset(y = 5.dp)
@@ -192,7 +187,7 @@ fun UnicastDecisionScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         IconButton(
-                            onClick = { expanded = true },
+                            onClick = { },
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .width(50.dp)
@@ -203,31 +198,11 @@ fun UnicastDecisionScreen(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .clip(CircleShape),
-                                    painter = rememberAsyncImagePainter(
-                                        image,
-                                        error = painterResource(R.drawable.botonestudiante)
-                                    ),
+                                    painter = painterResource(R.drawable.botonestudiante)
+                                    ,
                                     contentDescription = "Foto de perfil",
                                     contentScale = ContentScale.Crop
                                 )
-
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    modifier = Modifier
-                                        .background(Color(0xFFCCD0CF))
-                                        .border(1.dp, Color.Black)
-                                        .padding(2.dp)
-                                ) {
-                                    DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                        navController.navigate("studentProfile")
-                                    }, onDismiss = { expanded = false })
-
-                                    DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                                        unicastMonitoringViewModel.logOut(monitorObj.id.toString())
-                                        navController.navigate("signing")
-                                    }, onDismiss = { expanded = false })
-                                }
                             }
                         }
                     }
@@ -243,17 +218,17 @@ fun UnicastDecisionScreen(
             ) {
                 // Header section
                 Text(
-                    text = requestObj.studentName,
+                    text = "Lina María ",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = requestObj.subjectname,
+                    text = "Álgebra y Funciones",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Tipo de ayuda: ${requestObj.type}",
+                    text = "Tipo de ayuda: Taller",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(top = 16.dp)
                 )
@@ -288,11 +263,11 @@ fun UnicastDecisionScreen(
                         )
 
                         Text(
-                            text = dateFormatter.format(requestObj.dateInitial.toDate()),
+                            text = "07:00 AM",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Text(
-                            text = dateFormatter.format(requestObj.dateFinal.toDate()),
+                            text = "9:00 AM",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -312,13 +287,7 @@ fun UnicastDecisionScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
 
-                        if (requestObj.mode_class == "Virtual") {
-                            Text(requestObj.mode_class)
-
-                        } else {
-                            Text("${requestObj.mode_class}, en : ${requestObj.mode_class}")
-
-                        }
+                            Text("Virtual")
 
                     }
 
@@ -343,7 +312,7 @@ fun UnicastDecisionScreen(
                             .height(100.dp)
                     ) {
                         Text(
-                            text = requestObj.description,
+                            text = "No entiendo nada, por favor ayuda :(",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(8.dp)
                         )
@@ -365,46 +334,6 @@ fun UnicastDecisionScreen(
             ) {
                 Button(
                     onClick = {
-                        unicastMonitoringViewModel.createAppointment(
-                            Appointment(
-                                "",
-                                requestObj.mode_class,
-                                requestObj.type,
-                                requestObj.dateInitial,
-                                requestObj.dateFinal,
-                                requestObj.description,
-                                requestObj.place,
-                                requestObj.subjectId,
-                                requestObj.subjectname,
-                                requestObj.studentId,
-                                requestObj.studentName,
-                                monitorObj.id,
-                                monitorObj.name
-                            )
-                        )
-
-                        unicastMonitoringViewModel.deleteRequest(
-                            requestObj.studentId,
-                            monitorObj.id,
-                            requestObj.id
-                        )
-                        unicastMonitoringViewModel.deleteNotificationById(
-                            requestObj.idNotification
-                        )
-                        unicastMonitoringViewModel.createNotification(
-                        Notification(
-                            UUID.randomUUID().toString(),
-                            Timestamp.now(),
-                            requestObj.dateInitial,
-                            "¡Se ha aceptado tu monitoria!",
-                            requestObj.subjectname,
-                            requestObj.studentId,
-                            requestObj.studentName,
-                            requestObj.monitorId,
-                            requestObj.monitorName,
-                            Type_Notification.ACEPTACION
-                            )
-                        )
 
                     },
                     modifier = Modifier
@@ -427,33 +356,6 @@ fun UnicastDecisionScreen(
                 }
                 Button(
                     onClick = {
-                        unicastMonitoringViewModel.deleteRequest(
-                            requestObj.studentId,
-                            monitorObj.id,
-                            requestObj.id
-                        )
-                        unicastMonitoringViewModel.deleteNotificationById(
-                            requestObj.idNotification
-                        )
-                        unicastMonitoringViewModel.createNotification(
-                            Notification(
-                                UUID.randomUUID().toString(),
-                                Timestamp.now(),
-                                Timestamp(Date(Timestamp.now().toDate().time + 1 * 60 * 60 * 1000)),
-                                "¡Se ha rechazado tu monitoria!",
-                                requestObj.subjectname,
-                                requestObj.studentId,
-                                requestObj.studentName,
-                                requestObj.monitorId,
-                                requestObj.monitorName,
-                                Type_Notification.RECHAZO
-                            )
-                        )
-                        scope.launch {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            snackbarHostState.showSnackbar("Monitoria Rechazada.")
-                        }
-                        navController.navigate("HomeMonitorScreen")
                     },
                     modifier = Modifier
                         .size(width = 160.dp, height = 48.dp)
@@ -497,7 +399,7 @@ fun UnicastDecisionScreen(
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        IconButton(onClick = { navController.navigate("MonitorRequest") }) {
+                        IconButton(onClick = { }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.people),
                                 contentDescription = "calendario",
@@ -512,7 +414,7 @@ fun UnicastDecisionScreen(
 
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
+                    IconButton(onClick = { }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -525,7 +427,7 @@ fun UnicastDecisionScreen(
                     }
 
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.calendario),
                             contentDescription = "calendario",
@@ -536,7 +438,7 @@ fun UnicastDecisionScreen(
                         )
                     }
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("chatScreenMonitor") }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
@@ -551,51 +453,63 @@ fun UnicastDecisionScreen(
             }
         }
 
-        if (authState == 1) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Color.White
-                )
-            }
-        } else if (authState == 2) {
-
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    // Asegúrate de mostrar el Snackbar
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    val snackbarResult = snackbarHostState.showSnackbar(
-                        "Ya tienes una cita a esa hora, monitoria rechazada.",
-                        duration = SnackbarDuration.Long // Duración del Snackbar (Short, Long, Indefinite)
-                    )
-
-                    // Retraso adicional para asegurar que el usuario pueda leer el mensaje.
-                    delay(2000) // 2 segundos extra
-
-                    // Navega después del retraso.
-                    navController.navigate("MonitorRequest")
-                }
-            }
-
-
-        } else if (authState == 3) {
-
-            LaunchedEffect(Unit) {
-                scope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    snackbarHostState.showSnackbar("Monitoria Aceptada")
-                }
-            }
-
-            navController.navigate("MonitorRequest")
-        }
-
 
     }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Gray.copy(alpha = 0.5f)) // Fondo gris transparente
+        )
 
+        Column(modifier = Modifier.align(Alignment.Center)){
+            Box(modifier = Modifier.weight(0.1f))
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape) // Borde opcional
+                    .background(Color.Transparent)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Column {
+
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                ) {
+                    androidx.compose.material.Text(
+                        text = "Aqui puedes ver los detalles de la solicitud seleccionada y puedes rechazar o aceptar dicha solicitud.",
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                        color = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                // Botón "Continuar"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable {
+                            // Acción de navegación al presionar "Continuar"
+                            navController.navigate("guia8Monitor")
+                        }
+                        .padding(vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    androidx.compose.material.Text(
+                        text = "Continuar",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Green
+                    )
+                }
+            }
+            Box(modifier = Modifier.weight(0.04f))
+        }
+
+    }
 
 }

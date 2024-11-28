@@ -129,7 +129,7 @@ fun BroadcastDecisionScreen(
                     Row(Modifier.align(Alignment.TopStart)) {
                         IconButton(
                             onClick = {
-                                navController.navigate("MonitorRequest")
+                                navController.navigate("HomeMonitorScreen")
                             },
                             modifier = Modifier
                                 .size(50.dp)

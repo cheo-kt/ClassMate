@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.icons.Icons
@@ -43,40 +44,49 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
+import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
 import com.example.classmate.ui.viewModel.ChatMenuMonitorViewModel
+import com.google.firebase.Timestamp
 
 @Composable
-fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel: ChatMenuMonitorViewModel = viewModel()){
+fun guia8MonitorScreen(navController: NavController){
 
-    val MonitorObj: Monitor? by chatMenuMonitorViewModel.monitor.observeAsState(initial = null)
-    val monitorState by chatMenuMonitorViewModel.monitorState.observeAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val image:String? by chatMenuMonitorViewModel.image.observeAsState()
+
     val scope = rememberCoroutineScope()
     var expanded by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    val appointmentsState by chatMenuMonitorViewModel.appointmentList.observeAsState(emptyList())
+    val appointmentState = listOf(
+        Appointment(
+            id = "1",
+            mode_class = "Online",
+            type = "Tutoring",
+            dateInitial = Timestamp.now(),
+            dateFinal = Timestamp.now(), // Agrega 1 hora
+            description = "Math tutoring session",
+            place = "Zoom",
+            subjectID = "MAT101",
+            subjectname = "Algebra",
+            studentId = "12345",
+            studentName = "John Doe",
+            monitorId = "67890",
+            monitorName = "Jane Smith",
+            isNotificationGenerated = true
+        )
+    )
 
-    if(MonitorObj?.photoUrl?.isNotEmpty() == true){
-        MonitorObj?.let { chatMenuMonitorViewModel.getMonitorImage(it.photoUrl) }
-    }
-
-    LaunchedEffect(true) {
-        chatMenuMonitorViewModel.getMonitor()
-    }
-    LaunchedEffect(true) {
-        chatMenuMonitorViewModel.getAppointments()
-    }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
         Column(
@@ -125,7 +135,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("helpMonitor")})
+                                .clickable(onClick = {})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -141,7 +151,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = { })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -154,7 +164,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                         Spacer(modifier = Modifier.width(16.dp))
                         // Botón de foto de perfil
                         IconButton(
-                            onClick = { expanded = true },
+                            onClick = { },
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .width(50.dp)
@@ -164,40 +174,18 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape),
-                                painter = rememberAsyncImagePainter(
-                                    image,
-                                    error = painterResource(R.drawable.botonestudiante)
-                                ),
+                                painter = painterResource(R.drawable.botonestudiante),
                                 contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
 
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                            modifier = Modifier
-                                .background(Color(0xFFCCD0CF))
-                                .border(1.dp, Color.Black)
-                                .padding(4.dp)
-                        ) {
-                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("monitorProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                                chatMenuMonitorViewModel.logOut()
-                                navController.navigate("signing")
-                            }, onDismiss = { expanded = false })
-                        }
                     }
                 }
             }
 
             Column(modifier = Modifier.verticalScroll(scrollState)) {
-                appointmentsState.forEach { pair ->
-                    val appointment = pair.first
-                    val hasUnreadMessages = pair.second
+                appointmentState.forEach { appointment ->
 
                     ElevatedCard(
                         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
@@ -231,19 +219,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                                         .align(Alignment.CenterEnd)
                                         .padding(horizontal = 5.dp)
                                 ) {
-                                    if (hasUnreadMessages) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(10.dp)
-                                                .background(Color.Green, shape = CircleShape)
-                                                .align(Alignment.CenterVertically)
-                                        )
-                                    }
-                                    IconButton(onClick = {
-                                        val appointmentId = appointment.id
-                                        val type = false
-                                        navController.navigate("AppointmentChat/$appointmentId/${type.toString()}")
-                                    }) {
+                                    IconButton(onClick = {}) {
                                         Icon(
                                             imageVector = Icons.Outlined.PlayArrow,
                                             contentDescription = "Arrow",
@@ -271,7 +247,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = { navController.navigate("MonitorRequest")}) {
+                    IconButton(onClick = { }) {
                         Icon(
                             painter = painterResource(id = R.drawable.people),
                             contentDescription = "calendario",
@@ -283,7 +259,7 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
                     }
                     Box(modifier = Modifier.weight(0.1f))
 
-                    IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             painter = painterResource(id = R.drawable.add_home),
                             contentDescription = "calendario",
@@ -297,16 +273,16 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
 
                     Box(modifier = Modifier.weight(0.1f))
 
-                        IconButton(onClick = { navController.navigate("CalendarMonitor") }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.calendario),
-                                contentDescription = "calendario",
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .padding(4.dp),
-                                tint = Color.White
-                            )
-                        }
+                    IconButton(onClick = {  }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.calendario),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(4.dp),
+                            tint = Color.White
+                        )
+                    }
 
                     Box(modifier = Modifier.weight(0.1f))
                     Box(
@@ -331,6 +307,62 @@ fun ChatScreenMenuMonitor(navController: NavController, chatMenuMonitorViewModel
             }
 
         }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Gray.copy(alpha = 0.5f)) // Fondo gris transparente
+        )
+
+        Column(modifier = Modifier.align(Alignment.Center)){
+            Box(modifier = Modifier.weight(0.1f))
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape) // Borde opcional
+                    .background(Color.Transparent)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Column {
+
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                ) {
+                    androidx.compose.material.Text(
+                        text = "En esta pantalla podrás ver la lista de los chats con tus estudiantes.",
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                        color = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                // Botón "Continuar"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable {
+                            // Acción de navegación al presionar "Continuar"
+                            navController.navigate("guia9Monitor")
+                        }
+                        .padding(vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    androidx.compose.material.Text(
+                        text = "Continuar",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Green
+                    )
+                }
+            }
+            Box(modifier = Modifier.weight(0.04f))
+        }
+
     }
 
 

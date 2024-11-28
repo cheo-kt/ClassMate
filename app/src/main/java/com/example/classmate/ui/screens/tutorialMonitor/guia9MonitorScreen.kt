@@ -1,11 +1,13 @@
-package com.example.classmate.ui.screens
+package com.example.classmate.ui.screens.tutorialStudent
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -16,12 +18,21 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenu
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,49 +46,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.classmate.R
 import com.example.classmate.domain.model.Appointment
-import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.RequestBroadcast
+import com.example.classmate.domain.model.Student
 import com.example.classmate.ui.components.CalendarWithMonthNavigation
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
-import com.example.classmate.ui.viewModel.CalendarMonitorViewModel
+import com.example.classmate.ui.viewModel.CalendarStudentViewModel
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import java.time.YearMonth
 
 @Composable
-fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel: CalendarMonitorViewModel = viewModel()) {
-    val monitorObj: Monitor? by calendarMonitorViewModel.monitor.observeAsState(initial = null)
-    var expanded by remember { mutableStateOf(false) }
-    val monitorState by calendarMonitorViewModel.monitorState.observeAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val image:String? by calendarMonitorViewModel.image.observeAsState()
-    val scope = rememberCoroutineScope()
-    val appointmentsState by calendarMonitorViewModel.appointmentlist.observeAsState()
+fun guia9MonitorScreen(navController: NavController) {
+    var currentMonth by remember { mutableStateOf(YearMonth.now()) }
+    val daysInMonth = currentMonth.lengthOfMonth()
 
-    if(monitorObj?.photoUrl?.isNotEmpty() == true){
-        monitorObj?.let { calendarMonitorViewModel.getMonitorImage(it.photoUrl) }
-    }
-
-    LaunchedEffect(true) {
-        calendarMonitorViewModel.getMonitor()
-    }
-
-    LaunchedEffect(true) {
-        calendarMonitorViewModel.getAppointments()
-    }
-
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerpadding ->
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerpadding),
+                .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -118,7 +119,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("helpMonitor")})
+                                .clickable(onClick = {})
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -134,7 +135,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("notificationMonitorScreen")})
+                                .clickable(onClick = { })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.notifications),
@@ -147,7 +148,7 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                         Spacer(modifier = Modifier.width(16.dp))
                         // Botón de foto de perfil
                         IconButton(
-                            onClick = { expanded = true },
+                            onClick = {  },
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .width(50.dp)
@@ -157,43 +158,82 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape),
-                                painter = rememberAsyncImagePainter(
-                                    image,
-                                    error = painterResource(R.drawable.botonestudiante)
-                                ),
+                                painter = painterResource(R.drawable.botonestudiante),
                                 contentDescription = "Foto de perfil",
                                 contentScale = ContentScale.Crop
                             )
                         }
+                    }
+                }
+            }
+            // Encabezado
 
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
+            Spacer(modifier = Modifier.weight(0.1f))
+
+            // Calendario decorativo
+            Column(modifier = Modifier.fillMaxWidth()) {
+                // Navegación de meses
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val buttonSize = LocalConfiguration.current.screenWidthDp.dp / 10
+                    IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Mes anterior",
+                            tint = Color.Black,
+                            modifier = Modifier.size(buttonSize)
+                        )
+                    }
+
+                    Text(
+                        text = "${currentMonth.month.name} ${currentMonth.year}",
+                        style = MaterialTheme.typography.subtitle1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = "Mes siguiente",
+                            tint = Color.Black,
+                            modifier = Modifier.size(buttonSize)
+                        )
+                    }
+                }
+
+                // Días del mes en formato de cuadrícula
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(7),
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    items((1..daysInMonth).toList()) { day ->
+                        Box(
                             modifier = Modifier
-                                .background(Color(0xFFCCD0CF))
+                                .padding(2.dp)
+                                .aspectRatio(0.5f)
+                                .fillMaxWidth()
                                 .border(1.dp, Color.Black)
-                                .padding(4.dp)
+                                .clickable { /* Acción decorativa o vacía */ },
+                            contentAlignment = Alignment.Center
                         ) {
-                            DropdownMenuItemWithSeparator("Tu perfil", onClick = {
-                                navController.navigate("monitorProfile")
-                            }, onDismiss = { expanded = false })
-
-                            DropdownMenuItemWithSeparator("Cerrar sesión", onClick = {
-                                calendarMonitorViewModel.logOut()
-                                navController.navigate("signing")
-                            }, onDismiss = { expanded = false })
+                            Text(
+                                text = day.toString(),
+                                modifier = Modifier.padding(4.dp),
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
             }
 
-            Box(modifier = Modifier.weight(0.1f))
+            Spacer(modifier = Modifier.weight(0.1f))
 
-            CalendarWithMonthNavigation( emptyList(),
-                appointmentsState as List<Appointment>? ?: emptyList(), emptyList(),2,navController)
-
-            Box(modifier = Modifier.weight(0.1f))
-
+            // Barra inferior
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -208,29 +248,29 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {  navController.navigate("MonitorRequest") }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.people),
-                            contentDescription = "calendario",
-                            modifier = Modifier
-                                .size(52.dp)
-                                .padding(4.dp),
-                            tint = Color.White
-                        )
-                    }
-                    Box(modifier = Modifier.weight(0.1f))
 
-                        IconButton(onClick = { navController.navigate("HomeMonitorScreen") }) {
+                        IconButton(onClick = {  }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.add_home),
+                                painter = painterResource(id = R.drawable.people),
                                 contentDescription = "calendario",
                                 modifier = Modifier
                                     .size(52.dp)
-                                    .padding(2.dp)
-                                    .offset(y = -(2.dp)),
+                                    .padding(4.dp),
                                 tint = Color.White
                             )
                         }
+                    Box(modifier = Modifier.weight(0.1f))
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.add_home),
+                            contentDescription = "calendario",
+                            modifier = Modifier
+                                .size(52.dp)
+                                .padding(2.dp)
+                                .offset(y = -(2.dp)),
+                            tint = Color.White
+                        )
+                    }
 
                     Box(modifier = Modifier.weight(0.1f))
                     Box(
@@ -238,8 +278,8 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                             .size(58.dp)
                             .background(color = Color(0xFF026900), shape = CircleShape),
                         contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(onClick = { /*TODO*/ }) {
+                    ){
+                        IconButton(onClick = {  }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.calendario),
                                 contentDescription = "calendario",
@@ -250,8 +290,9 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
                             )
                         }
                     }
+
                     Box(modifier = Modifier.weight(0.1f))
-                    IconButton(onClick = {  navController.navigate("chatScreenMonitor")  }) {
+                    IconButton(onClick = { }) {
                         Icon(
                             painter = painterResource(id = R.drawable.message),
                             contentDescription = "calendario",
@@ -267,5 +308,62 @@ fun CalendarMonitorScreen(navController: NavController, calendarMonitorViewModel
         }
     }
 
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Gray.copy(alpha = 0.5f)) // Fondo gris transparente
+        )
 
+        Column(modifier = Modifier.align(Alignment.Center)){
+            Box(modifier = Modifier.weight(0.1f))
+            Box(
+                modifier = Modifier
+                    .size(300.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, Color.Gray, CircleShape) // Borde opcional
+                    .background(Color.Transparent)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Column {
+
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .padding(12.dp)
+                ) {
+                    androidx.compose.material.Text(
+                        text = "En el calendario verás todas tus monitorias programadas en llas fechas correspondientes",
+                        style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                        color = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                // Botón "Continuar"
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .background(Color.White, shape = RoundedCornerShape(8.dp))
+                        .clickable {
+                            // Acción de navegación al presionar "Continuar"
+                            navController.navigate("HomeMonitorScreen")
+                        }
+                        .padding(vertical = 14.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    androidx.compose.material.Text(
+                        text = "Continuar",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Green
+                    )
+                }
+            }
+            Box(modifier = Modifier.weight(0.04f))
+        }
+
+    }
 }
+
+

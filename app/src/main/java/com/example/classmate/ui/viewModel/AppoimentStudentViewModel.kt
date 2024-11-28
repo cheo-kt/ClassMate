@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.classmate.data.repository.MonitorRepository
 import com.example.classmate.data.repository.MonitorRepositoryImpl
 import com.example.classmate.domain.model.Monitor
-import com.example.classmate.domain.model.Student
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,6 +17,9 @@ class AppoimentStudentViewModel(val repo: MonitorRepository = MonitorRepositoryI
     private val _monitor = MutableLiveData<Monitor?>(Monitor())
     val monitor: LiveData<Monitor?> get() = _monitor
     val monitorState = MutableLiveData<Int?>(0)
+    private val _imageMonitor = MutableLiveData<String?>()
+    val imageMonitor: LiveData<String?> get() = _imageMonitor
+
 
     fun showMonitorInformation(idMonitor: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -41,6 +43,16 @@ class AppoimentStudentViewModel(val repo: MonitorRepository = MonitorRepositoryI
                 }
 
             }
+        }
+    }
+
+    fun getMonitorPhoto(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _imageMonitor.value =  repo.getMonitorImage(imageUrl)
+
+            }
+
         }
     }
 
