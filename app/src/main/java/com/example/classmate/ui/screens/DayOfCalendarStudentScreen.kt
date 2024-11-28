@@ -144,7 +144,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                                 verticalArrangement = Arrangement.spacedBy((-5).dp)
                             ) {
                                 androidx.compose.material3.Text(
-                                    text = "Solicitud",
+                                    text = "Solicitud de monitoria",
                                     color = Color.Blue,
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(top = 10.dp)
@@ -238,7 +238,7 @@ fun DayOfCalendarStudentScreen(navController: NavController, listRequestBroadcas
                                         verticalArrangement = Arrangement.spacedBy((-5).dp)
                                     ) {
                                         androidx.compose.material3.Text(
-                                            text = "Solicitud",
+                                            text = "Solicitud Libre",
                                             color = Color.Blue,
                                             fontSize = 16.sp,
                                             modifier = Modifier.padding(top = 10.dp)

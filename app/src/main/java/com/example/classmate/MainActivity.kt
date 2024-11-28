@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun App() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "signing" +
+    NavHost(navController = navController, startDestination = "introductionMonitor" +
             "") {
         composable("signup") { StudentSignupScreen(navController) } //Registro estudiante
         composable("signing") { StudentMonitorSigninScreen(navController) } //Login
