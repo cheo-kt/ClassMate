@@ -502,28 +502,61 @@ fun HomeMonitorScreen(navController: NavController, homeMonitorViewModel: HomeMo
                         color = Color.Black
                     )
                     Spacer(modifier = Modifier.height(5.dp))
-                    Column(modifier = Modifier.verticalScroll(scrollState)) {
-                        if(filterrequestState!!.isNotEmpty() && filteringType == "Materia"){
-                            filterrequestState?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController =navController
+                    if(filterrequestState!!.isEmpty()) {
+                        Column {
+                            Box(modifier = Modifier.height(20.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.search_off),
+                                    contentDescription = "Sin notificaciones",
+                                    modifier = Modifier
+                                        .size(200.dp)
+                                        .offset(x = 70.dp)
                                 )
                             }
-
-                        }else {
-                            requestState?.let { requests ->
-                                RequestBroadcastCard(
-                                    monitor = monitor,
-                                    requests = requests,
-                                    filter = filter,
-                                    navController =navController
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.offset(x = 30.dp)
+                            ) {
+                                Text(
+                                    text = "Sin solicitudes broadcast",
+                                    fontSize = 25.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }
-
+                    }else{
+                        LazyColumn(state = listState) {
+                            if(filteringType == "Materia") {
+                                filterrequestState?.let { requests ->
+                                    item {
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            } else{
+                                requestState?.let { requests ->
+                                    item {
+                                        RequestBroadcastCard(
+                                            monitor = monitor,
+                                            requests = requests,
+                                            filter = filter,
+                                            navController = navController
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                     LaunchedEffect(listState) {
                         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == requestState?.lastIndex }
