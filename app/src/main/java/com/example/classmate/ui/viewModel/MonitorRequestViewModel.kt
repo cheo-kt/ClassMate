@@ -1,5 +1,6 @@
 package com.example.classmate.ui.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,6 +21,7 @@ import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
 import com.google.firebase.auth.FirebaseAuthException
 import com.example.classmate.domain.model.Subject
+import com.google.firebase.Timestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,8 +45,10 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
     val image: LiveData<String?> get() = _image
     private val _requestType = MutableLiveData(listOf<RequestType>())
     val requestType: LiveData<List<RequestType>> get() = _requestType
-    private val _requestListType = MutableLiveData(listOf<Request>())
-    val requestListType: LiveData<List<Request>> get() = _requestListType
+    private val _requestListType = MutableLiveData(listOf<Request?>())
+    val requestListType: LiveData<List<Request?>> get() = _requestListType
+    private val _requestByDate = MutableLiveData(listOf<Request?>())
+    val requestByDate: LiveData<List<Request?>> get() = _requestByDate
     fun getMonitor() {
         viewModelScope.launch(Dispatchers.IO) {
             val me = repoMonitor.getCurrentMonitor()
@@ -127,13 +131,22 @@ class MonitorRequestViewModel (val repoMonitor: MonitorRepository = MonitorRepos
             }
         }
     }
-    fun getRequestByType(type:String){
+    fun getRequestByType(type:String,monitorId:String){
         viewModelScope.launch (Dispatchers.IO){
             withContext(Dispatchers.Main){
-                requestRepo.getRequestByType(type)
+               _requestListType.value = requestRepo.getRequestByType(type,monitorId)
             }
         }
 
     }
+    fun getRequestByDateRange(timestampInitial: Timestamp,timestampFinal: Timestamp,monitor: Monitor){
+        viewModelScope.launch (Dispatchers.IO){
+            withContext(Dispatchers.Main){
+                _requestByDate.value = requestRepo.getRequestByDateRange(timestampInitial,timestampFinal,monitor)
+            }
+        }
+        Log.e("ERROR","HEREEEEEEE"+ (requestByDate.value?.size ?: "Nothing"))
+    }
+
 
 }

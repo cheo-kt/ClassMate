@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.classmate.domain.model.Appointment
 import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Notification
+import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Subject
@@ -25,6 +26,9 @@ interface RequestBroadcastService {
     suspend fun checkForOverlappingRequest(userId: String, requestBroadcast: RequestBroadcast): RequestBroadcast?
     suspend fun getRandomRequest(monitor: Monitor)
     suspend fun getRequestBroadcastType():List<RequestType>
+    suspend fun getRequestBroadcastByType(type: String,monitor: Monitor): List<RequestBroadcast>
+    suspend fun getRequestBroadcastByDateRange(timeStampInitial: Timestamp,timeStampFinal:Timestamp,monitor: Monitor): List<RequestBroadcast>
+
 }
 
 class RequestBroadcastServicesImpl: RequestBroadcastService {
@@ -145,4 +149,36 @@ class RequestBroadcastServicesImpl: RequestBroadcastService {
             emptyList<RequestType>()
         }
     }
+    override suspend fun getRequestBroadcastByType(type: String,monitor: Monitor): List<RequestBroadcast> {
+        val subjects = monitor.subjects.map { it.name }
+        return  try{
+            Firebase.firestore
+                .collection("requestBroadcast")
+                .whereIn("subjectname", subjects)
+                .whereEqualTo("type",type)
+                .get()
+                .await()
+                .toObjects(RequestBroadcast::class.java)
+        }catch (e: Exception){
+            emptyList<RequestBroadcast>()
+        }
+    }
+
+    override suspend fun getRequestBroadcastByDateRange(timeStampInitial: Timestamp,timeStampFinal:Timestamp,monitor: Monitor): List<RequestBroadcast> {
+        val subjects = monitor.subjects.map { it.name }
+        return try {
+            Firebase.firestore
+                .collection("requestBroadcast")
+                .whereIn("subjectname", subjects)
+                .whereGreaterThan("dateInitial",timeStampInitial)
+                .whereLessThan("dateInitial",timeStampFinal)
+                .get()
+                .await()
+                .toObjects(RequestBroadcast::class.java)
+        }catch (e:Exception){
+            emptyList<RequestBroadcast>()
+        }
+    }
+
+
 }

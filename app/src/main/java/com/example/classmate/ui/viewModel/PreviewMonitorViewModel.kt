@@ -23,7 +23,8 @@ class PreviewMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImp
     val limit = 2
     private val _opinionList = MutableLiveData(listOf<OpinionsAndQualifications?>())
     val opinionList: LiveData<List<OpinionsAndQualifications?>> get() = _opinionList
-
+    private val _image = MutableLiveData<String?>()
+    val image: LiveData<String?> get() = _image
 
 
     fun getOpinionMonitor(monitorId: String) {
@@ -45,6 +46,15 @@ class PreviewMonitorViewModel(val repo: MonitorRepository = MonitorRepositoryImp
                 e.printStackTrace()
                 viewModelScope.launch(Dispatchers.Main) { monitorState.value = 2 }
             }
+        }
+    }
+    fun getMonitorPhoto(imageUrl:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _image.value =  repo.getMonitorImage(imageUrl)
+
+            }
+
         }
     }
 

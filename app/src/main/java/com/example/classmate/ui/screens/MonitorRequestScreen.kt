@@ -35,10 +35,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,12 +72,23 @@ import com.example.classmate.domain.model.Request
 import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
 import com.example.classmate.domain.model.Subject
+import com.example.classmate.ui.components.DatePickerDialog
 import com.example.classmate.ui.components.DropdownMenuItemWithSeparator
+import com.example.classmate.ui.components.RequestBroadcastCard
 import com.example.classmate.ui.components.RequestCard
 import com.example.classmate.ui.viewModel.MonitorRequestViewModel
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: MonitorRequestViewModel = viewModel()) {
     val requestState by monitorRequestViewModel.list.observeAsState()
@@ -87,12 +102,11 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     val maxLength = 20
     val listState = rememberLazyListState()
     val requestTypeList by monitorRequestViewModel.requestType.observeAsState()
+    val requestLisFilteretypeState by monitorRequestViewModel.requestListType.observeAsState()
     var expandedFilter by remember { mutableStateOf(false) }
     var requestTypeListFilter by remember { mutableStateOf(emptyList<RequestType>()) }
     var subjectFilteredList by remember { mutableStateOf(emptyList<Subject>()) }
     var filteringType by remember { mutableStateOf("Filtrar") }
-    var isSearch= false
-    var filteredRequestTypeList by remember { mutableStateOf(emptyList<Request>()) }
     val image by monitorRequestViewModel.image.observeAsState()
     if(monitor?.photoUrl?.isNotEmpty() == true){
         monitor?.let { monitorRequestViewModel.getMonitorPhoto(it.photoUrl) }
@@ -101,10 +115,17 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
     var buttonMessageType by remember { mutableStateOf("") }
     var subjectIdList by remember { mutableStateOf(emptyList<String>()) }
     val subjectsState by monitorRequestViewModel.subjectList.observeAsState()
-
+    var fecha by remember { mutableStateOf("") }
+    var fechaFinal by remember { mutableStateOf("") }
+    val currentTime = Calendar.getInstance()
+    val today = LocalDate.now()
+    val requestByDateState by monitorRequestViewModel.requestByDate.observeAsState()
+    var datePickerVisibility by remember { mutableStateOf(false) }
+    var datePickerVisibility2 by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val datePickerState = rememberDatePickerState()
+    val datePickerState2 = rememberDatePickerState()
 
     LaunchedEffect (navBackStackEntry){
         monitorRequestViewModel.getMonitor()
@@ -165,7 +186,7 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                 .width(50.dp)
                                 .aspectRatio(1f)
                                 .background(Color.Transparent)
-                                .clickable(onClick = {navController.navigate("helpMonitor")})
+                                .clickable(onClick = { navController.navigate("helpMonitor") })
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.live_help),
@@ -349,9 +370,8 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
 
                                 }
                                 IconButton(onClick = {
-                                    isSearch = true
                                     if (filteringType == "Fecha") {
-                                        // homeMonitorViewModel.monitorsFilteredByName(filter)
+
                                     } else if (filteringType == "Materia") {
 
                                         if( buttonMessage != "Materia no seleccionada") {
@@ -359,8 +379,11 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                         }
 
                                     } else if (filteringType == "Tipo") {
-                                        if(buttonMessageType != ""){
-
+                                        if(buttonMessageType != "Tipo no seleccionado"){
+                                            monitor?.let {
+                                                monitorRequestViewModel.getRequestByType(buttonMessageType,
+                                                    it.id)
+                                            }
                                         }
                                     }
                                 }) {
@@ -559,6 +582,166 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                             }
                         }
                     }
+                    if(filteringType == "Fecha"){
+                        Column {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .border(2.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                                    .clip(RoundedCornerShape(16.dp))
+                            ) {
+
+                                Column(
+                                    verticalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+
+
+                                    OutlinedTextField(
+                                        value = fecha,
+                                        enabled = false,
+                                        onValueChange = {},
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                                        ),
+                                        label = { androidx.compose.material3.Text("Limite inferior") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                datePickerVisibility = true
+                                            },
+                                    )
+                                    OutlinedTextField(
+                                        value = fechaFinal,
+                                        enabled = false,
+                                        onValueChange = {},
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            disabledTextColor = Color.Black, // Color del texto cuando está deshabilitado
+                                            disabledBorderColor = Color.Black, // Color del borde cuando está deshabilitado
+                                            disabledLabelColor = Color.Black // Color de la etiqueta cuando está deshabilitada
+                                        ),
+                                        label = { androidx.compose.material3.Text("Limite superior") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                datePickerVisibility2 = true
+                                            },
+                                    )
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally){
+
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    DatePickerDialog(
+                                        visible = datePickerVisibility,
+                                        datePickerState = datePickerState
+                                    ) {
+                                        datePickerState.selectedDateMillis?.let {
+                                            val zonedDateTime = Instant.ofEpochMilli(it + 6 * 60 * 60 * 1000).atZone(
+                                                ZoneId.systemDefault())
+                                            val selectedDate = LocalDate.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault())
+
+                                            if (selectedDate.isBefore(today)) {
+                                                datePickerVisibility = false
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("Debe ser una fecha de hoy o después")
+                                                }
+                                            } else {
+                                                val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                                                fecha = formattedDate
+                                                datePickerVisibility = false
+                                            }
+                                        }
+
+                                    }
+                                    DatePickerDialog(
+                                        visible = datePickerVisibility2,
+                                        datePickerState = datePickerState2
+                                    ) {
+                                        datePickerState2.selectedDateMillis?.let {
+                                            val zonedDateTime = Instant.ofEpochMilli(it + 6 * 60 * 60 * 1000).atZone(
+                                                ZoneId.systemDefault())
+                                            val selectedDate = LocalDate.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault())
+
+                                            if (selectedDate.isBefore(today)) {
+                                                datePickerVisibility = false
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("Debe ser una fecha de hoy o después")
+                                                }
+                                            } else {
+                                                val formattedDate = DateTimeFormatter.ofPattern("dd/MM/yyyy").format(zonedDateTime)
+                                                fechaFinal = formattedDate
+                                                datePickerVisibility2 = false
+                                            }
+                                        }
+
+                                    }
+
+                                }
+
+
+                            }
+                            Button(
+                                onClick = {
+                                    if (fecha.isBlank()||fechaFinal.isBlank()) {
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar("Por favor selecciona una fecha y hora válidas.")
+                                        }
+                                        return@Button
+                                    }
+                                    val datetimeFinalString = "${fechaFinal.trim()} 24:00"
+                                    val datetimeInitialString = "${fecha.trim()} 00:00"
+
+                                    try {
+                                        val datetimeFinal = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeFinalString)
+                                        val datetimeInitial = SimpleDateFormat("dd/MM/yyyy HH:mm").parse(datetimeInitialString)
+                                        val currentDate = Date()
+
+                                        if (datetimeInitial != null && datetimeInitial.after(currentDate)) {
+                                            if(datetimeFinal != null && datetimeFinal.after(datetimeInitial)){
+                                                val timestampInitial = Timestamp(datetimeInitial)
+                                                val timestampFinal = Timestamp(datetimeFinal)
+                                                monitor?.let {
+                                                    Log.e("ERROR",datetimeInitialString)
+                                                    monitorRequestViewModel.getRequestByDateRange(timestampInitial,timestampFinal ,it)
+                                                }
+                                            }else{
+                                                scope.launch {
+                                                    snackbarHostState.currentSnackbarData?.dismiss()
+                                                    snackbarHostState.showSnackbar("No se puede elegir una fecha anterior a la de el limite inferior en el limite superior.")
+                                                }
+                                            }
+
+                                        } else {
+                                            scope.launch {
+                                                snackbarHostState.currentSnackbarData?.dismiss()
+                                                snackbarHostState.showSnackbar("No se puede elegir una fecha anterior a la actual.")
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        scope.launch {
+                                            snackbarHostState.currentSnackbarData?.dismiss()
+                                            snackbarHostState.showSnackbar("Formato de fecha y hora inválido.")
+                                        }
+                                    }
+                                }, colors = ButtonDefaults.buttonColors(
+                                    Color(0xFF209619),
+                                    Color.White
+                                ),
+                                modifier = Modifier.fillMaxWidth(0.8f)
+                            ){
+                                Text(text = "Buscar", color = Color.White)
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(10.dp))
                     androidx.compose.material3.Text(
@@ -578,6 +761,25 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     navController = navController
                                 )
                             }
+                        }else if(filteringType == "Tipo" && requestLisFilteretypeState?.isNotEmpty() == true){
+                            requestLisFilteretypeState?.let { requests ->
+                                RequestCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController = navController
+                                )
+                            }
+
+                        }else if(filteringType == "Fecha" && requestByDateState?.isNotEmpty() == true){
+                            requestByDateState?.let { requests ->
+                                RequestCard(
+                                    monitor = monitor,
+                                    requests = requests,
+                                    filter = filter,
+                                    navController = navController
+                                )
+                            }
                         }else{
                             requestState?.let { requests ->
                                 RequestCard(
@@ -587,7 +789,6 @@ fun MonitorRequestScreen(navController: NavController, monitorRequestViewModel: 
                                     navController = navController
                                 )
                             }
-
                         }
 
                     }

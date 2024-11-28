@@ -1,7 +1,10 @@
 package com.example.classmate.data.service
 
+import com.example.classmate.domain.model.Monitor
 import com.example.classmate.domain.model.Request
+import com.example.classmate.domain.model.RequestBroadcast
 import com.example.classmate.domain.model.RequestType
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -17,7 +20,8 @@ interface RequestService {
     suspend fun deleteRequestForMonitor(studentId: String, requestId: String)
     suspend fun deleteRequestForStudent(monitorId: String, requestId: String)
     suspend fun getRequestType():List<RequestType>
-    suspend fun getRequestByType(type:String):List<Request>
+    suspend fun getRequestByType(type:String,monitorId:String):List<Request>
+    suspend fun getRequestByDateRange(timeStampInitial: Timestamp, timeStampFinal: Timestamp, monitor: Monitor): List<Request>
 }
 
 
@@ -109,15 +113,37 @@ class RequestServicesImpl: RequestService {
         }
     }
 
-    override suspend fun getRequestByType(type: String): List<Request> {
+    override suspend fun getRequestByType(type: String,monitorId:String): List<Request> {
         return  try{
             Firebase.firestore
                 .collection("request")
-                .whereEqualTo("subjectname",type)
+                .whereEqualTo("monitorId",monitorId)
+                .whereEqualTo("type",type)
                 .get()
                 .await()
                 .toObjects(Request::class.java)
         }catch (e: Exception){
+            emptyList<Request>()
+        }
+    }
+
+    override suspend fun getRequestByDateRange(
+        timeStampInitial: Timestamp,
+        timeStampFinal: Timestamp,
+        monitor: Monitor
+    ): List<Request> {
+        val subjects = monitor.subjects.map { it.name }
+        return try {
+            Firebase.firestore
+                .collection("request")
+                .whereEqualTo("monitorId",monitor.id)
+                .whereIn("subjectname", subjects)
+                .whereGreaterThan("dateInitial",timeStampInitial)
+                .whereLessThan("dateInitial",timeStampFinal)
+                .get()
+                .await()
+                .toObjects(Request::class.java)
+        }catch (e:Exception){
             emptyList<Request>()
         }
     }
